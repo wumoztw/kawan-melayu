@@ -60,38 +60,9 @@ body {
     border-radius: 3px;
 }
 
-.tutorial-section {
-    background: var(--color-glass);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--color-border);
-    border-radius: 20px;
-    padding: 15px 24px;
-    margin-bottom: 20px;
-    max-width: 1150px;
-    margin-left: auto;
-    margin-right: auto;
-    box-shadow: var(--shadow-premium);
-    color: #e2e8f0;
-    font-size: 0.95rem;
-}
-
-.tutorial-section h3 {
-    color: #fbbf24;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.subtitle {
-    font-style: italic;
+.intro-text {
+    font-size: 0.9rem;
     color: var(--color-text-muted);
-}
-
-.text-highlight {
-    color: #4ade80;
-}
-
-.tutorial-section a {
-    color: #60a5fa;
-    text-decoration: underline;
 }
 
 .info-grid {
@@ -191,8 +162,38 @@ body {
 }
 
 .mud-title-sub {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-bottom: 12px;
+}
+
+.header-info {
     font-size: 0.9rem;
-    color: var(--color-text-muted);
+    color: #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    line-height: 1.5;
+}
+
+.welcome-text {
+    font-weight: 700;
+    color: #fbbf24;
+}
+
+.welcome-sub {
+    font-style: italic;
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+.api-links {
+    margin-top: 4px;
+}
+
+.api-links a {
+    color: #60a5fa;
+    text-decoration: underline;
 }
 
 .mud-status-bar {
