@@ -154,9 +154,12 @@
     };
 
     function extractTextForUI(text) {
-        let clean = text.replace(/<think>[\s\S]*?<\/think>/gi, '');
-        clean = clean.replace(/<action>[\s\S]*?<\/action>/gi, '');
-        clean = clean.replace(/```json/gi, '').replace(/```/gi, '');
+        // More robust cleanup: handles both properly closed and unclosed/malformed tags
+        let clean = text.replace(/<(?:think|action)>[\s\S]*?(?:<\/(?:think|action)>|$)/gi, '');
+        // Also cleanup potential hallucinated $action or stray tags
+        clean = clean.replace(/\$action>[\s\S]*?$/gi, '');
+        clean = clean.replace(/```json[\s\S]*?```/gi, '');
+        clean = clean.replace(/```[\s\S]*?```/gi, '');
         return clean.trim();
     }
 
