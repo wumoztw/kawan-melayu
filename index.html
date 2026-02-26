@@ -105,21 +105,30 @@
                 <div class="mud-loading" id="mudLoading">正在與在地嚮導連線...</div>
             </div>
 
-            <div class="mud-side-panel" id="mudSidePanel">
-                <div>
-                    <div class="panel-title">📚 Buku Kosa Kata (單字本)</div>
-                    <div id="inventoryList" class="vocab-list">
-                        (目前還沒有單字，趕快開口吧！)
-                    </div>
+            <div class="panel-header"
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--color-border); margin-bottom: 15px; padding-bottom: 5px;">
+                <div class="panel-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">📚 Kosa Kata
                 </div>
+                <button class="vocab-toggle-btn" onclick="toggleSidebar()"
+                    style="background: rgba(255,255,255,0.1); border: 1px solid var(--color-border); color: #fbbf24; border-radius: 4px; cursor: pointer; padding: 2px 6px; font-size: 0.8rem;">收起
+                    ◀</button>
             </div>
-
-            <div class="mud-input-area">
-                <input type="text" id="userInput" placeholder="用中文或馬來文回答 (例如：我要點 Nasi Lemak)..."
-                    onkeypress="handleKeyPress(event)">
-                <button id="sendBtn" onclick="sendMessage()">發送</button>
+            <div id="inventoryList" class="vocab-list">
+                (目前還沒有單字，趕快開口吧！)
             </div>
         </div>
+        <!-- Handle to reopen when collapsed -->
+        <div class="collapsed-handle" onclick="toggleSidebar()">
+            <span>📚</span>
+        </div>
+    </div>
+
+    <div class="mud-input-area">
+        <input type="text" id="userInput" placeholder="用中文或馬來文回答 (例如：我要點 Nasi Lemak)..."
+            onkeypress="handleKeyPress(event)">
+        <button id="sendBtn" onclick="sendMessage()">發送</button>
+    </div>
+    </div>
     </div>
 
     <script src="game.js"></script>

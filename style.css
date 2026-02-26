@@ -117,6 +117,11 @@ body {
     height: 130vh;
     box-shadow: var(--shadow-premium);
     color: #f1f5f9;
+    transition: grid-template-columns 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mud-container.sidebar-collapsed {
+    grid-template-columns: 1fr 0px;
 }
 
 .mud-header {
@@ -283,6 +288,40 @@ body {
     border-left: 1px solid var(--color-border);
     padding: 20px;
     overflow-y: auto;
+    overflow-x: hidden;
+    transition: all 0.4s ease;
+    position: relative;
+}
+
+.sidebar-collapsed .mud-side-panel {
+    padding: 0;
+    border-left: none;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Toggle handle when collapsed */
+.collapsed-handle {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--color-orange);
+    color: white;
+    width: 24px;
+    height: 60px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 8px 0 0 8px;
+    font-size: 1rem;
+    z-index: 100;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-collapsed .collapsed-handle {
+    display: flex;
 }
 
 .panel-title {

@@ -350,10 +350,27 @@
         appendUI(welcomeHtml, 'mud-ai', true);
     }, 500);
 
-    window.toggleHelpModal = function () {
-        const modal = document.getElementById('helpModal');
-        const isVisible = modal.style.display === 'flex';
-        modal.style.display = isVisible ? 'none' : 'flex';
+    window.toggleSidebar = function () {
+        const container = document.querySelector('.mud-container');
+        const isCollapsed = container.classList.toggle('sidebar-collapsed');
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
+
+        // Update button text if needed
+        const btn = document.querySelector('.vocab-toggle-btn');
+        if (btn) {
+            btn.innerText = isCollapsed ? '展開 ▶' : '收起 ◀';
+        }
     };
+
+    // Initialize sidebar state
+    document.addEventListener('DOMContentLoaded', () => {
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (isCollapsed) {
+            const container = document.querySelector('.mud-container');
+            if (container) container.classList.add('sidebar-collapsed');
+            const btn = document.querySelector('.vocab-toggle-btn');
+            if (btn) btn.innerText = '展開 ▶';
+        }
+    });
 
 })();
