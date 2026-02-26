@@ -92,9 +92,11 @@
                     <select id="modelSelect" onchange="saveConfig()">
                         <option value="auto">自動切換最佳模型</option>
                     </select>
-                    <button class="mud-btn mud-btn-save" onclick="saveGame()">💾 儲存進度</button>
-                    <button class="mud-btn mud-btn-load" onclick="document.getElementById('fileInput').click()">📂
-                        讀取進度</button>
+                    <div class="mud-btn-group">
+                        <button class="mud-btn mud-btn-save" onclick="saveGame()">💾 儲存進度</button>
+                        <button class="mud-btn mud-btn-load" onclick="document.getElementById('fileInput').click()">📂
+                            讀取進度</button>
+                    </div>
                     <input type="file" id="fileInput" style="display:none" onchange="loadGame(event)">
                 </div>
             </div>

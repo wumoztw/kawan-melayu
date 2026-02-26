@@ -450,6 +450,17 @@ body {
     min-width: 150px;
 }
 
+.mud-btn-group {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    min-width: 250px;
+}
+
+.mud-btn-group .mud-btn {
+    flex: 1;
+}
+
 .mud-btn {
     height: 40px;
     border-radius: 8px;
@@ -572,10 +583,27 @@ body {
         gap: 6px;
     }
 
+    .mud-btn-group {
+        width: 100%;
+        min-width: unset;
+    }
+
     .mud-row select,
     .mud-row input,
-    .mud-btn {
+    .mud-btn-group {
         width: 100% !important;
+    }
+
+    .mud-row select,
+    .mud-row input {
+        height: 38px;
+        font-size: 0.85rem;
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: white !important;
+        border: 1px solid var(--color-border) !important;
+    }
+
+    .mud-btn {
         height: 38px;
         font-size: 0.85rem;
         background: rgba(255, 255, 255, 0.05) !important;
