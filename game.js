@@ -83,23 +83,38 @@
     };
 
     window.saveConfig = function () {
-        localStorage.setItem('mud_api_key', document.getElementById('apiKey').value.trim());
-        localStorage.setItem('mud_api_provider', document.getElementById('apiProvider').value);
-        localStorage.setItem('mud_selected_model', document.getElementById('modelSelect').value);
+        const providerKey = document.getElementById('apiProvider').value;
+        const apiKey = document.getElementById('apiKey').value.trim();
+        const selectedModel = document.getElementById('modelSelect').value;
+
+        // Store general preference
+        localStorage.setItem('mud_api_provider', providerKey);
+        localStorage.setItem('mud_selected_model', selectedModel);
+
+        // Store key specifically for this provider
+        if (apiKey) {
+            localStorage.setItem(`mud_api_key_${providerKey}`, apiKey);
+        }
     };
 
     window.handleProviderChange = function () {
         const providerKey = document.getElementById('apiProvider').value;
         const modelSelect = document.getElementById('modelSelect');
+        const apiKeyInput = document.getElementById('apiKey');
         const provider = PROVIDERS[providerKey];
 
         modelSelect.innerHTML = provider.models.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
 
+        // Restore provider-specific key
+        const savedKey = localStorage.getItem(`mud_api_key_${providerKey}`);
+        apiKeyInput.value = savedKey || "";
+
         const savedModel = localStorage.getItem('mud_selected_model');
         if (savedModel && provider.models.some(m => m.id === savedModel)) {
             modelSelect.value = savedModel;
+        } else {
+            modelSelect.value = provider.models[0].id;
         }
-        saveConfig();
     };
 
     window.updateStatusUI = function () {
@@ -362,14 +377,25 @@
         }
     };
 
-    // Initialize sidebar state
+    // Initialize sidebar and API settings state
     document.addEventListener('DOMContentLoaded', () => {
+        // Restore Sidebar
         const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
         if (isCollapsed) {
             const container = document.querySelector('.mud-container');
             if (container) container.classList.add('sidebar-collapsed');
             const btn = document.querySelector('.vocab-toggle-btn');
             if (btn) btn.innerText = '展開 ▶';
+        }
+
+        // Restore API Provider and Key
+        const savedProvider = localStorage.getItem('mud_api_provider');
+        if (savedProvider && PROVIDERS[savedProvider]) {
+            const providerSelect = document.getElementById('apiProvider');
+            if (providerSelect) {
+                providerSelect.value = savedProvider;
+                handleProviderChange(); // This will also restore the key for this provider
+            }
         }
     });
 
