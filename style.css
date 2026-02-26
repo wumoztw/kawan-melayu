@@ -294,6 +294,8 @@ body {
 }
 
 .sidebar-collapsed .mud-side-panel {
+    display: none !important;
+    /* Completely hide when collapsed */
     padding: 0;
     border-left: none;
     opacity: 0;

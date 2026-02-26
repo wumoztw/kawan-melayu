@@ -385,9 +385,9 @@
         // Check if on mobile
         const isMobile = window.innerWidth <= 768;
 
-        // Restore Sidebar (Default to collapsed on mobile if no preference)
+        // Restore Sidebar (Default to collapsed on ALL devices if no preference)
         let savedCollapsed = localStorage.getItem('sidebarCollapsed');
-        let shouldCollapse = savedCollapsed === 'true' || (savedCollapsed === null && isMobile);
+        let shouldCollapse = savedCollapsed !== 'false'; // null or 'true' will both result in collapse
 
         const container = document.querySelector('.mud-container');
         if (shouldCollapse && container) {
