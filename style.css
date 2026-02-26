@@ -65,13 +65,14 @@ body {
     backdrop-filter: blur(12px);
     border: 1px solid var(--color-border);
     border-radius: 20px;
-    padding: 24px;
-    margin-bottom: 24px;
+    padding: 15px 24px;
+    margin-bottom: 20px;
     max-width: 1150px;
     margin-left: auto;
     margin-right: auto;
     box-shadow: var(--shadow-premium);
     color: #e2e8f0;
+    font-size: 0.95rem;
 }
 
 .tutorial-section h3 {
@@ -97,7 +98,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
-    margin-top: 15px;
+    margin-top: 10px;
 }
 
 .info-card {
@@ -141,7 +142,7 @@ body {
     background: var(--color-glass);
     backdrop-filter: blur(15px);
     overflow: hidden;
-    height: 85vh;
+    height: 90vh;
     box-shadow: var(--shadow-premium);
     color: #f1f5f9;
 }
