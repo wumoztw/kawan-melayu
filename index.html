@@ -25,14 +25,24 @@
             <a href="https://aistudio.google.com/app/apikey" target="_blank">Gemini</a> |
             <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a>
         </p>
-        <div class="info-grid">
-            <div class="info-card green-card">
-                <div class="card-title">[ 學習機制 ]</div>
-                <div>AI 會根據你的程度調整中/馬來文比例。勇敢對話，提升你的「流暢度」與「等級」！</div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal-overlay" onclick="if(event.target === this) toggleHelpModal()">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📖 遊戲說明</h2>
+                <button class="close-btn" onclick="toggleHelpModal()">&times;</button>
             </div>
-            <div class="info-card orange-card">
-                <div class="card-title">[ 狀態說明 ]</div>
-                <div>留意 ❤️ 自信心 (答錯會扣除) 與 ⚡ 流暢度 (對話成功會增加)。學到的單字會自動加入單字本。</div>
+            <div class="info-grid">
+                <div class="info-card green-card">
+                    <div class="card-title">[ 學習機制 ]</div>
+                    <div>AI 會根據你的程度調整中/馬來文比例。勇敢對話，提升你的「流暢度」與「等級」！</div>
+                </div>
+                <div class="info-card orange-card">
+                    <div class="card-title">[ 狀態說明 ]</div>
+                    <div>留意 ❤️ 自信心 (答錯會扣除) 與 ⚡ 流暢度 (對話成功會增加)。學到的單字會自動加入單字本。</div>
+                </div>
             </div>
         </div>
     </div>
@@ -40,7 +50,10 @@
     <div id="mud-app-root">
         <div class="mud-container">
             <div class="mud-header">
-                <div class="mud-title-main">Kawan Melayu</div>
+                <div class="header-top">
+                    <div class="mud-title-main">Kawan Melayu</div>
+                    <button class="help-trigger" onclick="toggleHelpModal()">❓ 說明</button>
+                </div>
                 <div class="mud-title-sub">情境式馬來文學習夥伴 v1.0</div>
             </div>
 

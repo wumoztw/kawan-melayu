@@ -350,4 +350,10 @@
         appendUI(welcomeHtml, 'mud-ai', true);
     }, 500);
 
+    window.toggleHelpModal = function () {
+        const modal = document.getElementById('helpModal');
+        const isVisible = modal.style.display === 'flex';
+        modal.style.display = isVisible ? 'none' : 'flex';
+    };
+
 })();
