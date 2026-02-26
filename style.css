@@ -362,11 +362,13 @@ body {
     grid-row: 4;
     height: 100%;
     overflow-y: auto;
-    padding: 30px;
+    padding: 30px 30px 10px 30px;
+    /* Reduced bottom padding */
     display: flex;
     flex-direction: column;
     gap: 20px;
-    background: rgba(255, 255, 255, 0.02);
+    background: transparent;
+    /* Shared with container */
 }
 
 .mud-msg {
@@ -403,11 +405,13 @@ body {
 .mud-input-area {
     grid-column: 1;
     grid-row: 5;
-    padding: 24px;
-    background: rgba(255, 255, 255, 0.05);
+    padding: 10px 30px 30px 30px;
+    /* Aligned with chat padding */
+    background: transparent;
     display: flex;
     gap: 15px;
-    border-top: 1px solid var(--color-border);
+    border-top: none;
+    /* Removed the line */
     align-items: center;
 }
 
@@ -696,11 +700,12 @@ body {
         border-radius: 15px;
     }
 
-    /* Input Area */
+    /* Input Area: Keep separate for sticky mobile feel */
     .mud-input-area {
         padding: 12px 15px;
         gap: 10px;
         background: rgba(15, 23, 42, 0.98);
+        border-top: 1px solid var(--color-border);
     }
 
     .mud-input-area input {
