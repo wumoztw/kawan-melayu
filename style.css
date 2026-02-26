@@ -43,6 +43,7 @@ body {
     margin: 0;
     padding: 20px;
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
 }
@@ -490,54 +491,63 @@ body {
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     body {
-        padding: 10px;
+        padding: 0;
+        /* Full width for mobile */
     }
 
-    .info-grid {
-        grid-template-columns: 1fr;
+    #mud-app-root {
+        gap: 0;
     }
 
     .mud-container {
         grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto 1fr auto;
-        height: 90vh;
+        grid-template-rows: auto auto auto 1fr auto auto;
+        height: 100vh;
+        height: 100dvh;
+        border-radius: 0;
+        border: none;
+    }
+
+    .mud-header {
+        padding: 15px;
+    }
+
+    .header-info .welcome-sub,
+    .header-info .intro-text {
+        display: none;
+        /* Compress header */
+    }
+
+    .api-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+        font-size: 0.8rem;
     }
 
     .mud-status-bar {
-        flex-direction: column;
-        gap: 15px;
-        align-items: flex-start;
-        padding: 15px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 10px;
+        justify-items: center;
     }
 
     .mud-status-item {
         width: 100%;
-        justify-content: space-between;
+        flex-direction: column;
+        gap: 5px;
+        font-size: 0.8rem;
     }
 
     .mud-val-container {
-        width: 60%;
+        width: 100%;
+        max-width: 100px;
     }
 
-    .mud-side-panel {
-        grid-column: 1;
-        grid-row: 5;
-        border-left: none;
-        border-top: 1px solid var(--color-border);
-        height: auto;
-        max-height: 200px;
-    }
-
-    .mud-input-area {
-        grid-row: 4;
-        padding: 15px;
-        position: sticky;
-        bottom: 0;
-        background: #fff;
-    }
-
-    .mud-chat-box {
-        padding: 15px;
+    .mud-settings {
+        padding: 10px;
     }
 
     .mud-row {
@@ -548,20 +558,48 @@ body {
     .mud-row select,
     .mud-row input,
     .mud-btn {
-        height: 45px;
-        width: 100%;
+        width: 100% !important;
+        height: 42px;
         flex: none;
     }
 
-    .mud-row select#apiProvider,
-    .mud-row input#apiKey,
-    .mud-row select#modelSelect {
-        width: 100%;
-        min-width: unset;
+    .mud-chat-box {
+        padding: 15px;
+        gap: 15px;
     }
 
-    .mud-settings {
-        padding: 10px;
+    .mud-msg {
+        max-width: 92%;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+
+    .mud-side-panel {
+        grid-column: 1;
+        grid-row: 6;
+        /* Move vocab to bottom */
+        border-left: none;
+        border-top: 1px solid var(--color-border);
+        max-height: 250px;
+        padding: 15px;
+    }
+
+    .mud-input-area {
+        grid-row: 5;
+        padding: 15px;
+        position: sticky;
+        bottom: 0;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(10px);
+    }
+
+    .mud-input-area input {
+        padding: 10px 15px;
+    }
+
+    .mud-input-area button {
+        padding: 0 20px;
+        height: 48px;
     }
 }
 
