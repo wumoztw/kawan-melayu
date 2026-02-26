@@ -164,7 +164,12 @@
     }
 
     function applyActionDeltas(text) {
-        let match = text.match(/<action>([\s\S]*?)<\/action>/i);
+        // Robust match for <action> or $action> style blocks
+        let match = text.match(/<(?:action|\$action)>([\s\S]*?)(?:<\/(?:action)>|$)/i);
+        if (!match) {
+            match = text.match(/\$action>([\s\S]*?)$/i);
+        }
+
         if (match) {
             try {
                 let jsonString = match[1].replace(/```json/gi, '').replace(/```/gi, '').trim();
@@ -174,8 +179,16 @@
                 if (typeof action.flu_delta === 'number') gameState.fluency += action.flu_delta;
                 if (typeof action.level_delta === 'number') gameState.level += action.level_delta;
                 if (action.location && action.location !== "null") gameState.location = action.location;
-                if (action.vocab_added && action.vocab_added !== "null" && !gameState.vocabulary.includes(action.vocab_added)) {
-                    gameState.vocabulary.push(action.vocab_added);
+
+                if (action.vocab_added && action.vocab_added !== "null") {
+                    // Split by comma to handle multiple words in one go
+                    let words = action.vocab_added.split(/[,，]/);
+                    words.forEach(w => {
+                        let trimmed = w.trim();
+                        if (trimmed && !gameState.vocabulary.includes(trimmed)) {
+                            gameState.vocabulary.push(trimmed);
+                        }
+                    });
                 }
             } catch (e) {
                 console.warn("JSON 格式解析錯誤，略過數值變更", e);
