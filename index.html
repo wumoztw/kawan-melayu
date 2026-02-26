@@ -1,105 +1,113 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kawan Melayu 馬來文夥伴</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
+
 <body>
 
-<div class="tutorial-section">
-    <h3>🌴 Selamat Datang! 歡迎來到馬來西亞</h3>
-    <p class="subtitle">「跟著在地嚮導，一步步學會道地的馬來西亞日常用語吧！」</p>
-    <p>
-        這是一個情境式的馬來文學習系統，由 AI 扮演在地朋友與你互動。<br>
-        <span class="text-highlight">▶ 取得 API Key：</span>
-        <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a> | 
-        <a href="https://console.groq.com/keys" target="_blank">Groq</a> | 
-        <a href="https://aistudio.google.com/app/apikey" target="_blank">Gemini</a> | 
-        <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a>
-    </p>
-    <div class="info-grid">
-        <div class="info-card green-card">
-            <div class="card-title">[ 學習機制 ]</div>
-            <div>AI 會根據你的程度調整中/馬來文比例。勇敢對話，提升你的「流暢度」與「等級」！</div>
-        </div>
-        <div class="info-card orange-card">
-            <div class="card-title">[ 狀態說明 ]</div>
-            <div>留意 ❤️ 自信心 (答錯會扣除) 與 ⚡ 流暢度 (對話成功會增加)。學到的單字會自動加入單字本。</div>
+    <div class="tutorial-section">
+        <h3>🌴 Selamat Datang! 歡迎來到馬來西亞</h3>
+        <p class="subtitle">「跟著在地嚮導，一步步學會道地的馬來西亞日常用語吧！」</p>
+        <p>
+            這是一個情境式的馬來文學習系統，由 AI 扮演在地朋友與你互動。<br>
+            <span class="text-highlight">▶ 取得 API Key：</span>
+            <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a> |
+            <a href="https://console.groq.com/keys" target="_blank">Groq</a> |
+            <a href="https://aistudio.google.com/app/apikey" target="_blank">Gemini</a> |
+            <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a>
+        </p>
+        <div class="info-grid">
+            <div class="info-card green-card">
+                <div class="card-title">[ 學習機制 ]</div>
+                <div>AI 會根據你的程度調整中/馬來文比例。勇敢對話，提升你的「流暢度」與「等級」！</div>
+            </div>
+            <div class="info-card orange-card">
+                <div class="card-title">[ 狀態說明 ]</div>
+                <div>留意 ❤️ 自信心 (答錯會扣除) 與 ⚡ 流暢度 (對話成功會增加)。學到的單字會自動加入單字本。</div>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="mud-app-root">
-    <div class="mud-container">
-        <div class="mud-header">
-            <div class="mud-title-main">Kawan Melayu</div>
-            <div class="mud-title-sub">情境式馬來文學習夥伴 v1.0</div>
-        </div>
+    <div id="mud-app-root">
+        <div class="mud-container">
+            <div class="mud-header">
+                <div class="mud-title-main">Kawan Melayu</div>
+                <div class="mud-title-sub">情境式馬來文學習夥伴 v1.0</div>
+            </div>
 
-        <div class="mud-status-bar" id="mudStatusBar">
-            <div class="mud-status-item">
-                <span style="color: var(--color-red); font-weight: bold;">❤️ 自信心</span>
-                <div class="mud-val-container">
-                    <div id="hpBar" class="mud-progress progress-hp" style="width: 100%;"></div>
+            <div class="mud-status-bar" id="mudStatusBar">
+                <div class="mud-status-item">
+                    <span style="color: var(--color-red); font-weight: bold;">❤️ 自信心</span>
+                    <div class="mud-val-container">
+                        <div id="hpBar" class="mud-progress progress-hp" style="width: 100%;"></div>
+                    </div>
+                    <span id="hpVal" class="mud-val">100</span>
                 </div>
-                <span id="hpVal" class="mud-val">100</span>
-            </div>
-            <div class="mud-status-item">
-                <span style="color: var(--color-blue); font-weight: bold;">⚡ 流暢度</span>
-                <div class="mud-val-container">
-                    <div id="enBar" class="mud-progress progress-en" style="width: 0%;"></div>
+                <div class="mud-status-item">
+                    <span style="color: var(--color-blue); font-weight: bold;">⚡ 流暢度</span>
+                    <div class="mud-val-container">
+                        <div id="enBar" class="mud-progress progress-en" style="width: 0%;"></div>
+                    </div>
+                    <span id="enVal" class="mud-val">0</span>
                 </div>
-                <span id="enVal" class="mud-val">0</span>
-            </div>
-            <div class="mud-status-item">
-                <span class="level-tag" id="levelVal">Lv. 1 初學者</span>
-            </div>
-            <div class="mud-status-item">
-                <span class="location-tag" id="locVal">初始化中...</span>
-            </div>
-        </div>
-
-        <div class="mud-settings">
-                <select id="apiProvider" onchange="handleProviderChange()">
-                    <option value="openrouter">OpenRouter</option>
-                    <option value="groq">Groq</option>
-                    <option value="gemini">Google Gemini</option>
-                    <option value="openai">OpenAI</option>
-                </select>
-                <input type="password" id="apiKey" placeholder="輸入 API Key" onchange="saveConfig()">
-                <select id="modelSelect" onchange="saveConfig()">
-                    <option value="auto">自動切換最佳模型</option>
-                </select>
-                <button class="mud-btn mud-btn-save" onclick="saveGame()">💾 儲存進度</button>
-                <button class="mud-btn mud-btn-load" onclick="document.getElementById('fileInput').click()">📂 讀取進度</button>
-                <input type="file" id="fileInput" style="display:none" onchange="loadGame(event)">
-            </div>
-        </div>
-
-        <div class="mud-chat-box" id="mudChatBox">
-            <div class="mud-loading" id="mudLoading">正在與在地嚮導連線...</div>
-        </div>
-
-        <div class="mud-side-panel" id="mudSidePanel">
-            <div>
-                <div class="panel-title">📚 Buku Kosa Kata (單字本)</div>
-                <div id="inventoryList" class="vocab-list">
-                    (目前還沒有單字，趕快開口吧！)
+                <div class="mud-status-item">
+                    <span class="level-tag" id="levelVal">Lv. 1 初學者</span>
+                </div>
+                <div class="mud-status-item">
+                    <span class="location-tag" id="locVal">初始化中...</span>
                 </div>
             </div>
-        </div>
 
-        <div class="mud-input-area">
-            <input type="text" id="userInput" placeholder="用中文或馬來文回答 (例如：我要點 Nasi Lemak)..." onkeypress="handleKeyPress(event)">
-            <button id="sendBtn" onclick="sendMessage()">發送</button>
+            <div class="mud-settings">
+                <div class="mud-row">
+                    <select id="apiProvider" onchange="handleProviderChange()">
+                        <option value="openrouter">OpenRouter</option>
+                        <option value="groq">Groq</option>
+                        <option value="gemini">Google Gemini</option>
+                        <option value="openai">OpenAI</option>
+                    </select>
+                    <input type="password" id="apiKey" placeholder="輸入 API Key" onchange="saveConfig()">
+                    <select id="modelSelect" onchange="saveConfig()">
+                        <option value="auto">自動切換最佳模型</option>
+                    </select>
+                    <button class="mud-btn mud-btn-save" onclick="saveGame()">💾 儲存進度</button>
+                    <button class="mud-btn mud-btn-load" onclick="document.getElementById('fileInput').click()">📂
+                        讀取進度</button>
+                    <input type="file" id="fileInput" style="display:none" onchange="loadGame(event)">
+                </div>
+            </div>
+
+            <div class="mud-chat-box" id="mudChatBox">
+                <div class="mud-loading" id="mudLoading">正在與在地嚮導連線...</div>
+            </div>
+
+            <div class="mud-side-panel" id="mudSidePanel">
+                <div>
+                    <div class="panel-title">📚 Buku Kosa Kata (單字本)</div>
+                    <div id="inventoryList" class="vocab-list">
+                        (目前還沒有單字，趕快開口吧！)
+                    </div>
+                </div>
+            </div>
+
+            <div class="mud-input-area">
+                <input type="text" id="userInput" placeholder="用中文或馬來文回答 (例如：我要點 Nasi Lemak)..."
+                    onkeypress="handleKeyPress(event)">
+                <button id="sendBtn" onclick="sendMessage()">發送</button>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="game.js"></script>
+    <script src="game.js"></script>
 </body>
+
 </html>
