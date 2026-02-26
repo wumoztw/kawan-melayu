@@ -587,6 +587,7 @@ body {
     .mud-btn-group {
         width: 100%;
         min-width: unset;
+        gap: 5px;
     }
 
     .mud-row select,
@@ -596,20 +597,19 @@ body {
     }
 
     .mud-row select,
-    .mud-row input {
-        height: 38px;
-        font-size: 0.85rem;
+    .mud-row input,
+    .mud-btn-group > * {
+        height: 36px;
+        font-size: 0.75rem;
         background: rgba(255, 255, 255, 0.05) !important;
         color: white !important;
         border: 1px solid var(--color-border) !important;
     }
 
     .mud-btn {
-        height: 38px;
-        font-size: 0.85rem;
-        background: rgba(255, 255, 255, 0.05) !important;
-        color: white !important;
-        border: 1px solid var(--color-border) !important;
+        padding: 0 5px;
+        height: 36px;
+        font-size: 0.75rem;
     }
 
     .mud-row select option {
