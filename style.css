@@ -501,6 +501,10 @@ body {
     flex: 1;
 }
 
+.mobile-vocab-toggle {
+    display: none;
+}
+
 .mud-btn {
     height: 40px;
     border-radius: 8px;
@@ -695,13 +699,39 @@ body {
         font-size: 0.95rem;
     }
 
-    /* Vocab at bottom */
+    /* Vocab at bottom - Toggleable on mobile */
     .mud-side-panel {
         grid-row: 6;
         grid-column: 1;
-        max-height: 200px;
-        padding: 12px;
+        max-height: 250px;
+        padding: 15px;
         background: rgba(0, 0, 0, 0.2);
+        display: block;
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .sidebar-collapsed .mud-side-panel {
+        display: none !important;
+    }
+
+    .vocab-toggle-btn,
+    .collapsed-handle {
+        display: none !important;
+    }
+
+    .mobile-vocab-toggle {
+        display: flex;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        width: 48px;
+        height: 48px;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        cursor: pointer;
+        flex-shrink: 0;
     }
 }
 
