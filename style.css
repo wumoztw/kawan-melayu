@@ -702,6 +702,8 @@ body {
 
     /* Input Area: Keep separate for sticky mobile feel */
     .mud-input-area {
+        grid-row: 6;
+        /* Ensure it's at the very bottom below vocab */
         padding: 12px 15px;
         gap: 10px;
         background: rgba(15, 23, 42, 0.98);
@@ -720,13 +722,24 @@ body {
         font-size: 0.95rem;
     }
 
-    /* Vocab at bottom - Toggleable on mobile */
+    /* Vocab panel - Default hidden on mobile */
     .mud-side-panel {
-        grid-row: 6;
+        grid-row: 5;
+        /* Above input, below chat */
         grid-column: 1;
         max-height: 250px;
         padding: 15px;
-        background: rgba(0, 0, 0, 0.2);
+        background: rgba(0, 0, 0, 0.4);
+        display: none;
+        /* Hidden by default */
+        opacity: 0;
+        pointer-events: none;
+        border-left: none;
+        border-top: 1px solid var(--color-border);
+    }
+
+    /* Shown only when NOT collapsed */
+    .mud-container:not(.sidebar-collapsed) .mud-side-panel {
         display: block;
         opacity: 1;
         pointer-events: auto;

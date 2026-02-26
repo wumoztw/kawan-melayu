@@ -379,11 +379,16 @@
 
     // Initialize sidebar and API settings state
     document.addEventListener('DOMContentLoaded', () => {
-        // Restore Sidebar
-        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-        if (isCollapsed) {
-            const container = document.querySelector('.mud-container');
-            if (container) container.classList.add('sidebar-collapsed');
+        // Check if on mobile
+        const isMobile = window.innerWidth <= 768;
+
+        // Restore Sidebar (Default to collapsed on mobile if no preference)
+        let savedCollapsed = localStorage.getItem('sidebarCollapsed');
+        let shouldCollapse = savedCollapsed === 'true' || (savedCollapsed === null && isMobile);
+
+        const container = document.querySelector('.mud-container');
+        if (shouldCollapse && container) {
+            container.classList.add('sidebar-collapsed');
             const btn = document.querySelector('.vocab-toggle-btn');
             if (btn) btn.innerText = '展開 ▶';
         }
