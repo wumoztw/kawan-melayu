@@ -588,6 +588,9 @@ body {
         width: 100%;
         min-width: unset;
         gap: 5px;
+        flex-direction: row !important;
+        /* Force horizontal alignment */
+        flex-wrap: nowrap !important;
     }
 
     .mud-row select,
@@ -598,12 +601,16 @@ body {
 
     .mud-row select,
     .mud-row input,
-    .mud-btn-group > * {
+    .mud-btn-group>* {
         height: 36px;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
+        /* Even smaller to fit 3 items horizontally */
         background: rgba(255, 255, 255, 0.05) !important;
         color: white !important;
         border: 1px solid var(--color-border) !important;
+        flex: 1;
+        min-width: 0;
+        /* Allow shrinking */
     }
 
     .mud-btn {
