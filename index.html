@@ -15,8 +15,11 @@
     <p class="subtitle">「跟著在地嚮導，一步步學會道地的馬來西亞日常用語吧！」</p>
     <p>
         這是一個情境式的馬來文學習系統，由 AI 扮演在地朋友與你互動。<br>
-        <span class="text-highlight">▶ 建議連線憑證：</span>
-        <a href="https://openrouter.ai/keys" target="_blank">取得 OpenRouter API Key</a>
+        <span class="text-highlight">▶ 取得 API Key：</span>
+        <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a> | 
+        <a href="https://console.groq.com/keys" target="_blank">Groq</a> | 
+        <a href="https://aistudio.google.com/app/apikey" target="_blank">Gemini</a> | 
+        <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a>
     </p>
     <div class="info-grid">
         <div class="info-card green-card">
@@ -61,11 +64,15 @@
         </div>
 
         <div class="mud-settings">
-            <div class="mud-row">
-                <input type="password" id="apiKey" placeholder="輸入 API Key (OpenRouter)" onchange="saveConfig()">
+                <select id="apiProvider" onchange="handleProviderChange()">
+                    <option value="openrouter">OpenRouter</option>
+                    <option value="groq">Groq</option>
+                    <option value="gemini">Google Gemini</option>
+                    <option value="openai">OpenAI</option>
+                </select>
+                <input type="password" id="apiKey" placeholder="輸入 API Key" onchange="saveConfig()">
                 <select id="modelSelect" onchange="saveConfig()">
                     <option value="auto">自動切換最佳模型</option>
-                    <option value="force-deepseek">強制使用 DeepSeek (邏輯強化)</option>
                 </select>
                 <button class="mud-btn mud-btn-save" onclick="saveGame()">💾 儲存進度</button>
                 <button class="mud-btn mud-btn-load" onclick="document.getElementById('fileInput').click()">📂 讀取進度</button>

@@ -4,12 +4,12 @@
     }
 
     // 遊戲狀態初始化
-    let gameState = { 
-        confidence: 100, 
-        fluency: 0, 
-        level: 1, 
-        location: "吉隆坡街頭的嘛嘛檔 (Mamak Stall)", 
-        vocabulary: [] 
+    let gameState = {
+        confidence: 100,
+        fluency: 0,
+        level: 1,
+        location: "吉隆坡街頭的嘛嘛檔 (Mamak Stall)",
+        vocabulary: []
     };
     let messageHistory = [];
     let lastRequestTime = 0;
@@ -43,17 +43,71 @@
 已學會單字: ${gameState.vocabulary.join(', ') || '無'}`;
     }
 
+    const PROVIDERS = {
+        openrouter: {
+            name: "OpenRouter",
+            baseUrl: "https://openrouter.ai/api/v1/chat/completions",
+            models: [
+                { id: "auto", name: "自動切換最佳模型" },
+                { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B (Free)" },
+                { id: "deepseek/deepseek-r1-distill-llama-70b:free", name: "DeepSeek R1 (Free)" }
+            ]
+        },
+        groq: {
+            name: "Groq",
+            baseUrl: "https://api.groq.com/openai/v1/chat/completions",
+            models: [
+                { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B" },
+                { id: "deepseek-r1-distill-llama-70b", name: "DeepSeek R1 70B" },
+                { id: "mixtral-8x7b-32768", name: "Mixtral 8x7B" }
+            ]
+        },
+        gemini: {
+            name: "Google Gemini",
+            baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+            models: [
+                { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash" },
+                { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro" },
+                { id: "gemini-2.0-flash-exp", name: "Gemini 2.0 Flash" }
+            ]
+        },
+        openai: {
+            name: "OpenAI",
+            baseUrl: "https://api.openai.com/v1/chat/completions",
+            models: [
+                { id: "gpt-4o-mini", name: "GPT-4o Mini" },
+                { id: "gpt-4o", name: "GPT-4o" },
+                { id: "o1-mini", name: "o1 Mini" }
+            ]
+        }
+    };
+
     window.saveConfig = function () {
         localStorage.setItem('mud_api_key', document.getElementById('apiKey').value.trim());
+        localStorage.setItem('mud_api_provider', document.getElementById('apiProvider').value);
+        localStorage.setItem('mud_selected_model', document.getElementById('modelSelect').value);
+    };
+
+    window.handleProviderChange = function () {
+        const providerKey = document.getElementById('apiProvider').value;
+        const modelSelect = document.getElementById('modelSelect');
+        const provider = PROVIDERS[providerKey];
+
+        modelSelect.innerHTML = provider.models.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+
+        const savedModel = localStorage.getItem('mud_selected_model');
+        if (savedModel && provider.models.some(m => m.id === savedModel)) {
+            modelSelect.value = savedModel;
+        }
+        saveConfig();
     };
 
     window.updateStatusUI = function () {
-        // 確保數值在合理範圍
+        // ... (unchanged code)
         if (gameState.confidence > 100) gameState.confidence = 100;
         if (gameState.confidence < 0) gameState.confidence = 0;
         if (gameState.fluency < 0) gameState.fluency = 0;
         if (gameState.fluency >= 100) {
-            // 流暢度滿 100 自動升級
             gameState.level += 1;
             gameState.fluency -= 100;
         }
@@ -66,7 +120,6 @@
         document.getElementById('hpBar').style.width = gameState.confidence + '%';
         document.getElementById('enBar').style.width = gameState.fluency + '%';
 
-        // 更新單字本
         const invList = document.getElementById('inventoryList');
         if (gameState.vocabulary.length > 0) {
             invList.innerHTML = gameState.vocabulary.map(item => `<div class="vocab-item">${item}</div>`).join('');
@@ -74,7 +127,6 @@
             invList.innerHTML = '(目前還沒有單字，趕快開口吧！)';
         }
 
-        // 每次 UI 更新時，順便更新給 AI 看的提示詞
         if (messageHistory.length > 0 && messageHistory[0].role === 'system') {
             messageHistory[0].content = buildSystemPrompt();
         }
@@ -116,6 +168,8 @@
 
     window.sendMessage = async function () {
         const key = document.getElementById('apiKey').value.trim();
+        const providerKey = document.getElementById('apiProvider').value;
+        const modelId = document.getElementById('modelSelect').value;
         const input = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
         const text = input.value.trim();
@@ -123,7 +177,7 @@
         if (input.disabled || !text) return;
 
         if (!key) {
-            appendUI(`[系統提示：請先在上方輸入 OpenRouter API Key 才能開始連線喔！]`, 'mud-ai', true);
+            appendUI(`[系統提示：請先在上方輸入 API Key 才能開始連線喔！]`, 'mud-ai', true);
             return;
         }
 
@@ -148,19 +202,27 @@
         messageHistory.push({ role: "user", content: text });
 
         let payloadMessages = JSON.parse(JSON.stringify(messageHistory));
-        // 強制兼容模式：把 System 轉 User 防止部分免費模型報錯
         if (payloadMessages[0].role === 'system') {
             payloadMessages[0].role = 'user';
             payloadMessages[0].content = "[系統底層設定]\n" + payloadMessages[0].content;
         }
 
-        const modeSelected = document.getElementById('modelSelect').value;
-        const activeModel = modeSelected === 'force-deepseek' ? 'deepseek/deepseek-r1-distill-llama-70b:free' : 'meta-llama/llama-3.3-70b-instruct:free';
+        const provider = PROVIDERS[providerKey];
+        let activeModel = modelId;
+        if (modelId === 'auto' && providerKey === 'openrouter') {
+            activeModel = 'meta-llama/llama-3.3-70b-instruct:free';
+        }
 
         try {
-            let res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            const url = providerKey === 'gemini' ? `${provider.baseUrl}?key=${key}` : provider.baseUrl;
+            const headers = { "Content-Type": "application/json" };
+            if (providerKey !== 'gemini') {
+                headers["Authorization"] = `Bearer ${key}`;
+            }
+
+            let res = await fetch(url, {
                 method: "POST",
-                headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+                headers: headers,
                 body: JSON.stringify({ model: activeModel, messages: payloadMessages, temperature: 0.7 })
             });
 
@@ -168,23 +230,21 @@
 
             const data = await res.json();
             const aiMsg = data.choices[0].message.content;
-            
+
             applyActionDeltas(aiMsg);
             const cleanMsg = extractTextForUI(aiMsg);
 
             messageHistory.push({ role: "assistant", content: aiMsg });
-            
-            // 保持記憶長度，避免 Token 爆掉
+
             if (messageHistory.length > 7) messageHistory.splice(1, 2);
 
             loader.style.display = 'none';
 
-            // 打字機效果
             const b = document.getElementById('mudChatBox');
             const d = document.createElement('div');
             d.className = `mud-msg mud-ai`;
             b.insertBefore(d, document.getElementById('mudLoading'));
-            
+
             let i = 0;
             function typeWriter() {
                 if (i < cleanMsg.length) {
@@ -227,7 +287,15 @@
     };
 
     window.saveGame = function () {
-        const data = { state: gameState, history: messageHistory };
+        const data = {
+            state: gameState,
+            history: messageHistory,
+            config: {
+                provider: document.getElementById('apiProvider').value,
+                model: document.getElementById('modelSelect').value,
+                apiKey: document.getElementById('apiKey').value.trim()
+            }
+        };
         const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
@@ -244,7 +312,16 @@
                 gameState = d.state;
                 messageHistory = d.history;
                 updateStatusUI();
-                
+
+                // 確保 Provider UI 同步
+                if (d.config) {
+                    if (d.config.provider) document.getElementById('apiProvider').value = d.config.provider;
+                    handleProviderChange();
+                    if (d.config.model) document.getElementById('modelSelect').value = d.config.model;
+                    if (d.config.apiKey) document.getElementById('apiKey').value = d.config.apiKey;
+                    saveConfig();
+                }
+
                 document.getElementById('mudChatBox').innerHTML = '<div class="mud-loading" id="mudLoading" style="display:none;"></div>';
                 messageHistory.forEach(m => {
                     if (m.role === 'user' && !m.content.includes('[系統底層設定]')) appendUI(m.content, 'mud-user');
@@ -256,6 +333,10 @@
     };
 
     // 載入預設設定
+    const savedProvider = localStorage.getItem('mud_api_provider') || 'openrouter';
+    document.getElementById('apiProvider').value = savedProvider;
+    handleProviderChange(); // 這會更新模型選單並設定正確的模型
+
     document.getElementById('apiKey').value = localStorage.getItem('mud_api_key') || '';
     updateStatusUI();
 

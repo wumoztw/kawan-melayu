@@ -98,8 +98,10 @@ body {
 .mud-input-area button:hover { background: #27ae60; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); }
 
 .mud-settings { padding: 15px 20px; background: #fff; border-bottom: 1px solid var(--color-border); display: flex; flex-wrap: wrap; gap: 10px; }
-.mud-row { width: 100%; display: flex; gap: 10px; }
-.mud-row input, .mud-row select { border: 1px solid #ccc; border-radius: 6px; padding: 8px 12px; flex: 1; font-family: var(--font-main); }
+.mud-row { width: 100%; display: flex; gap: 10px; flex-wrap: wrap; }
+.mud-row select#apiProvider { flex: 0 0 150px; }
+.mud-row input#apiKey { flex: 1; min-width: 200px; }
+.mud-row select#modelSelect { flex: 1; min-width: 150px; }
 .mud-btn { border-radius: 6px; font-size: 0.85rem; padding: 8px 15px; border: none; cursor: pointer; font-weight: bold; color: white; }
 .mud-btn-save { background: var(--color-blue); }
 .mud-btn-load { background: var(--color-orange); }
