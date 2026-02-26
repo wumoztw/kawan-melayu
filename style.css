@@ -492,7 +492,6 @@ body {
 @media (max-width: 768px) {
     body {
         padding: 0;
-        /* Full width for mobile */
     }
 
     #mud-app-root {
@@ -502,104 +501,132 @@ body {
     .mud-container {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto auto 1fr auto auto;
-        height: 100vh;
         height: 100dvh;
         border-radius: 0;
         border: none;
     }
 
+    /* Header: Aggressive Compression */
     .mud-header {
-        padding: 15px;
+        padding: 10px 15px;
     }
 
-    .header-info .welcome-sub,
-    .header-info .intro-text {
-        display: none;
-        /* Compress header */
+    .header-top {
+        justify-content: space-between;
+        margin-bottom: 0;
     }
 
-    .api-links {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 5px;
-        font-size: 0.8rem;
+    .mud-title-main {
+        font-size: 1.1rem;
+        letter-spacing: 1px;
     }
 
+    .help-trigger {
+        position: static;
+        padding: 2px 10px;
+        font-size: 0.75rem;
+    }
+
+    .mud-title-sub {
+        font-size: 0.75rem;
+        margin-bottom: 0;
+    }
+
+    .header-info {
+        display: none !important;
+        /* Hide all tutorial info on mobile to save space */
+    }
+
+    /* Status Bar: Compact 2-column grid */
     .mud-status-bar {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        padding: 10px;
-        justify-items: center;
+        gap: 8px;
+        padding: 8px 12px;
     }
 
     .mud-status-item {
-        width: 100%;
-        flex-direction: column;
-        gap: 5px;
-        font-size: 0.8rem;
+        gap: 6px;
+        font-size: 0.75rem;
+        justify-content: space-between;
     }
 
     .mud-val-container {
-        width: 100%;
-        max-width: 100px;
+        width: 80px;
+        height: 10px;
     }
 
+    .location-tag,
+    .level-tag {
+        font-size: 0.7rem;
+        padding: 1px 6px;
+    }
+
+    /* Settings: Glassy and stacked */
     .mud-settings {
-        padding: 10px;
+        padding: 8px 15px;
+        background: rgba(255, 255, 255, 0.03);
     }
 
     .mud-row {
-        flex-direction: column;
-        gap: 8px;
+        gap: 6px;
     }
 
     .mud-row select,
     .mud-row input,
     .mud-btn {
         width: 100% !important;
-        height: 42px;
-        flex: none;
+        height: 38px;
+        font-size: 0.85rem;
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: white !important;
+        border: 1px solid var(--color-border) !important;
     }
 
+    .mud-row select option {
+        background: #1e293b;
+        color: white;
+    }
+
+    /* Chat Area */
     .mud-chat-box {
-        padding: 15px;
-        gap: 15px;
+        padding: 12px;
+        gap: 12px;
     }
 
     .mud-msg {
-        max-width: 92%;
-        padding: 12px 16px;
-        font-size: 0.95rem;
+        max-width: 90%;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        border-radius: 15px;
     }
 
-    .mud-side-panel {
-        grid-column: 1;
-        grid-row: 6;
-        /* Move vocab to bottom */
-        border-left: none;
-        border-top: 1px solid var(--color-border);
-        max-height: 250px;
-        padding: 15px;
-    }
-
+    /* Input Area */
     .mud-input-area {
-        grid-row: 5;
-        padding: 15px;
-        position: sticky;
-        bottom: 0;
-        background: rgba(15, 23, 42, 0.95);
-        backdrop-filter: blur(10px);
+        padding: 12px 15px;
+        gap: 10px;
+        background: rgba(15, 23, 42, 0.98);
     }
 
     .mud-input-area input {
-        padding: 10px 15px;
+        height: 44px;
+        padding: 0 15px;
+        font-size: 0.9rem;
     }
 
     .mud-input-area button {
-        padding: 0 20px;
-        height: 48px;
+        height: 44px;
+        padding: 0 15px;
+        font-size: 0.95rem;
+    }
+
+    /* Vocab at bottom */
+    .mud-side-panel {
+        grid-row: 6;
+        grid-column: 1;
+        max-height: 200px;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.2);
     }
 }
 
