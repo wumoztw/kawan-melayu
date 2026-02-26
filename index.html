@@ -89,13 +89,13 @@
                         <option value="openai">OpenAI</option>
                     </select>
                     <input type="password" id="apiKey" placeholder="輸入 API Key" onchange="saveConfig()">
-                    <select id="modelSelect" onchange="saveConfig()">
-                        <option value="auto">自動切換最佳模型</option>
-                    </select>
                     <div class="mud-btn-group">
-                        <button class="mud-btn mud-btn-save" onclick="saveGame()">💾 儲存進度</button>
+                        <select id="modelSelect" onchange="saveConfig()">
+                            <option value="auto">🤖 自動模型</option>
+                        </select>
+                        <button class="mud-btn mud-btn-save" onclick="saveGame()">💾 儲存</button>
                         <button class="mud-btn mud-btn-load" onclick="document.getElementById('fileInput').click()">📂
-                            讀取進度</button>
+                            讀取</button>
                     </div>
                     <input type="file" id="fileInput" style="display:none" onchange="loadGame(event)">
                 </div>
