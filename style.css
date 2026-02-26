@@ -1,14 +1,33 @@
 :root {
-    --color-green: #2ecc71;
-    --color-orange: #f39c12;
-    --color-blue: #3498db;
-    --color-red: #e74c3c;
-    --color-bg-main: #fcf9f2;
-    --color-surface: #ffffff;
-    --color-border: #e0d8c8;
-    --color-text-main: #2c3e50;
-    --color-text-muted: #7f8c8d;
+    --color-green: #27ae60;
+    --color-orange: #d48e00;
+    /* Royal Gold */
+    --color-blue: #2980b9;
+    --color-red: #c0392b;
+    --color-bg-main: #0f172a;
+    /* Deep Midnight Blue */
+    --color-surface: rgba(255, 255, 255, 0.85);
+    --color-glass: rgba(255, 255, 255, 0.1);
+    --color-border: rgba(255, 255, 255, 0.2);
+    --color-text-main: #1e293b;
+    --color-text-muted: #64748b;
     --font-main: 'Nunito', 'Noto Sans TC', sans-serif;
+    --shadow-premium: 0 10px 40px rgba(0, 0, 0, 0.2);
+    --accent-glow: 0 0 20px rgba(39, 174, 96, 0.3);
+}
+
+@keyframes bgGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 * {
@@ -16,8 +35,10 @@
 }
 
 body {
-    background-color: var(--color-bg-main);
-    color: var(--color-text-main);
+    background: radial-gradient(circle at top right, #1e293b, #0f172a);
+    background-size: 200% 200%;
+    animation: bgGradient 15s ease infinite;
+    color: #f8fafc;
     font-family: var(--font-main);
     margin: 0;
     padding: 20px;
@@ -40,20 +61,22 @@ body {
 }
 
 .tutorial-section {
-    background: var(--color-surface);
+    background: var(--color-glass);
+    backdrop-filter: blur(12px);
     border: 1px solid var(--color-border);
-    border-radius: 12px;
+    border-radius: 20px;
     padding: 24px;
     margin-bottom: 24px;
     max-width: 900px;
     margin-left: auto;
     margin-right: auto;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-premium);
+    color: #e2e8f0;
 }
 
 .tutorial-section h3 {
-    margin-top: 0;
-    color: var(--color-orange);
+    color: #fbbf24;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .subtitle {
@@ -62,14 +85,12 @@ body {
 }
 
 .text-highlight {
-    color: var(--color-green);
-    font-weight: bold;
+    color: #4ade80;
 }
 
 .tutorial-section a {
-    color: var(--color-blue);
-    text-decoration: none;
-    font-weight: bold;
+    color: #60a5fa;
+    text-decoration: underline;
 }
 
 .info-grid {
@@ -80,6 +101,8 @@ body {
 }
 
 .info-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 12px;
     border-radius: 8px;
     font-size: 0.9rem;
@@ -101,7 +124,7 @@ body {
 }
 
 #mud-app-root {
-    max-width: 1000px;
+    max-width: 1100px;
     width: 100%;
     margin: 0 auto;
     display: flex;
@@ -111,29 +134,31 @@ body {
 
 .mud-container {
     display: grid;
-    grid-template-columns: 1fr 280px;
+    grid-template-columns: 1fr 300px;
     grid-template-rows: auto auto auto 1fr auto;
     border: 1px solid var(--color-border);
-    border-radius: 16px;
+    border-radius: 24px;
     background: var(--color-surface);
+    backdrop-filter: blur(5px);
     overflow: hidden;
-    height: 80vh;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    height: 85vh;
+    box-shadow: var(--shadow-premium);
 }
 
 .mud-header {
     grid-column: 1 / -1;
-    padding: 15px;
-    background: #fffdf9;
-    border-bottom: 1px solid var(--color-border);
+    padding: 20px;
+    background: linear-gradient(to right, #ffffff, #f1f5f9);
+    border-bottom: 1px solid #e2e8f0;
     text-align: center;
 }
 
 .mud-title-main {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 900;
-    color: var(--color-text-main);
-    letter-spacing: 2px;
+    color: #0f172a;
+    letter-spacing: 3px;
+    text-transform: uppercase;
 }
 
 .mud-title-sub {
@@ -145,37 +170,63 @@ body {
     grid-column: 1 / -1;
     display: flex;
     justify-content: space-around;
-    padding: 12px;
-    background: #fafafa;
-    border-bottom: 1px solid var(--color-border);
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(5px);
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .mud-status-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     font-size: 0.95rem;
+    font-weight: 700;
+    color: #475569;
 }
 
 .mud-val-container {
-    width: 100px;
-    height: 10px;
-    background: #eee;
-    border-radius: 5px;
+    width: 120px;
+    height: 12px;
+    background: #e2e8f0;
+    border-radius: 20px;
     overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .mud-progress {
     height: 100%;
-    transition: width 0.5s ease;
+    transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background-size: 30px 30px;
+    background-image: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.15) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, 0.15) 50%,
+            rgba(255, 255, 255, 0.15) 75%,
+            transparent 75%,
+            transparent);
+    animation: stripeMove 2s linear infinite;
+}
+
+@keyframes stripeMove {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 60px 0;
+    }
 }
 
 .progress-hp {
-    background: var(--color-red);
+    background-color: var(--color-red);
+    box-shadow: 0 0 10px rgba(192, 57, 43, 0.4);
 }
 
 .progress-en {
-    background: var(--color-blue);
+    background-color: var(--color-blue);
+    box-shadow: 0 0 10px rgba(41, 128, 185, 0.4);
 }
 
 .level-tag {
@@ -220,12 +271,21 @@ body {
 }
 
 .vocab-item {
-    background: #fff8e1;
-    border-left: 3px solid #f1c40f;
-    padding: 5px 10px;
-    margin-bottom: 8px;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    background: white;
+    border-radius: 12px;
+    padding: 10px 15px;
+    margin-bottom: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    cursor: default;
+    border-left: 4px solid var(--color-orange);
+}
+
+.vocab-item:hover {
+    transform: translateX(5px) scale(1.02);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-orange);
 }
 
 .mud-chat-box {
@@ -241,83 +301,81 @@ body {
 }
 
 .mud-msg {
-    max-width: 85%;
-    padding: 16px 20px;
-    border-radius: 12px;
-    line-height: 1.6;
+    max-width: 80%;
+    padding: 18px 24px;
+    border-radius: 20px;
+    line-height: 1.7;
     font-size: 1.05rem;
-    animation: fadeIn 0.3s ease-out;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.mud-msg:hover {
+    transform: scale(1.01);
 }
 
 .mud-user {
     align-self: flex-end;
-    background: #e3f2fd;
-    color: #1565c0;
-    border-bottom-right-radius: 2px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    color: #1e40af;
+    border-bottom-right-radius: 4px;
 }
 
 .mud-ai {
     align-self: flex-start;
-    background: #f1f8e9;
-    color: #2e7d32;
-    border-top-left-radius: 2px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    color: #166534;
+    border-top-left-radius: 4px;
 }
 
 .mud-input-area {
     grid-column: 1;
     grid-row: 5;
-    padding: 20px;
-    background: #fafafa;
+    padding: 24px;
+    background: #ffffff;
     display: flex;
     gap: 15px;
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid #e2e8f0;
+    align-items: center;
 }
 
 .mud-input-area input {
     flex: 1;
-    border: 2px solid var(--color-border);
-    border-radius: 8px;
-    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 20px;
     font-size: 1rem;
     font-family: var(--font-main);
     outline: none;
-    transition: 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #f8fafc;
 }
 
 .mud-input-area input:focus {
     border-color: var(--color-green);
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.1);
 }
 
 .mud-input-area button {
-    background: var(--color-green);
+    background: linear-gradient(135deg, var(--color-green), #219150);
     color: white;
     border: none;
-    border-radius: 8px;
-    padding: 0 30px;
-    font-weight: bold;
+    border-radius: 12px;
+    padding: 0 35px;
+    height: 52px;
+    font-weight: 800;
     font-size: 1.1rem;
     cursor: pointer;
-    transition: 0.2s;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
 }
 
 .mud-input-area button:hover {
-    background: #27ae60;
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+    filter: brightness(1.1);
 }
 
 .mud-settings {
@@ -361,25 +419,32 @@ body {
 
 .mud-btn {
     height: 40px;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 0.85rem;
-    padding: 0 15px;
+    padding: 0 20px;
     border: none;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 800;
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     white-space: nowrap;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mud-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .mud-btn-save {
-    background: var(--color-blue);
+    background: linear-gradient(135deg, var(--color-blue), #1c5980);
 }
 
 .mud-btn-load {
-    background: var(--color-orange);
+    background: linear-gradient(135deg, var(--color-orange), #a36d00);
 }
 
 .mud-loading {
