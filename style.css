@@ -681,3 +681,40 @@ body{
     vertical-align: bottom;
   }
 }
+/* 你原本的 style.css 內容維持不變 */
+/* ...（略，請保留你現有已成功的版本）... */
+
+/* ===== NEW: extra control buttons + options row ===== */
+.mud-btn-stop{
+  background: linear-gradient(135deg, #ef4444, #991b1b);
+}
+.mud-btn-retry{
+  background: linear-gradient(135deg, #a855f7, #6b21a8);
+}
+.mud-btn-clear{
+  background: linear-gradient(135deg, #64748b, #334155);
+}
+
+.mud-opt-row{
+  width:100%;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+.mud-opt{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  font-size:0.85rem;
+  color:#e2e8f0;
+  user-select:none;
+}
+.mud-opt input{ transform: translateY(1px); }
+
+/* Mobile: options row more compact */
+@media (max-width: 768px){
+  .mud-opt-row{ gap:10px; margin-top:6px; }
+  .mud-opt{ font-size:0.75rem; }
+}
