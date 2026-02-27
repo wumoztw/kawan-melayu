@@ -184,7 +184,7 @@ window.saveConfig = function () {
 };
 
 window.handleProviderChange = function () {
-  const providerKey = document.get.getElementById("apiProvider").value;
+  const providerKey = document.getElementById("apiProvider").value;
   const modelSelect = document.getElementById("modelSelect");
   const apiKeyInput = document.getElementById("apiKey");
 
@@ -597,7 +597,7 @@ if (optSaveKeyInFile) optSaveKeyInFile.checked = (localStorage.getItem("mudopt_s
 updateStatusUI();
 
 setTimeout(() => {
-  const welcomeHtml = `<strong>Selamat pagi!</strong><br><br>Boss! Hari ini kita belajar: <strong>Nasi Lemak</strong>, <strong>Roti Canai</strong>.<br><br><em>Jom mula!</em>`;
+  const welcomeHtml = `<strong>歡迎來到 Kawan Melayu！</strong><br><br>這是一個從 0 開始的馬來文情境對話練習遊戲。<br>前期我會<strong>主要用台灣華語（繁中）</strong>帶你學，並用少量馬來文輔助；等你等級提升後，才會逐步改成馬來文為主。<br><br>今天先學 2 句最常用的開場：<br>1) <strong>Selamat pagi!</strong>（早安）<br>2) <strong>Jom mula!</strong>（我們開始吧）<br><br>你可以先回我：<strong>Selamat pagi!</strong>`;
   appendUI(welcomeHtml, "mud-ai", true);
 }, 500);
 
