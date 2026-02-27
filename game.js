@@ -1,7 +1,7 @@
 /* ============================================================
-   Kawan Melayu — game.js (ChatGPT-like layout v3.1)
+   Kawan Melayu — game.js (ChatGPT-like layout v3.2)
    - 保留原本功能：多 Provider、fallback、save/load、action 解析、打字機效果
-   - 改 UI：左側可收合側欄 + 中間對話流 + 底部 composer
+   - 修正：右上角「設定」按鈕，會自動開啟側欄並展開設定抽屜
    ============================================================ */
 
 if (window.marked) marked.setOptions({ breaks: true, gfm: true });
@@ -126,9 +126,7 @@ function isShellClass(cls) {
 }
 
 /* =========================
-   Sidebar (kept old function names)
-   - desktop: collapses grid column
-   - mobile: overlay drawer
+   Sidebar
    ========================= */
 function isMobileMode() {
   return window.matchMedia && window.matchMedia("(max-width: 820px)").matches;
@@ -176,9 +174,24 @@ window.closeRightPanel = function () {
 };
 
 window.toggleSettingsDrawer = function () {
-  const collapsed = isShellClass("settings-collapsed");
-  setShellClass("settings-collapsed", !collapsed);
-  localStorage.setItem("mud_settings_open", collapsed ? "1" : "0");
+  const willOpen = isShellClass("settings-collapsed");
+
+  // Settings drawer lives inside sidebar: ensure sidebar is visible first.
+  if (willOpen) {
+    openRightPanel();
+    setShellClass("settings-collapsed", false);
+    localStorage.setItem("mud_settings_open", "1");
+
+    // Small UX: scroll to settings section when sidebar is opened (esp. on mobile).
+    setTimeout(() => {
+      const el = document.getElementById("settingsDrawer");
+      try { el?.scrollIntoView({ block: "start" }); } catch (e) {}
+    }, 60);
+    return;
+  }
+
+  setShellClass("settings-collapsed", true);
+  localStorage.setItem("mud_settings_open", "0");
 };
 
 /* =========================
@@ -330,7 +343,7 @@ window.saveGame = function () {
   const providerKey = document.getElementById("apiProvider")?.value || "";
 
   const saveData = {
-    version: "3.1-ui-chatgpt-like",
+    version: "3.2-ui-ocean",
     timestamp: new Date().toISOString(),
     gameState: JSON.parse(JSON.stringify(gameState)),
     messageHistory: messageHistory.slice(-20),
