@@ -1,10 +1,10 @@
 :root{
   --color-green:#27ae60;
-  --color-orange:#d48e00; /* Royal Gold */
+  --color-orange:#d48e00;
   --color-blue:#2980b9;
   --color-red:#c0392b;
 
-  --color-bg-main:#0f172a; /* Deep Midnight Blue */
+  --color-bg-main:#0f172a;
   --color-surface:rgba(255, 255, 255, 0.85);
   --color-glass:rgba(255, 255, 255, 0.1);
   --color-border:rgba(255, 255, 255, 0.2);
@@ -17,11 +17,11 @@
   --accent-glow: 0 0 20px rgba(39, 174, 96, 0.3);
 }
 
-/* ===== Responsive foundation (新增/調整) ===== */
 *{ box-sizing:border-box; }
 html, body{ height:100%; }
-img, video, canvas, svg{ max-width:100%; height:auto; } /* 避免媒體元素撐爆容器 */
+img, video, canvas, svg{ max-width:100%; height:auto; }
 input, select, button, textarea{ max-width:100%; }
+
 body{
   background: radial-gradient(circle at top right, #1e293b, #0f172a);
   background-size: 200% 200%;
@@ -30,8 +30,6 @@ body{
   color:#f8fafc;
   font-family:var(--font-main);
   margin:0;
-
-  /* 桌機保留留白；手機會在 media 裡覆蓋 */
   padding:20px;
 
   min-height:100vh;
@@ -41,16 +39,16 @@ body{
   flex-direction:column;
 }
 
-/* scroll bar */
-::-webkit-scrollbar{ width:6px; }
-::-webkit-scrollbar-track{ background:var(--color-bg-main); }
-::-webkit-scrollbar-thumb{ background:#dcdde1; border-radius:3px; }
-
 @keyframes bgGradient{
   0%{ background-position:0% 50%; }
   50%{ background-position:100% 50%; }
   100%{ background-position:0% 50%; }
 }
+
+/* scroll bar */
+::-webkit-scrollbar{ width:6px; }
+::-webkit-scrollbar-track{ background:var(--color-bg-main); }
+::-webkit-scrollbar-thumb{ background:#dcdde1; border-radius:3px; }
 
 .intro-text{ font-size:0.9rem; color:var(--color-text-muted); }
 
@@ -85,19 +83,13 @@ body{
   display:flex;
   flex-direction:column;
   gap:20px;
-
-  /* 新增：避免在小視窗時左右溢出 */
   min-width:0;
 }
 
-/*
-  原本 .mud-container height:130vh 會在不同裝置造成「內容被擠壓、聊天區高度怪、看起來變形」，
-  改成以 viewport 為上限，並讓內容自然撐高、聊天區用 flex/grid 自行分配空間。
-*/
 .mud-container{
   display:grid;
-  grid-template-columns: minmax(0, 1fr) 300px; /* 改：左欄允許縮到 0，避免爆版 */
-  grid-template-rows: auto auto auto minmax(0, 1fr) auto; /* 改：主內容列可縮放 */
+  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
   border:1px solid var(--color-border);
   border-radius:24px;
   background:var(--color-glass);
@@ -107,14 +99,14 @@ body{
   color:#f1f5f9;
   transition: grid-template-columns 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* 改：不要用 130vh；用「至少填滿視窗」但仍允許內容變長 */
-  min-height: min(860px, 100dvh);   /* 桌機有漂亮高度上限感 */
-  height: auto;
+  /* 桌機：看起來像 app，不要無限高，但也不會壓扁 */
+  min-height: min(860px, 100dvh);
+  height:auto;
 }
 
-/* 側欄收合 */
 .mud-container.sidebar-collapsed{ grid-template-columns: minmax(0, 1fr) 0px; }
 
+/* ===== Header ===== */
 .mud-header{
   grid-column:1 / -1;
   padding:10px 20px;
@@ -172,7 +164,7 @@ body{
 .api-links{ margin-top:4px; }
 .api-links a{ color:#60a5fa; text-decoration:underline; }
 
-/* ===== Status Bar ===== */
+/* ===== Status ===== */
 .mud-status-bar{
   grid-column:1 / -1;
   display:flex;
@@ -248,7 +240,7 @@ body{
   gap:10px;
   align-items:center;
   flex-wrap:wrap;
-  min-width:0; /* 新增：讓內部 flex items 可縮 */
+  min-width:0;
 }
 .mud-row select,
 .mud-row input{
@@ -258,7 +250,7 @@ body{
   font-family:var(--font-main);
   height:40px;
   font-size:0.9rem;
-  min-width:0; /* 新增：避免長內容把版面撐爆 */
+  min-width:0;
 }
 .mud-row select#apiProvider{ flex:0 0 150px; }
 .mud-row input#apiKey{ flex:1; min-width:150px; }
@@ -268,7 +260,7 @@ body{
   display:flex;
   gap:10px;
   flex:1;
-  min-width:240px; /* 改：比原本 300px 更不容易在小桌機擠爆 */
+  min-width:240px;
 }
 .mud-btn{
   height:40px;
@@ -312,15 +304,12 @@ body{
   transform:scale(1.05);
 }
 
-/* ===== Chat (關鍵：讓它吃到剩餘高度，不變形) ===== */
+/* ===== Chat ===== */
 .mud-chat-box{
   grid-column:1;
   grid-row:4;
-
-  /* 改：不要 height:100%；改用 minmax(0,1fr) 那列撐開 */
   min-height:0;
   overflow-y:auto;
-
   padding:30px 30px 10px 30px;
   display:flex;
   flex-direction:column;
@@ -343,8 +332,6 @@ body{
   position:relative;
   box-shadow:0 4px 15px rgba(0,0,0,0.05);
   transition:transform 0.2s ease;
-
-  /* 新增：避免超長字串撐破 */
   overflow-wrap:anywhere;
   word-break:break-word;
 }
@@ -407,7 +394,6 @@ body{
   transition:all 0.3s ease;
   cursor:default;
   border-left:4px solid var(--color-orange);
-
   overflow-wrap:anywhere;
 }
 .vocab-item:hover{
@@ -416,7 +402,7 @@ body{
   border-color:var(--color-orange);
 }
 
-/* ===== Input Area ===== */
+/* ===== Input ===== */
 .mud-input-area{
   grid-column:1;
   grid-row:5;
@@ -511,106 +497,128 @@ body{
 }
 .close-btn:hover{ color:#f1f5f9; }
 
-/* ===== Responsive Adjustments (原本區塊保留並補強) ===== */
+/* ===== Mobile (重點調整) ===== */
 @media (max-width: 768px){
   body{ padding:0; }
-
   #mud-app-root{ gap:0; }
 
   .mud-container{
     grid-template-columns:1fr;
-    grid-template-rows:auto auto auto minmax(0, 1fr) auto auto;
 
-    /* 改：固定填滿視窗高度，避免 mobile 內容擠壓 */
+    /* 讓聊天區真正吃剩餘高度：header/status/settings 都是 auto，chat 是 1fr，input 固定 auto */
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+
     min-height:100dvh;
+    height:100dvh;         /* 新增：手機就用滿版，視覺接近 app */
     border-radius:0;
     border:none;
   }
 
-  /* Header Aggressive Compression */
-  .mud-header{ padding:10px 15px; }
+  /* Header 更瘦：避免上半部太佔空間 */
+  .mud-header{ padding:8px 12px; }
   .header-top{ justify-content:space-between; margin-bottom:0; }
-  .mud-title-main{ font-size:1.1rem; letter-spacing:1px; }
+  .mud-title-main{ font-size:1.05rem; letter-spacing:1px; }
   .help-trigger{ position:static; padding:2px 10px; font-size:0.75rem; }
-  .mud-title-sub{ font-size:0.75rem; margin-bottom:0; }
-  .header-info{ display:none !important; }
+  .mud-title-sub{ display:none; }            /* 新增：手機不顯示 v1.0，省一行 */
+  .header-info{ display:none !important; }   /* 維持你原本行為 */
 
-  /* Status Bar Compact 2-column grid */
+  /* Status bar 更緊湊 */
   .mud-status-bar{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:8px;
-    padding:8px 12px;
+    gap:6px;
+    padding:6px 10px;
   }
   .mud-status-item{
     gap:6px;
-    font-size:0.75rem;
+    font-size:0.72rem;
     justify-content:space-between;
     min-width:0;
   }
-  .mud-val-container{ width:80px; height:10px; }
-  .location-tag, .level-tag{ font-size:0.7rem; padding:1px 6px; }
+  .mud-val-container{ width:74px; height:9px; }
+  .location-tag, .level-tag{ font-size:0.68rem; padding:1px 6px; }
 
-  /* Settings */
-  .mud-settings{ padding:8px 15px; background:rgba(255, 255, 255, 0.03); }
-  .mud-row{ gap:6px; }
+  /* Settings：改成兩行更像桌機「整齊」 */
+  .mud-settings{
+    padding:8px 10px;
+    background:rgba(255, 255, 255, 0.03);
+  }
+  .mud-row{
+    gap:6px;
+    flex-wrap:wrap;
+  }
+
+  /* 第一行：Provider + Model */
+  .mud-row select#apiProvider{ flex:1 1 45%; min-width:0; }
+  .mud-row select#modelSelect{ flex:1 1 55%; min-width:0; }
+
+  /* 第二行：API Key */
+  .mud-row input#apiKey{ flex:1 1 100%; min-width:0; }
+
+  /* 第三行：Save/Load（滿寬） */
   .mud-btn-group{
-    width:100%;
+    flex:1 1 100%;
     min-width:unset;
-    gap:5px;
-    flex-direction:row !important;
-    flex-wrap:nowrap !important;
+    gap:8px;
+  }
+  .mud-btn{
+    flex:1;
+    height:34px;
+    font-size:0.78rem;
+    padding:0 10px;
   }
 
   .mud-row select,
-  .mud-row input,
-  .mud-btn-group{
-    width:100% !important;
-  }
-
-  .mud-row select,
-  .mud-row input,
-  .mud-btn-group{
-    height:36px;
-    font-size:0.7rem;
+  .mud-row input{
+    height:34px;
+    font-size:0.78rem;
     background:rgba(255, 255, 255, 0.05) !important;
     color:white !important;
     border:1px solid var(--color-border) !important;
-    flex:1;
-    min-width:0;
   }
-  .mud-btn{ padding:0 5px; height:36px; font-size:0.75rem; }
   .mud-row select option{ background:#1e293b; color:white; }
 
-  /* Chat Area */
-  .mud-chat-box{ padding:12px; gap:12px; }
-  .mud-msg{ max-width:90%; padding:10px 15px; font-size:0.9rem; border-radius:15px; }
+  /* Chat：增大可視區 */
+  .mud-chat-box{
+    padding:10px 10px 6px 10px;
+    gap:10px;
+  }
+  .mud-msg{
+    max-width:92%;
+    padding:10px 12px;
+    font-size:0.9rem;
+    border-radius:14px;
+  }
 
-  /* Input Area */
+  /* Input：固定在最底並更好按 */
   .mud-input-area{
     grid-row:6;
-    padding:12px 15px;
-    gap:10px;
+    padding:10px 10px;
+    gap:8px;
     background:rgba(15, 23, 42, 0.98);
     border-top:1px solid var(--color-border);
+
+    /* 新增：避免極端裝置瀏海/底部手勢條擠壓 */
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
   }
   .mud-input-area input{
     height:44px;
-    padding:0 15px;
-    font-size:0.9rem;
+    padding:0 12px;
+    font-size:0.92rem;
   }
   .mud-input-area button#sendBtn{
     height:44px;
-    padding:0 15px;
+    padding:0 14px;
     font-size:0.95rem;
   }
+  .vocab-toggle{ width:44px; height:44px; }
 
-  /* Vocab panel on mobile (維持原設計：預設隱藏，可展開) */
+  /* vocab panel：維持你原設計，預設隱藏、展開在 chat 上方 */
   .mud-side-panel{
     grid-row:5;
     grid-column:1;
-    max-height:250px;
-    padding:15px;
+    max-height:240px;
+    padding:12px;
     background:rgba(0, 0, 0, 0.4);
     display:none;
     opacity:0;
@@ -624,7 +632,90 @@ body{
     pointer-events:auto;
   }
   .sidebar-collapsed .mud-side-panel{ display:none !important; }
+}
+/* ===== Mobile FIX (ZenFone 5Z / 360px) ===== */
+@media (max-width: 768px){
+  /* 1) 讓聊天區真的吃到剩餘高度，避免被上方擠壓 */
+  .mud-container{
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto auto !important;
 
-  .vocab-toggle-btn, .collapsed-handle{ display:none !important; }
-  .vocab-toggle{ width:48px; height:48px; }
+    /* 避免網址列伸縮造成高度跳動 */
+    height: 100vh !important;
+    height: 100svh !important;
+    height: 100dvh !important;
+    min-height: 100vh !important;
+    min-height: 100svh !important;
+    min-height: 100dvh !important;
+  }
+
+  /* 2) Header 再瘦一點（省垂直空間） */
+  .mud-title-sub{ display:none !important; }
+  .mud-header{ padding: 8px 12px !important; }
+  .mud-status-bar{ padding: 6px 10px !important; gap: 6px !important; }
+
+  /* 3) 設定列改三行：Provider+Model / API Key / Save+Load
+        關鍵：取消你原本強制 mud-btn-group 橫向不換行的設定 */
+  .mud-settings{ padding: 8px 10px !important; }
+  .mud-row{ gap: 6px !important; }
+
+  /* 取消舊規則：.mud-btn-group flex-wrap nowrap !important; */
+  .mud-btn-group{
+    flex-direction: row !important;
+    flex-wrap: wrap !important;     /* 允許換行，才能做三行 */
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 8px !important;
+  }
+
+  /* 第一行：Provider + Model (各佔一半左右) */
+  .mud-row select#apiProvider{
+    flex: 1 1 45% !important;
+    min-width: 0 !important;
+  }
+  .mud-row select#modelSelect{
+    flex: 1 1 55% !important;
+    min-width: 0 !important;
+  }
+
+  /* 第二行：API Key 滿寬 */
+  .mud-row input#apiKey{
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* 第三行：Save / Load 兩顆按鈕平分 */
+  .mud-btn-group .mud-btn{
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    height: 34px !important;
+    padding: 0 10px !important;
+    font-size: 0.78rem !important;
+  }
+
+  /* 下拉/輸入高度統一 */
+  .mud-row select,
+  .mud-row input{
+    height: 34px !important;
+    font-size: 0.78rem !important;
+    min-width: 0 !important;
+  }
+
+  /* 4) 聊天區加大可視範圍 */
+  .mud-chat-box{
+    padding: 10px 10px 6px 10px !important;
+    gap: 10px !important;
+    min-height: 0 !important;
+  }
+
+  /* 5) 輸入列更貼底、避免被手勢條吃掉 */
+  .mud-input-area{
+    padding: 10px 10px !important;
+    padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+    gap: 8px !important;
+  }
+  .mud-input-area input{ height: 44px !important; }
+  .mud-input-area button{ height: 44px !important; }
+
+  /* 6) 字彙欄：你 JS 已預設收合，這裡不改行為，只確保展開時不擠爆 */
+  .mud-side-panel{ max-height: 240px !important; }
 }
