@@ -1,5 +1,13 @@
+/* ============================================================
+   Kawan Melayu — game.js  v2.0
+   全功能版（含 save / load / provider UI / 狀態 UI）
+   ============================================================ */
+
 if (window.marked) marked.setOptions({ breaks: true, gfm: true });
 
+// ───────────────────────────────────────────────
+//  遊戲狀態
+// ───────────────────────────────────────────────
 let gameState = {
   confidence: 100,
   fluency: 0,
@@ -10,9 +18,8 @@ let gameState = {
 
 let messageHistory = [];
 let lastRequestTime = 0;
-const THROTTLE_LIMIT = 3000;
+const THROTTLE_LIMIT = 2500;
 
-/* ===== request control / retry / fallback ===== */
 let currentAbortController = null;
 let lastUserMessageText = "";
 let lastProviderKeyUsed = "";
@@ -21,12 +28,60 @@ let lastModelUsed = "";
 const FALLBACK_ORDER = ["openrouter", "groq", "gemini", "openai"];
 const MAX_AUTO_RETRIES = 2;
 
-// System Prompt
+// ───────────────────────────────────────────────
+//  Providers
+// ───────────────────────────────────────────────
+const PROVIDERS = {
+  openrouter: {
+    name: "OpenRouter",
+    baseUrl: "https://openrouter.ai/api/v1/chat/completions",
+    models: [
+      { id: "auto",                                         name: "Auto" },
+      { id: "meta-llama/llama-3.3-70b-instruct:free",      name: "Llama 3.3 70B (Free)" },
+      { id: "deepseek/deepseek-r1-distill-llama-70b:free", name: "DeepSeek R1 (Free)" },
+      { id: "google/gemini-2.0-flash-exp:free",            name: "Gemini 2.0 Flash (Free)" }
+    ]
+  },
+  groq: {
+    name: "Groq",
+    baseUrl: "https://api.groq.com/openai/v1/chat/completions",
+    models: [
+      { id: "llama-3.3-70b-versatile",        name: "Llama 3.3 70B" },
+      { id: "deepseek-r1-distill-llama-70b",  name: "DeepSeek R1 70B" },
+      { id: "gemma2-9b-it",                   name: "Gemma 2 9B" }
+    ]
+  },
+  gemini: {
+    name: "Google Gemini",
+    baseUrl: "https://generativelanguage.googleapis.com/v1beta/models",
+    models: [
+      { id: "gemini-2.0-flash",           name: "Gemini 2.0 Flash" },
+      { id: "gemini-2.0-flash-lite",      name: "Gemini 2.0 Flash Lite" },
+      { id: "gemini-2.5-pro-exp-03-25",   name: "Gemini 2.5 Pro (Exp)" }
+    ]
+  },
+  openai: {
+    name: "OpenAI",
+    baseUrl: "https://api.openai.com/v1/chat/completions",
+    models: [
+      { id: "gpt-4o-mini", name: "GPT-4o Mini" },
+      { id: "gpt-4o",      name: "GPT-4o" },
+      { id: "o1-mini",     name: "o1 Mini" }
+    ]
+  }
+};
+
+// ───────────────────────────────────────────────
+//  System Prompt
+// ───────────────────────────────────────────────
 function buildSystemPrompt() {
   let ratioRule;
-  if (gameState.level <= 3) ratioRule = "台灣華語為主、馬來文為輔（約 70%：30%）";
-  else if (gameState.level <= 6) ratioRule = "馬來文為主、台灣華語為輔（約 70%：30%，可加入口語語氣詞：lah、meh）";
-  else ratioRule = "幾乎全馬來文（約 90–100%），台灣華語只在必要時補充 1 句";
+  if (gameState.level <= 3)
+    ratioRule = "台灣華語為主、馬來文為輔（約 70%：30%）";
+  else if (gameState.level <= 6)
+    ratioRule = "馬來文為主、台灣華語為輔（約 70%：30%，可加入口語語氣詞：lah、meh）";
+  else
+    ratioRule = "幾乎全馬來文（約 90–100%），台灣華語只在必要時補充 1 句";
 
   return `你是馬來文（Bahasa Melayu）的情境教學導師，場景在馬來西亞嘛嘛檔（Mamak Stall）。
 
@@ -42,15 +97,15 @@ function buildSystemPrompt() {
 3. 依玩家狀態調整難度並鼓勵他開口。
 
 【輸出格式（固定）】
-- 先輸出「台灣華語（繁中）」為主的教學引導（初期），或「馬來文」為主的對話（中後期），並依上方比例調整。
+- 先輸出「台灣華語（繁中）」為主的教學引導（初期），或「馬來文」為主的對話（中後期）。
 - 不管比例如何，每回合都要讓使用者看得懂你要他說哪一句。
 
 【action 規則（非常重要）】
 - action 只用來給程式讀取，不要讓使用者看到。
-- action 必須放在回覆的最後一行，並且必須完全符合下列格式（大小寫與符號要一樣）：
+- action 必須放在回覆的最後一行，格式如下（大小寫與符號要完全一樣）：
 <action>{"confdelta":0,"fludelta":10,"leveldelta":0,"location":null,"vocabadded":"Nasi Lemak"}</action>
-- action 行前面不要加任何文字（例如不要加 action: 或 action\" 或任何說明）。
-- 如果你無法遵守 action 格式，請輸出一個合法的空 action：
+- action 行前面不要加任何文字。
+- 如果無法遵守格式，請輸出空 action：
 <action>{"confdelta":0,"fludelta":0,"leveldelta":0,"location":null,"vocabadded":""}</action>
 
 【目前玩家狀態】
@@ -58,51 +113,13 @@ function buildSystemPrompt() {
 - 流利度 fluency=${gameState.fluency}/100
 - 等級 level=Lv.${gameState.level}
 - 地點 location=${gameState.location}
-- 已學詞彙 vocabulary=${gameState.vocabulary.join(", ")}
+- 已學詞彙 vocabulary=${gameState.vocabulary.join(", ") || "（尚無）"}
 `;
 }
 
-const PROVIDERS = {
-  openrouter: {
-    name: "OpenRouter",
-    baseUrl: "https://openrouter.ai/api/v1/chat/completions",
-    models: [
-      { id: "auto", name: "Auto" },
-      { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B (Free)" },
-      { id: "deepseek/deepseek-r1-distill-llama-70b:free", name: "DeepSeek R1 (Free)" }
-    ]
-  },
-  groq: {
-    name: "Groq",
-    baseUrl: "https://api.groq.com/openai/v1/chat/completions",
-    models: [
-      { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B" },
-      { id: "deepseek-r1-distill-llama-70b", name: "DeepSeek R1 70B" },
-      { id: "mixtral-8x7b-32768", name: "Mixtral 8x7B" }
-    ]
-  },
-  gemini: {
-    name: "Google Gemini",
-    // Gemini 的 OpenAI 相容 API 端點對於 chat/completions 常會回 405。
-    // 這裡改用 Gemini 原生 generateContent，並在 requestWithProvider 裡做轉接。
-    baseUrl: "https://generativelanguage.googleapis.com/v1beta/models",
-    models: [
-      { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash" },
-      { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro" },
-      { id: "gemini-2.0-flash-exp", name: "Gemini 2.0 Flash" }
-    ]
-  },
-  openai: {
-    name: "OpenAI",
-    baseUrl: "https://api.openai.com/v1/chat/completions",
-    models: [
-      { id: "gpt-4o-mini", name: "GPT-4o Mini" },
-      { id: "gpt-4o", name: "GPT-4o" },
-      { id: "o1-mini", name: "o1 Mini" }
-    ]
-  }
-};
-
+// ───────────────────────────────────────────────
+//  UI helpers
+// ───────────────────────────────────────────────
 function getOptFallbackEnabled() {
   const el = document.getElementById("optFallback");
   return !!(el && el.checked);
@@ -113,12 +130,12 @@ function getOptSaveKeyInFile() {
 }
 
 function setBusyUI(isBusy) {
-  const input = document.getElementById("userInput");
+  const input   = document.getElementById("userInput");
   const sendBtn = document.getElementById("sendBtn");
   const stopBtn = document.getElementById("stopBtn");
-  if (input) input.disabled = isBusy;
+  if (input)   input.disabled   = isBusy;
   if (sendBtn) sendBtn.disabled = isBusy;
-  if (sendBtn) sendBtn.innerText = isBusy ? "..." : "送出";
+  if (sendBtn) sendBtn.innerText = isBusy ? "…" : "送出";
   if (stopBtn) stopBtn.disabled = !isBusy;
 }
 
@@ -127,6 +144,202 @@ function enableRetryButton(enabled) {
   if (retryBtn) retryBtn.disabled = !enabled;
 }
 
+function appendUI(t, c, html = false) {
+  const b = document.getElementById("mudChatBox");
+  const d = document.createElement("div");
+  d.className = "mud-msg " + c;
+  if (html) d.innerHTML = t;
+  else d.textContent = t;
+  b.insertBefore(d, document.getElementById("mudLoading"));
+  b.scrollTop = b.scrollHeight;
+}
+
+function updateStatusUI() {
+  // Clamp values
+  gameState.confidence = Math.max(0, Math.min(100, gameState.confidence));
+  gameState.fluency    = Math.max(0, Math.min(100, gameState.fluency));
+  gameState.level      = Math.max(1, gameState.level);
+
+  const hpBar  = document.getElementById("hpBar");
+  const enBar  = document.getElementById("enBar");
+  const hpVal  = document.getElementById("hpVal");
+  const enVal  = document.getElementById("enVal");
+  const lvVal  = document.getElementById("levelVal");
+  const locVal = document.getElementById("locVal");
+
+  if (hpBar)  hpBar.style.width  = gameState.confidence + "%";
+  if (enBar)  enBar.style.width  = gameState.fluency    + "%";
+  if (hpVal)  hpVal.textContent  = gameState.confidence;
+  if (enVal)  enVal.textContent  = gameState.fluency;
+  if (lvVal)  lvVal.textContent  = "Lv. " + gameState.level;
+  if (locVal) locVal.textContent = gameState.location;
+
+  // Update vocab list
+  const list = document.getElementById("inventoryList");
+  const counter = document.getElementById("vocabCount");
+  if (list) {
+    list.innerHTML = "";
+    gameState.vocabulary.forEach(word => {
+      const item = document.createElement("div");
+      item.className = "vocab-item";
+      item.textContent = word;
+      list.appendChild(item);
+    });
+  }
+  if (counter) counter.textContent = gameState.vocabulary.length + " 個詞";
+}
+
+// ───────────────────────────────────────────────
+//  Provider UI
+// ───────────────────────────────────────────────
+window.handleProviderChange = function () {
+  const providerKey = document.getElementById("apiProvider").value;
+  const provider    = PROVIDERS[providerKey];
+  const modelSel    = document.getElementById("modelSelect");
+  const apiKeyInput = document.getElementById("apiKey");
+
+  if (!provider || !modelSel) return;
+
+  modelSel.innerHTML = "";
+  provider.models.forEach(m => {
+    const opt = document.createElement("option");
+    opt.value = m.id;
+    opt.textContent = m.name;
+    modelSel.appendChild(opt);
+  });
+
+  // Restore saved key for this provider
+  const savedKey = (localStorage.getItem("mudapikey" + providerKey) || "").trim();
+  if (apiKeyInput) apiKeyInput.value = savedKey;
+
+  saveConfig();
+};
+
+// ───────────────────────────────────────────────
+//  Config persistence (localStorage)
+// ───────────────────────────────────────────────
+window.saveConfig = function () {
+  const providerKey = (document.getElementById("apiProvider")?.value || "").trim();
+  const key         = (document.getElementById("apiKey")?.value     || "").trim();
+  const model       = (document.getElementById("modelSelect")?.value || "").trim();
+
+  if (providerKey) localStorage.setItem("mudprovider",                  providerKey);
+  if (key)         localStorage.setItem("mudapikey" + providerKey,       key);
+  if (model)       localStorage.setItem("mudmodel"  + providerKey,       model);
+
+  localStorage.setItem("mudoptfallback",    document.getElementById("optFallback")?.checked    ? "1" : "0");
+  localStorage.setItem("mudoptsavekeyfile", document.getElementById("optSaveKeyInFile")?.checked ? "1" : "0");
+};
+
+function loadConfig() {
+  const savedProvider = localStorage.getItem("mudprovider") || "openrouter";
+  const providerSel   = document.getElementById("apiProvider");
+  if (providerSel) providerSel.value = savedProvider;
+
+  handleProviderChange();
+
+  const savedModel = localStorage.getItem("mudmodel" + savedProvider);
+  if (savedModel) {
+    const modelSel = document.getElementById("modelSelect");
+    if (modelSel) {
+      const opt = Array.from(modelSel.options).find(o => o.value === savedModel);
+      if (opt) modelSel.value = savedModel;
+    }
+  }
+
+  const optFallback     = document.getElementById("optFallback");
+  const optSaveKeyFile  = document.getElementById("optSaveKeyInFile");
+  if (optFallback)    optFallback.checked    = localStorage.getItem("mudoptfallback")    === "1";
+  if (optSaveKeyFile) optSaveKeyFile.checked = localStorage.getItem("mudoptsavekeyfile") === "1";
+}
+
+// ───────────────────────────────────────────────
+//  Save / Load game
+// ───────────────────────────────────────────────
+window.saveGame = function () {
+  const includeKey = getOptSaveKeyInFile();
+  const providerKey = document.getElementById("apiProvider")?.value || "";
+
+  const saveData = {
+    version:      "2.0",
+    timestamp:    new Date().toISOString(),
+    gameState:    JSON.parse(JSON.stringify(gameState)),
+    messageHistory: messageHistory.slice(-20),  // 只存最近 20 筆
+    config: {
+      provider:  providerKey,
+      model:     document.getElementById("modelSelect")?.value || "",
+      apiKey:    includeKey ? (document.getElementById("apiKey")?.value || "") : "",
+      fallback:  getOptFallbackEnabled()
+    }
+  };
+
+  const blob = new Blob([JSON.stringify(saveData, null, 2)], { type: "application/json" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  const ts   = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  a.href     = url;
+  a.download = `kawan-melayu-save-${ts}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  appendUI("✅ 存檔完成！", "mud-ai mud-system", false);
+};
+
+window.loadGame = function (event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+
+      if (data.gameState)      Object.assign(gameState, data.gameState);
+      if (data.messageHistory) messageHistory = data.messageHistory;
+      else                     messageHistory = [{ role: "system", content: buildSystemPrompt() }];
+
+      if (data.config) {
+        const providerSel = document.getElementById("apiProvider");
+        const modelSel    = document.getElementById("modelSelect");
+        const apiKeyInput = document.getElementById("apiKey");
+        const optFallback = document.getElementById("optFallback");
+
+        if (data.config.provider && providerSel) {
+          providerSel.value = data.config.provider;
+          handleProviderChange();
+        }
+        if (data.config.model && modelSel) {
+          const opt = Array.from(modelSel.options).find(o => o.value === data.config.model);
+          if (opt) modelSel.value = data.config.model;
+        }
+        if (data.config.apiKey && apiKeyInput) apiKeyInput.value = data.config.apiKey;
+        if (typeof data.config.fallback === "boolean" && optFallback)
+          optFallback.checked = data.config.fallback;
+      }
+
+      // Re-render chat
+      const chatBox = document.getElementById("mudChatBox");
+      if (chatBox) chatBox.innerHTML = `<div class="mud-loading" id="mudLoading" style="display:none"><span class="loading-dots">AI 思考中<span>.</span><span>.</span><span>.</span></span></div>`;
+
+      messageHistory.forEach(m => {
+        if (m.role === "user")      appendUI(m.content, "mud-user");
+        else if (m.role === "assistant") appendUI(extractTextForUI(m.content), "mud-ai");
+      });
+
+      updateStatusUI();
+      enableRetryButton(false);
+      appendUI("✅ 讀檔完成！等級 Lv." + gameState.level + "，繼續加油！", "mud-ai mud-system", false);
+    } catch (err) {
+      appendUI("❌ 讀檔失敗，請確認檔案格式正確。", "mud-ai mud-system", false);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = "";
+};
+
+// ───────────────────────────────────────────────
+//  Chat controls
+// ───────────────────────────────────────────────
 window.stopRequest = function () {
   if (currentAbortController) {
     try { currentAbortController.abort(); } catch (e) {}
@@ -143,33 +356,40 @@ window.retryLastMessage = function () {
 window.clearChat = function () {
   messageHistory = [{ role: "system", content: buildSystemPrompt() }];
   const chat = document.getElementById("mudChatBox");
-  if (chat) chat.innerHTML = `<div class="mud-loading" id="mudLoading" style="display:none">AI 思考中...</div>`;
+  if (chat) chat.innerHTML = `<div class="mud-loading" id="mudLoading" style="display:none"><span class="loading-dots">AI 思考中<span>.</span><span>.</span><span>.</span></span></div>`;
   enableRetryButton(false);
+  appendUI("💬 對話已清空，重新開始吧！輸入任何話來呼叫 AI 導師。", "mud-ai mud-system", false);
 };
 
+window.toggleHelpModal = function () {
+  const modal = document.getElementById("helpModal");
+  if (!modal) return;
+  modal.style.display = modal.style.display === "flex" ? "none" : "flex";
+};
+
+window.toggleSidebar = function () {
+  const container = document.getElementById("mudContainer");
+  if (container) container.classList.toggle("sidebar-collapsed");
+};
+
+// ───────────────────────────────────────────────
+//  History pruning
+// ───────────────────────────────────────────────
 function pruneHistoryKeepRecentTurns(maxTurns = 6) {
   if (!messageHistory || messageHistory.length <= 1) return;
-  const system = messageHistory[0] && messageHistory[0].role === "system"
+  const system = messageHistory[0]?.role === "system"
     ? messageHistory[0]
     : { role: "system", content: buildSystemPrompt() };
 
-  const rest = messageHistory.slice(1);
+  const rest      = messageHistory.slice(1);
   const keepCount = Math.max(0, maxTurns * 2);
-  const trimmed = rest.length > keepCount ? rest.slice(rest.length - keepCount) : rest;
-
-  messageHistory = [system, ...trimmed];
+  const trimmed   = rest.length > keepCount ? rest.slice(rest.length - keepCount) : rest;
+  messageHistory  = [system, ...trimmed];
 }
 
-function normalizeErrorMessage(err, res) {
-  if (err && err.name === "AbortError") return "已停止請求。";
-  if (res && res.status === 401) return "API Key 無效或未授權（401）。";
-  if (res && res.status === 405) return "這個供應商端點不支援目前的呼叫方式（405）。請換模型/供應商，或改用正確端點。";
-  if (res && res.status === 429) return "請求太頻繁或額度限制（429），請稍後再試或換模型/供應商。";
-  if (res && res.status >= 500) return `供應商伺服器錯誤（${res.status}），稍後再試或開啟自動備援。`;
-  if (err && err.message) return err.message;
-  return "請求失敗，請稍後再試。";
-}
-
+// ───────────────────────────────────────────────
+//  Text cleanup
+// ───────────────────────────────────────────────
 function stripTrailingActionLikeLines(text) {
   if (!text) return "";
   let t = String(text).replace(/\r\n/g, "\n");
@@ -193,24 +413,21 @@ function extractTextForUI(text) {
   clean = stripTrailingActionLikeLines(clean);
   clean = clean.replace(/^\s*action\s*/gim, "");
   clean = clean.replace(/<\/?action>/gi, "");
-  clean = clean.replace(/```json/gi, "");
-  clean = clean.replace(/```/gi, "");
+  clean = clean.replace(/```json/gi, "").replace(/```/gi, "");
   return clean.trim();
 }
 
 function tryParseActionFromText(text) {
   const t = String(text || "");
   let match = t.match(/<\s*action\s*>([\s\S]*?)<\/\s*action\s*>/i);
-  if (match && match[1]) {
-    const jsonString = match[1].replace(/```json/gi, "").replace(/```/gi, "").trim();
-    try { return JSON.parse(jsonString); } catch (e) {}
+  if (match?.[1]) {
+    const s = match[1].replace(/```json/gi, "").replace(/```/gi, "").trim();
+    try { return JSON.parse(s); } catch (e) {}
   }
-
   match = t.match(/\baction\s*\"?\s*({[\s\S]*?})/i);
-  if (match && match[1]) {
+  if (match?.[1]) {
     try { return JSON.parse(match[1]); } catch (e) {}
   }
-
   const candidates = t.match(/{[\s\S]*?}/g) || [];
   for (const c of candidates) {
     if (!/confdelta|fludelta|leveldelta|location|vocabadded/i.test(c)) continue;
@@ -221,132 +438,137 @@ function tryParseActionFromText(text) {
 
 function applyActionDeltas(text) {
   const action = tryParseActionFromText(text);
-  if (action) {
-    try {
-      if (typeof action.confdelta === "number") gameState.confidence += action.confdelta;
-      if (typeof action.fludelta === "number") gameState.fluency += action.fludelta;
-      if (typeof action.leveldelta === "number") gameState.level += action.leveldelta;
-
-      if (action.location !== undefined && action.location !== null && String(action.location).trim() !== "") {
-        gameState.location = String(action.location);
-      }
-
-      if (action.vocabadded !== undefined && action.vocabadded !== null) {
-        let words = String(action.vocabadded).split(",");
-        words.forEach(w => {
-          let trimmed = w.trim();
-          if (trimmed && !gameState.vocabulary.includes(trimmed)) gameState.vocabulary.push(trimmed);
-        });
-      }
-    } catch (e) {
-      console.warn("Action apply error", e);
+  if (!action) { updateStatusUI(); return; }
+  try {
+    if (typeof action.confdelta  === "number") gameState.confidence += action.confdelta;
+    if (typeof action.fludelta   === "number") gameState.fluency    += action.fludelta;
+    if (typeof action.leveldelta === "number") gameState.level      += action.leveldelta;
+    if (action.location && String(action.location).trim())
+      gameState.location = String(action.location).trim();
+    if (action.vocabadded) {
+      String(action.vocabadded).split(",").forEach(w => {
+        const t = w.trim();
+        if (t && !gameState.vocabulary.includes(t)) gameState.vocabulary.push(t);
+      });
     }
-  }
-
+  } catch (e) { console.warn("Action apply error", e); }
   updateStatusUI();
 }
 
-function messagesToGeminiText(messages) {
-  // Convert OpenAI-style messages to a single text prompt.
-  return (messages || [])
-    .map(m => {
-      const role = (m.role || "").toLowerCase();
-      const prefix = role === "system" ? "系統" : role === "user" ? "使用者" : "助理";
-      return `${prefix}：${m.content || ""}`;
-    })
-    .join("\n\n");
+// ───────────────────────────────────────────────
+//  Error normalisation
+// ───────────────────────────────────────────────
+function normalizeErrorMessage(err, res) {
+  if (err?.name === "AbortError")   return "⏹ 已停止請求。";
+  if (res?.status === 401)          return "❌ API Key 無效或未授權（401）。";
+  if (res?.status === 403)          return "❌ 存取被拒（403），請確認 Key 有效。";
+  if (res?.status === 405)          return "❌ 端點不支援此呼叫方式（405），請換供應商或模型。";
+  if (res?.status === 429)          return "⏳ 請求太頻繁或額度已滿（429），請稍後再試。";
+  if (res?.status >= 500)           return `🔴 供應商伺服器錯誤（${res.status}），稍後再試或開啟自動備援。`;
+  if (err?.message)                  return err.message;
+  return "❌ 請求失敗，請稍後再試。";
 }
 
+// ───────────────────────────────────────────────
+//  Gemini native API
+// ───────────────────────────────────────────────
+function messagesToGeminiContents(messages) {
+  const result = [];
+  // System message → first user turn prefix
+  const system = messages.find(m => m.role === "system");
+  const others  = messages.filter(m => m.role !== "system");
+
+  if (system) {
+    result.push({ role: "user", parts: [{ text: "[系統指示]\n" + system.content }] });
+    result.push({ role: "model", parts: [{ text: "我已了解指示，準備開始。" }] });
+  }
+
+  others.forEach(m => {
+    result.push({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content || "" }]
+    });
+  });
+  return result;
+}
+
+// ───────────────────────────────────────────────
+//  API request
+// ───────────────────────────────────────────────
 async function requestWithProvider({ providerKey, key, modelId, payloadMessages, signal }) {
-  const provider = PROVIDERS[providerKey];
-  let activeModel = modelId;
+  const provider    = PROVIDERS[providerKey];
+  let   activeModel = modelId;
 
-  if (modelId === "auto" && providerKey === "openrouter") activeModel = "meta-llama/llama-3.3-70b-instruct:free";
+  if (modelId === "auto" && providerKey === "openrouter")
+    activeModel = "meta-llama/llama-3.3-70b-instruct:free";
 
-  // Gemini: use native generateContent
+  // ── Gemini native generateContent ──
   if (providerKey === "gemini") {
-    const url = `${provider.baseUrl}/${encodeURIComponent(activeModel)}:generateContent?key=${encodeURIComponent(key)}`;
+    const url  = `${provider.baseUrl}/${encodeURIComponent(activeModel)}:generateContent?key=${encodeURIComponent(key)}`;
     const body = {
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: messagesToGeminiText(payloadMessages) }]
-        }
-      ],
-      generationConfig: {
-        temperature: 0.7
-      }
+      contents: messagesToGeminiContents(payloadMessages),
+      generationConfig: { temperature: 0.7 }
     };
-
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
       signal
     });
-
     return { res, activeModel, isGeminiNative: true };
   }
 
-  // Others: OpenAI-compatible chat/completions
-  const url = provider.baseUrl;
-  const headers = { "Content-Type": "application/json" };
-  headers["Authorization"] = `Bearer ${key}`;
-
-  const res = await fetch(url, {
+  // ── OpenAI-compatible ──
+  const res = await fetch(provider.baseUrl, {
     method: "POST",
-    headers,
+    headers: {
+      "Content-Type":  "application/json",
+      "Authorization": `Bearer ${key}`
+    },
     body: JSON.stringify({
-      model: activeModel,
-      messages: payloadMessages,
+      model:       activeModel,
+      messages:    payloadMessages,
       temperature: 0.7
     }),
     signal
   });
-
   return { res, activeModel, isGeminiNative: false };
 }
 
 function extractAiTextFromResponse(providerKey, data) {
   if (providerKey === "gemini") {
-    const text =
-      data && data.candidates && data.candidates[0] && data.candidates[0].content &&
-      Array.isArray(data.candidates[0].content.parts)
-        ? data.candidates[0].content.parts.map(p => p.text || "").join("")
-        : "";
-    return text;
+    return (data?.candidates?.[0]?.content?.parts || [])
+      .map(p => p.text || "").join("");
   }
-
-  return (data && data.choices && data.choices[0] && data.choices[0].message)
-    ? (data.choices[0].message.content || "")
-    : "";
+  return data?.choices?.[0]?.message?.content || "";
 }
 
 function getFallbackChain(primaryKey) {
-  const enabled = getOptFallbackEnabled();
-  if (!enabled) return [primaryKey];
+  if (!getOptFallbackEnabled()) return [primaryKey];
   return [primaryKey, ...FALLBACK_ORDER.filter(k => k !== primaryKey)];
 }
 
+// ───────────────────────────────────────────────
+//  Send message
+// ───────────────────────────────────────────────
 window.sendMessage = async function (isRetry = false) {
   const providerKey = document.getElementById("apiProvider").value;
-  const modelId = document.getElementById("modelSelect").value;
-
-  const input = document.getElementById("userInput");
-  const text = input.value.trim();
+  const modelId     = document.getElementById("modelSelect").value;
+  const input       = document.getElementById("userInput");
+  const text        = input.value.trim();
 
   if (input.disabled || !text) return;
 
   const getKeyForProvider = (pk) => {
     const currentSelected = document.getElementById("apiProvider").value;
-    const directInput = document.getElementById("apiKey").value.trim();
+    const directInput     = document.getElementById("apiKey").value.trim();
     if (pk === currentSelected && directInput) return directInput;
     return (localStorage.getItem("mudapikey" + pk) || "").trim();
   };
 
   const primaryKey = getKeyForProvider(providerKey);
   if (!primaryKey) {
-    appendUI("請先填入 API Key（或為備援供應商也填好 Key）。", "mud-ai", true);
+    appendUI("⚠️ 請先填入 API Key（或為備援供應商也填好 Key）。", "mud-ai mud-system", false);
     return;
   }
 
@@ -358,25 +580,23 @@ window.sendMessage = async function (isRetry = false) {
 
   setBusyUI(true);
   enableRetryButton(false);
-
   appendUI(text, "mud-user");
   input.value = "";
 
   const loader = document.getElementById("mudLoading");
   if (loader) loader.style.display = "block";
 
-  if (messageHistory.length === 0) messageHistory.push({ role: "system", content: buildSystemPrompt() });
-  if (messageHistory[0].role === "system") messageHistory[0].content = buildSystemPrompt();
+  if (messageHistory.length === 0)
+    messageHistory.push({ role: "system", content: buildSystemPrompt() });
+  if (messageHistory[0].role === "system")
+    messageHistory[0].content = buildSystemPrompt();
 
   messageHistory.push({ role: "user", content: text });
   pruneHistoryKeepRecentTurns(6);
 
   let payloadMessages = JSON.parse(JSON.stringify(messageHistory));
-  if (payloadMessages[0].role !== "system") payloadMessages[0].role = "user";
-  payloadMessages[0].content = payloadMessages[0].content || "";
 
   currentAbortController = new AbortController();
-
   const chain = getFallbackChain(providerKey);
   let lastErr = null;
 
@@ -389,31 +609,27 @@ window.sendMessage = async function (isRetry = false) {
         let res = null;
         try {
           const out = await requestWithProvider({
-            providerKey: pk,
-            key,
-            modelId,
-            payloadMessages,
-            signal: currentAbortController.signal
+            providerKey: pk, key, modelId,
+            payloadMessages, signal: currentAbortController.signal
           });
           res = out.res;
 
           if (!res.ok) {
             if ((res.status === 429 || res.status >= 500) && r < MAX_AUTO_RETRIES) {
-              await new Promise(s => setTimeout(s, 400 + r * 600));
+              await new Promise(s => setTimeout(s, 500 + r * 800));
               continue;
             }
             throw { res };
           }
 
-          const data = await res.json();
+          const data  = await res.json();
           const aiMsg = extractAiTextFromResponse(pk, data);
           if (!aiMsg) throw new Error("Empty response.");
 
           lastProviderKeyUsed = pk;
-          lastModelUsed = out.activeModel;
+          lastModelUsed       = out.activeModel;
 
           applyActionDeltas(aiMsg);
-
           const cleanMsg = extractTextForUI(aiMsg);
 
           messageHistory.push({ role: "assistant", content: aiMsg });
@@ -421,6 +637,7 @@ window.sendMessage = async function (isRetry = false) {
 
           if (loader) loader.style.display = "none";
 
+          // Typewriter effect
           const b = document.getElementById("mudChatBox");
           const d = document.createElement("div");
           d.className = "mud-msg mud-ai";
@@ -432,7 +649,7 @@ window.sendMessage = async function (isRetry = false) {
               d.textContent = cleanMsg.substring(0, i + 1);
               i++;
               b.scrollTop = b.scrollHeight;
-              setTimeout(typeWriter, 12);
+              setTimeout(typeWriter, 10);
             } else {
               d.innerHTML = marked.parse(cleanMsg);
               b.scrollTop = b.scrollHeight;
@@ -445,45 +662,45 @@ window.sendMessage = async function (isRetry = false) {
 
           currentAbortController = null;
           return;
+
         } catch (e) {
-          if (e && e.name === "AbortError") throw e;
+          if (e?.name === "AbortError") throw e;
           lastErr = e;
-          if (e && e.res && !(e.res.status === 429 || e.res.status >= 500)) break;
+          if (e?.res && !(e.res.status === 429 || e.res.status >= 500)) break;
         }
       }
     }
-
     throw lastErr || new Error("All providers failed.");
+
   } catch (e) {
     if (loader) loader.style.display = "none";
-
-    if (e && e.name === "AbortError") {
-      appendUI("已停止請求。", "mud-ai", true);
-    } else if (e && e.res) {
-      appendUI(normalizeErrorMessage(null, e.res), "mud-ai", true);
-    } else {
-      appendUI(normalizeErrorMessage(e, null), "mud-ai", true);
-    }
+    if (e?.name === "AbortError")
+      appendUI("⏹ 已停止請求。", "mud-ai mud-system", false);
+    else if (e?.res)
+      appendUI(normalizeErrorMessage(null, e.res), "mud-ai mud-system", false);
+    else
+      appendUI(normalizeErrorMessage(e, null), "mud-ai mud-system", false);
 
     setBusyUI(false);
     enableRetryButton(true);
-
     currentAbortController = null;
   }
 };
 
-function appendUI(t, c, html = false) {
-  const b = document.getElementById("mudChatBox");
-  const d = document.createElement("div");
-  d.className = "mud-msg " + c;
-  if (html) d.innerHTML = t;
-  else d.textContent = t;
-  b.insertBefore(d, document.getElementById("mudLoading"));
-  b.scrollTop = b.scrollHeight;
-}
-
+// ───────────────────────────────────────────────
+//  Keyboard
+// ───────────────────────────────────────────────
 window.handleKeyPress = function (e) {
-  if (e.key === "Enter" && !e.shiftKey && !document.getElementById("sendBtn").disabled) sendMessage();
+  if (e.key === "Enter" && !e.shiftKey && !document.getElementById("sendBtn").disabled)
+    sendMessage();
 };
 
-// (以下 save/load/provider UI 與狀態 UI 相關函式保持不變，略)
+// ───────────────────────────────────────────────
+//  Init
+// ───────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  loadConfig();
+  updateStatusUI();
+  messageHistory = [{ role: "system", content: buildSystemPrompt() }];
+  appendUI("🌴 Selamat Datang！輸入任何話，AI 導師就會出現。試試說：『我想點一杯 Teh Tarik！』", "mud-ai mud-system", false);
+});

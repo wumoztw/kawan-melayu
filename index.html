@@ -10,43 +10,50 @@
 </head>
 
 <body>
+
   <!-- Help Modal -->
-  <div id="helpModal" class="modal-overlay" onclick="if(event.target === this) toggleHelpModal()">
+  <div id="helpModal" class="modal-overlay" onclick="if(event.target===this)toggleHelpModal()">
     <div class="modal-content">
       <div class="modal-header">
         <h2>玩法說明</h2>
         <button class="close-btn" onclick="toggleHelpModal()">&times;</button>
       </div>
-
       <div class="info-grid">
         <div class="info-card green-card">
           <div class="card-title">✅ 目標</div>
           <div>用馬來語和 AI 對話，提升 Fluency，並維持 Confidence。</div>
         </div>
-
         <div class="info-card orange-card">
           <div class="card-title">⚠️ 注意</div>
           <div>輸入越自然、越能帶出情境，越容易升級與解鎖新詞彙。</div>
+        </div>
+        <div class="info-card blue-card">
+          <div class="card-title">📈 等級系統</div>
+          <div>Lv.1–3 以華語為主；Lv.4–6 轉以馬來文為主；Lv.7+ 幾乎全馬來文。</div>
+        </div>
+        <div class="info-card purple-card">
+          <div class="card-title">💾 存檔 / 讀檔</div>
+          <div>Save 可下載 JSON 存檔；Load 可還原進度。API Key 可選擇是否一起存入。</div>
         </div>
       </div>
     </div>
   </div>
 
   <div id="mud-app-root">
-    <div class="mud-container">
+    <div class="mud-container sidebar-collapsed" id="mudContainer">
+
+      <!-- ===== Header ===== -->
       <div class="mud-header">
         <div class="header-top">
-          <div class="mud-title-main">Kawan Melayu</div>
+          <div class="mud-title-main">🌴 Kawan Melayu</div>
           <button class="help-trigger" onclick="toggleHelpModal()">?</button>
         </div>
-
-        <div class="mud-title-sub">v1.0</div>
-
+        <div class="mud-title-sub">v2.0 — AI 馬來語情境學習</div>
         <div class="header-info">
           <div class="welcome-text">Selamat Datang!</div>
           <div class="welcome-sub">歡迎回來，準備好練馬來語了嗎？</div>
           <div class="intro-text">
-            這是一個用 AI 互動練習馬來語的簡易遊戲。你可以選擇不同的 API Provider，並用自己的 Key 來玩。
+            這是一個用 AI 互動練習馬來語的情境遊戲。選擇 API Provider，填入你的 Key 即可開始。
           </div>
           <div class="api-links">
             <span class="text-highlight">取得 API Key：</span>
@@ -58,33 +65,31 @@
         </div>
       </div>
 
+      <!-- ===== Status Bar ===== -->
       <div class="mud-status-bar" id="mudStatusBar">
         <div class="mud-status-item">
-          <span style="color: var(--color-red); font-weight: bold;">HP</span>
+          <span style="color:var(--color-red);font-weight:bold;">HP</span>
           <div class="mud-val-container">
-            <div id="hpBar" class="mud-progress progress-hp" style="width: 100%"></div>
+            <div id="hpBar" class="mud-progress progress-hp" style="width:100%"></div>
           </div>
           <span id="hpVal" class="mud-val">100</span>
         </div>
-
         <div class="mud-status-item">
-          <span style="color: var(--color-blue); font-weight: bold;">EN</span>
+          <span style="color:var(--color-blue);font-weight:bold;">EN</span>
           <div class="mud-val-container">
-            <div id="enBar" class="mud-progress progress-en" style="width: 0%"></div>
+            <div id="enBar" class="mud-progress progress-en" style="width:0%"></div>
           </div>
           <span id="enVal" class="mud-val">0</span>
         </div>
-
         <div class="mud-status-item">
           <span class="level-tag" id="levelVal">Lv. 1</span>
         </div>
-
         <div class="mud-status-item">
           <span class="location-tag" id="locVal">Mamak Stall</span>
         </div>
       </div>
 
-      <!-- Settings -->
+      <!-- ===== Settings ===== -->
       <div class="mud-settings">
         <div class="mud-row">
           <select id="apiProvider" onchange="handleProviderChange()">
@@ -101,13 +106,12 @@
           </select>
 
           <div class="mud-btn-group">
-            <button class="mud-btn mud-btn-save" onclick="saveGame()">Save</button>
-            <button class="mud-btn mud-btn-load" onclick="document.getElementById('fileInput').click()">Load</button>
+            <button class="mud-btn mud-btn-save" onclick="saveGame()">💾 Save</button>
+            <button class="mud-btn mud-btn-load" onclick="document.getElementById('fileInput').click()">📂 Load</button>
             <input type="file" id="fileInput" style="display:none" onchange="loadGame(event)" />
-
-            <button class="mud-btn mud-btn-stop" id="stopBtn" onclick="stopRequest()" disabled>Stop</button>
-            <button class="mud-btn mud-btn-retry" id="retryBtn" onclick="retryLastMessage()" disabled>Retry</button>
-            <button class="mud-btn mud-btn-clear" id="clearBtn" onclick="clearChat()">Clear</button>
+            <button class="mud-btn mud-btn-stop" id="stopBtn" onclick="stopRequest()" disabled>⏹ Stop</button>
+            <button class="mud-btn mud-btn-retry" id="retryBtn" onclick="retryLastMessage()" disabled>🔁 Retry</button>
+            <button class="mud-btn mud-btn-clear" id="clearBtn" onclick="clearChat()">🗑 Clear</button>
           </div>
 
           <div class="mud-opt-row">
@@ -123,26 +127,32 @@
         </div>
       </div>
 
+      <!-- ===== Chat Box ===== -->
       <div class="mud-chat-box" id="mudChatBox">
-        <div class="mud-loading" id="mudLoading" style="display:none">AI thinking...</div>
+        <div class="mud-loading" id="mudLoading" style="display:none">
+          <span class="loading-dots">AI 思考中<span>.</span><span>.</span><span>.</span></span>
+        </div>
       </div>
 
+      <!-- ===== Side Panel (Vocab) ===== -->
       <div class="mud-side-panel">
-        <div class="panel-header" style="display:flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--color-border); margin-bottom: 15px; padding-bottom: 5px;">
-          <div class="panel-title" style="margin-bottom: 0; border-bottom:none; padding-bottom: 0;">Kosa Kata</div>
+        <div class="panel-header">
+          <div class="panel-title">📖 Kosa Kata</div>
+          <span id="vocabCount" class="vocab-count">0 個詞</span>
         </div>
         <div id="inventoryList" class="vocab-list"></div>
       </div>
 
+      <!-- ===== Input Area ===== -->
       <div class="mud-input-area">
-        <input type="text" id="userInput" placeholder="Nasi Lemak..." onkeypress="handleKeyPress(event)" />
-        <button id="sendBtn" onclick="sendMessage()">Send</button>
-        <button class="vocab-toggle" onclick="toggleSidebar()">≡</button>
+        <input type="text" id="userInput" placeholder="輸入馬來語或中文…" onkeypress="handleKeyPress(event)" />
+        <button id="sendBtn" onclick="sendMessage()">送出</button>
+        <button class="vocab-toggle" onclick="toggleSidebar()" title="詞彙表">≡</button>
       </div>
+
     </div>
   </div>
 
-  <!-- Cache-busting to avoid stale JS on GitHub Pages -->
-  <script src="game.js?v=20260227_234900"></script>
+  <script src="game.js?v=20260228_000000"></script>
 </body>
 </html>
