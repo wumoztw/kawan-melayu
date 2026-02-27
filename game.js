@@ -246,9 +246,12 @@ function extractTextForUI(text) {
   // Remove action blocks completely for UI
   clean = clean.replace(/<\s*action\s*>[\s\S]*?<\/\s*action\s*>/gi, "");
 
-  // Remove possible unclosed action blocks or stray "action" labels
+  // Remove possible unclosed action blocks
   clean = clean.replace(/<\s*action\s*>[\s\S]*$/gi, "");
-  clean = clean.replace(/^\s*action\s*/i, "");
+
+  // Remove 'action{...}' or 'action"{...}' or line-start 'action' labels
+  clean = clean.replace(/\baction\s*"?\s*{[\s\S]*?}\s*$/gim, "");
+  clean = clean.replace(/^\s*action\s*/gim, "");
 
   // Cleanup stray tags/fences
   clean = clean.replace(/<\/?action>/gi, "");
