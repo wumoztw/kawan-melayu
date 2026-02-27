@@ -112,7 +112,7 @@ function setBusyUI(isBusy) {
   const stopBtn = document.getElementById("stopBtn");
   if (input) input.disabled = isBusy;
   if (sendBtn) sendBtn.disabled = isBusy;
-  if (sendBtn) sendBtn.innerText = isBusy ? "..." : "Send";
+  if (sendBtn) sendBtn.innerText = isBusy ? "..." : "送出";
   if (stopBtn) stopBtn.disabled = !isBusy;
 }
 
@@ -138,7 +138,7 @@ window.clearChat = function () {
   // Keep gameState, reset history and UI
   messageHistory = [{ role: "system", content: buildSystemPrompt() }];
   const chat = document.getElementById("mudChatBox");
-  if (chat) chat.innerHTML = `<div class="mud-loading" id="mudLoading" style="display:none">AI thinking...</div>`;
+  if (chat) chat.innerHTML = `<div class="mud-loading" id="mudLoading" style="display:none">AI 思考中...</div>`;
   enableRetryButton(false);
 };
 
@@ -231,7 +231,7 @@ window.updateStatusUI = function () {
 if (messageHistory.length === 0) messageHistory.push({ role: "system", content: buildSystemPrompt() });
 
 if (gameState.confidence <= 0) {
-  appendUI("Game Over.", "mud-ai", true);
+  appendUI("遊戲結束。", "mud-ai", true);
   document.getElementById("sendBtn").disabled = true;
   document.getElementById("userInput").disabled = true;
 }
@@ -245,6 +245,10 @@ function extractTextForUI(text) {
 
   // Remove action blocks completely for UI
   clean = clean.replace(/<\s*action\s*>[\s\S]*?<\/\s*action\s*>/gi, "");
+
+  // Remove possible unclosed action blocks or stray "action" labels
+  clean = clean.replace(/<\s*action\s*>[\s\S]*$/gi, "");
+  clean = clean.replace(/^\s*action\s*/i, "");
 
   // Cleanup stray tags/fences
   clean = clean.replace(/<\/?action>/gi, "");
@@ -262,7 +266,13 @@ function tryParseActionFromText(text) {
     try { return JSON.parse(jsonString); } catch (e) {}
   }
 
-  // Priority 2: first JSON object that contains any expected keys
+  // Priority 2: action"{...}" (malformed) or action{...}
+  match = text.match(/\baction\s*"?\s*({[\s\S]*?})/i);
+  if (match && match[1]) {
+    try { return JSON.parse(match[1]); } catch (e) {}
+  }
+
+  // Priority 3: first JSON object that contains any expected keys
   const candidates = text.match(/{[\s\S]*?}/g) || [];
   for (const c of candidates) {
     if (!/confdelta|fludelta|leveldelta|location|vocabadded/i.test(c)) continue;
@@ -369,7 +379,7 @@ window.sendMessage = async function (isRetry = false) {
   input.value = "";
 
   const loader = document.getElementById("mudLoading");
-  loader.style.display = "block";
+  if (loader) loader.style.display = "block";
 
   // Ensure system message is present and up-to-date
   if (messageHistory.length === 0) messageHistory.push({ role: "system", content: buildSystemPrompt() });
@@ -438,7 +448,7 @@ window.sendMessage = async function (isRetry = false) {
           messageHistory.push({ role: "assistant", content: aiMsg });
           pruneHistoryKeepRecentTurns(6);
 
-          loader.style.display = "none";
+          if (loader) loader.style.display = "none";
 
           const b = document.getElementById("mudChatBox");
           const d = document.createElement("div");
@@ -476,7 +486,7 @@ window.sendMessage = async function (isRetry = false) {
 
     throw lastErr || new Error("All providers failed.");
   } catch (e) {
-    loader.style.display = "none";
+    if (loader) loader.style.display = "none";
 
     // If aborted: do not pop message history aggressively
     if (e && e.name === "AbortError") {
@@ -562,7 +572,7 @@ window.loadGame = function (event) {
       }
 
       document.getElementById("mudChatBox").innerHTML =
-        `<div class="mud-loading" id="mudLoading" style="display:none">AI thinking...</div>`;
+        `<div class="mud-loading" id="mudLoading" style="display:none">AI 思考中...</div>`;
 
       messageHistory.forEach(m => {
         if (m.role === "user" && !m.content.includes("<action>")) appendUI(m.content, "mud-user");
@@ -571,7 +581,7 @@ window.loadGame = function (event) {
 
       enableRetryButton(!!lastUserMessageText);
     } catch (err) {
-      alert("Load failed.");
+      alert("讀取失敗。請確認存檔格式正確。");
     }
   };
 
