@@ -1,7 +1,7 @@
 /* ============================================================
-   Kawan Melayu — game.js (ChatGPT-like layout v3.2)
-   - 保留原本功能：多 Provider、fallback、save/load、action 解析、打字機效果
-   - 修正：右上角「設定」按鈕，會自動開啟側欄並展開設定抽屜
+   Kawan Melayu — game.js (ChatGPT-like layout v3.3)
+   - 多 Provider、fallback、save/load、action 解析、打字機效果
+   - 更新：聊天視窗改為「智能滾動」：使用者在底部才自動捲動；使用者往上滑閱讀時不會被強制拉回底部
    ============================================================ */
 
 if (window.marked) marked.setOptions({ breaks: true, gfm: true });
@@ -176,13 +176,11 @@ window.closeRightPanel = function () {
 window.toggleSettingsDrawer = function () {
   const willOpen = isShellClass("settings-collapsed");
 
-  // Settings drawer lives inside sidebar: ensure sidebar is visible first.
   if (willOpen) {
     openRightPanel();
     setShellClass("settings-collapsed", false);
     localStorage.setItem("mud_settings_open", "1");
 
-    // Small UX: scroll to settings section when sidebar is opened (esp. on mobile).
     setTimeout(() => {
       const el = document.getElementById("settingsDrawer");
       try { el?.scrollIntoView({ block: "start" }); } catch (e) {}
@@ -222,11 +220,29 @@ function enableRetryButton(enabled) {
 }
 
 /* =========================
+   Chat scrolling
+   ========================= */
+function isNearBottom(el, threshold = 120) {
+  if (!el) return true;
+  const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
+  return distance <= threshold;
+}
+
+function scrollToBottom(el) {
+  if (!el) return;
+  el.scrollTop = el.scrollHeight;
+}
+
+/* =========================
    Chat rendering
    ========================= */
 function appendUI(t, c, html = false) {
   const b = document.getElementById("mudChatBox");
+  if (!b) return;
+
   const loading = document.getElementById("mudLoading");
+  const stick = isNearBottom(b);
+
   const d = document.createElement("div");
   d.className = "mud-msg " + c;
   if (html) d.innerHTML = t;
@@ -235,7 +251,7 @@ function appendUI(t, c, html = false) {
   if (loading) b.insertBefore(d, loading);
   else b.appendChild(d);
 
-  b.scrollTop = b.scrollHeight;
+  if (stick) scrollToBottom(b);
 }
 
 function updateStatusUI() {
@@ -343,7 +359,7 @@ window.saveGame = function () {
   const providerKey = document.getElementById("apiProvider")?.value || "";
 
   const saveData = {
-    version: "3.2-ui-ocean",
+    version: "3.3-ui-smart-scroll",
     timestamp: new Date().toISOString(),
     gameState: JSON.parse(JSON.stringify(gameState)),
     messageHistory: messageHistory.slice(-20),
@@ -412,6 +428,8 @@ window.loadGame = function (event) {
         else if (m.role === "assistant") appendUI(extractTextForUI(m.content), "mud-ai");
       });
 
+      if (chatBox) scrollToBottom(chatBox);
+
       updateStatusUI();
       enableRetryButton(false);
       appendUI("✅ 讀檔完成！繼續加油～", "mud-ai mud-system", false);
@@ -450,6 +468,7 @@ window.clearChat = function () {
   }
   enableRetryButton(false);
   appendUI("💬 新對話已開始。你可以在下方輸入一句話。", "mud-ai mud-system", false);
+  if (chat) scrollToBottom(chat);
 };
 
 window.toggleHelpModal = function () {
@@ -724,22 +743,33 @@ window.sendMessage = async function (isRetry = false) {
 
           if (loader) loader.style.display = "none";
 
-          // Typewriter effect
+          // Typewriter effect (smart scroll)
           const b = document.getElementById("mudChatBox");
           const d = document.createElement("div");
           d.className = "mud-msg mud-ai";
           b.insertBefore(d, document.getElementById("mudLoading"));
 
           let i = 0;
+          let stickToBottom = isNearBottom(b);
+
+          function maybeStick() {
+            if (!stickToBottom) return;
+            if (!isNearBottom(b, 260)) {
+              stickToBottom = false;
+              return;
+            }
+            scrollToBottom(b);
+          }
+
           function typeWriter() {
             if (i < cleanMsg.length) {
               d.textContent = cleanMsg.substring(0, i + 1);
               i++;
-              b.scrollTop = b.scrollHeight;
+              maybeStick();
               setTimeout(typeWriter, 10);
             } else {
               d.innerHTML = marked.parse(cleanMsg);
-              b.scrollTop = b.scrollHeight;
+              maybeStick();
               setBusyUI(false);
               enableRetryButton(true);
               input.focus();
@@ -799,7 +829,6 @@ document.addEventListener("DOMContentLoaded", () => {
     false
   );
 
-  // ESC: close sidebar (mobile drawer) + collapse settings
   document.addEventListener("keydown", (ev) => {
     if (ev.key !== "Escape") return;
     try { closeRightPanel(); } catch(e) {}
@@ -807,7 +836,6 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("mud_settings_open", "0");
   });
 
-  // Ensure overlay display sync in case of resize
   window.addEventListener("resize", () => {
     const overlay = document.getElementById("panelOverlay");
     if (!overlay) return;
