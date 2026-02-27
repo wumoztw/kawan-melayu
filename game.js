@@ -1,7 +1,8 @@
 /* ============================================================
-   Kawan Melayu — game.js (ChatGPT-like layout v3.3)
+   Kawan Melayu — game.js (ChatGPT-like layout v3.4)
    - 多 Provider、fallback、save/load、action 解析、打字機效果
-   - 更新：聊天視窗改為「智能滾動」：使用者在底部才自動捲動；使用者往上滑閱讀時不會被強制拉回底部
+   - 更新：AI 回覆時一律自動把最新內容捲到可視範圍（把最新訊息往上推讓你看到）
+   - 更新：依 composer 高度動態補足聊天區底部 padding，避免最新訊息被輸入框遮住
    ============================================================ */
 
 if (window.marked) marked.setOptions({ breaks: true, gfm: true });
@@ -220,17 +221,24 @@ function enableRetryButton(enabled) {
 }
 
 /* =========================
-   Chat scrolling
+   Chat scroll helpers
    ========================= */
-function isNearBottom(el, threshold = 120) {
-  if (!el) return true;
-  const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
-  return distance <= threshold;
-}
-
 function scrollToBottom(el) {
   if (!el) return;
   el.scrollTop = el.scrollHeight;
+}
+
+function scrollChatToLatest() {
+  const b = document.getElementById("mudChatBox");
+  if (!b) return;
+  requestAnimationFrame(() => scrollToBottom(b));
+}
+
+function syncComposerPadding() {
+  const composer = document.querySelector(".composer");
+  if (!composer) return;
+  const h = Math.ceil(composer.getBoundingClientRect().height || 0);
+  document.documentElement.style.setProperty("--composerPad", (h + 12) + "px");
 }
 
 /* =========================
@@ -241,8 +249,6 @@ function appendUI(t, c, html = false) {
   if (!b) return;
 
   const loading = document.getElementById("mudLoading");
-  const stick = isNearBottom(b);
-
   const d = document.createElement("div");
   d.className = "mud-msg " + c;
   if (html) d.innerHTML = t;
@@ -251,7 +257,8 @@ function appendUI(t, c, html = false) {
   if (loading) b.insertBefore(d, loading);
   else b.appendChild(d);
 
-  if (stick) scrollToBottom(b);
+  // Requirement: whenever new content is appended, always bring latest into view.
+  scrollChatToLatest();
 }
 
 function updateStatusUI() {
@@ -359,7 +366,7 @@ window.saveGame = function () {
   const providerKey = document.getElementById("apiProvider")?.value || "";
 
   const saveData = {
-    version: "3.3-ui-smart-scroll",
+    version: "3.4-ui-force-scroll",
     timestamp: new Date().toISOString(),
     gameState: JSON.parse(JSON.stringify(gameState)),
     messageHistory: messageHistory.slice(-20),
@@ -428,7 +435,8 @@ window.loadGame = function (event) {
         else if (m.role === "assistant") appendUI(extractTextForUI(m.content), "mud-ai");
       });
 
-      if (chatBox) scrollToBottom(chatBox);
+      syncComposerPadding();
+      scrollChatToLatest();
 
       updateStatusUI();
       enableRetryButton(false);
@@ -468,7 +476,8 @@ window.clearChat = function () {
   }
   enableRetryButton(false);
   appendUI("💬 新對話已開始。你可以在下方輸入一句話。", "mud-ai mud-system", false);
-  if (chat) scrollToBottom(chat);
+  syncComposerPadding();
+  scrollChatToLatest();
 };
 
 window.toggleHelpModal = function () {
@@ -691,8 +700,11 @@ window.sendMessage = async function (isRetry = false) {
   appendUI(text, "mud-user");
   input.value = "";
 
+  syncComposerPadding();
+
   const loader = document.getElementById("mudLoading");
   if (loader) loader.style.display = "block";
+  scrollChatToLatest();
 
   if (messageHistory.length === 0) messageHistory.push({ role: "system", content: buildSystemPrompt() });
   if (messageHistory[0].role === "system") messageHistory[0].content = buildSystemPrompt();
@@ -743,33 +755,22 @@ window.sendMessage = async function (isRetry = false) {
 
           if (loader) loader.style.display = "none";
 
-          // Typewriter effect (smart scroll)
+          // Typewriter effect (always keep latest visible)
           const b = document.getElementById("mudChatBox");
           const d = document.createElement("div");
           d.className = "mud-msg mud-ai";
           b.insertBefore(d, document.getElementById("mudLoading"));
 
           let i = 0;
-          let stickToBottom = isNearBottom(b);
-
-          function maybeStick() {
-            if (!stickToBottom) return;
-            if (!isNearBottom(b, 260)) {
-              stickToBottom = false;
-              return;
-            }
-            scrollToBottom(b);
-          }
-
           function typeWriter() {
             if (i < cleanMsg.length) {
               d.textContent = cleanMsg.substring(0, i + 1);
               i++;
-              maybeStick();
+              scrollChatToLatest();
               setTimeout(typeWriter, 10);
             } else {
               d.innerHTML = marked.parse(cleanMsg);
-              maybeStick();
+              scrollChatToLatest();
               setBusyUI(false);
               enableRetryButton(true);
               input.focus();
@@ -823,6 +824,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   messageHistory = [{ role: "system", content: buildSystemPrompt() }];
 
+  syncComposerPadding();
+
   appendUI(
     "在下方輸入一句話就可以開始。你可以試試：『我想點一杯 Teh Tarik！』",
     "mud-ai mud-system",
@@ -838,8 +841,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.addEventListener("resize", () => {
     const overlay = document.getElementById("panelOverlay");
-    if (!overlay) return;
-    if (isMobileMode() && isShellClass("sidebar-open")) overlay.style.display = "block";
-    else overlay.style.display = "none";
+    if (overlay) {
+      if (isMobileMode() && isShellClass("sidebar-open")) overlay.style.display = "block";
+      else overlay.style.display = "none";
+    }
+    syncComposerPadding();
   });
 });

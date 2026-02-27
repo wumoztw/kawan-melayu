@@ -34,6 +34,9 @@
   --headerH: 64px;
 
   --font: Nunito, "Noto Sans TC", sans-serif;
+
+  /* JS will set this based on .composer height */
+  --composerPad: 0px;
 }
 
 *{box-sizing:border-box;}
@@ -410,12 +413,13 @@ a:hover{color: rgba(0,36,125,1);}
   flex: 1;
   min-height:0;
   overflow:auto;
-  padding: 6px 2px 18px;
+  padding: 6px 2px calc(18px + var(--composerPad) + env(safe-area-inset-bottom, 0px));
   display:flex;
   flex-direction:column;
   gap: 12px;
   scroll-behavior: smooth;
   overscroll-behavior: contain;
+  scroll-padding-bottom: calc(18px + var(--composerPad) + env(safe-area-inset-bottom, 0px));
 }
 
 /* Messages */
