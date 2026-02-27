@@ -633,89 +633,51 @@ body{
   }
   .sidebar-collapsed .mud-side-panel{ display:none !important; }
 }
-/* ===== Mobile FIX (ZenFone 5Z / 360px) ===== */
+/* ===== Mobile: status bar more compact ===== */
 @media (max-width: 768px){
-  /* 1) 讓聊天區真的吃到剩餘高度，避免被上方擠壓 */
-  .mud-container{
-    grid-template-rows: auto auto auto minmax(0, 1fr) auto auto !important;
+  /* 狀態列整體變薄 */
+  .mud-status-bar{
+    padding: 4px 8px !important;
+    gap: 6px !important;
+    display: grid !important;
 
-    /* 避免網址列伸縮造成高度跳動 */
-    height: 100vh !important;
-    height: 100svh !important;
-    height: 100dvh !important;
-    min-height: 100vh !important;
-    min-height: 100svh !important;
-    min-height: 100dvh !important;
+    /* 一行四格：HP / EN / Lv / Location */
+    grid-template-columns: 1fr 1fr auto auto !important;
+    align-items: center !important;
   }
 
-  /* 2) Header 再瘦一點（省垂直空間） */
-  .mud-title-sub{ display:none !important; }
-  .mud-header{ padding: 8px 12px !important; }
-  .mud-status-bar{ padding: 6px 10px !important; gap: 6px !important; }
-
-  /* 3) 設定列改三行：Provider+Model / API Key / Save+Load
-        關鍵：取消你原本強制 mud-btn-group 橫向不換行的設定 */
-  .mud-settings{ padding: 8px 10px !important; }
-  .mud-row{ gap: 6px !important; }
-
-  /* 取消舊規則：.mud-btn-group flex-wrap nowrap !important; */
-  .mud-btn-group{
-    flex-direction: row !important;
-    flex-wrap: wrap !important;     /* 允許換行，才能做三行 */
-    width: 100% !important;
-    min-width: 0 !important;
-    gap: 8px !important;
-  }
-
-  /* 第一行：Provider + Model (各佔一半左右) */
-  .mud-row select#apiProvider{
-    flex: 1 1 45% !important;
-    min-width: 0 !important;
-  }
-  .mud-row select#modelSelect{
-    flex: 1 1 55% !important;
+  .mud-status-item{
+    font-size: 0.68rem !important;
+    gap: 6px !important;
+    justify-content: flex-start !important;
     min-width: 0 !important;
   }
 
-  /* 第二行：API Key 滿寬 */
-  .mud-row input#apiKey{
-    flex: 1 1 100% !important;
-    min-width: 0 !important;
+  /* HP/EN 的進度條縮短 */
+  .mud-val-container{
+    width: 56px !important;
+    height: 8px !important;
   }
 
-  /* 第三行：Save / Load 兩顆按鈕平分 */
-  .mud-btn-group .mud-btn{
-    flex: 1 1 0 !important;
-    min-width: 0 !important;
-    height: 34px !important;
-    padding: 0 10px !important;
-    font-size: 0.78rem !important;
+  /* 右側 Lv / Location 更小、更不佔位 */
+  .level-tag,
+  .location-tag{
+    font-size: 0.66rem !important;
+    padding: 1px 6px !important;
+    white-space: nowrap !important;
   }
 
-  /* 下拉/輸入高度統一 */
-  .mud-row select,
-  .mud-row input{
-    height: 34px !important;
-    font-size: 0.78rem !important;
-    min-width: 0 !important;
+  /* 數值也縮小一點 */
+  .mud-val{
+    font-size: 0.66rem !important;
   }
 
-  /* 4) 聊天區加大可視範圍 */
-  .mud-chat-box{
-    padding: 10px 10px 6px 10px !important;
-    gap: 10px !important;
-    min-height: 0 !important;
+  /* 若內容太擠，允許 location 被截斷（不換行） */
+  #locVal{
+    max-width: 92px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    vertical-align: bottom;
   }
-
-  /* 5) 輸入列更貼底、避免被手勢條吃掉 */
-  .mud-input-area{
-    padding: 10px 10px !important;
-    padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
-    gap: 8px !important;
-  }
-  .mud-input-area input{ height: 44px !important; }
-  .mud-input-area button{ height: 44px !important; }
-
-  /* 6) 字彙欄：你 JS 已預設收合，這裡不改行為，只確保展開時不擠爆 */
-  .mud-side-panel{ max-height: 240px !important; }
 }
