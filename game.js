@@ -1,7 +1,7 @@
 /* ============================================================
-   Kawan Melayu — game.js (AI Mode UI v3.0)
+   Kawan Melayu — game.js (ChatGPT-like layout v3.1)
    - 保留原本功能：多 Provider、fallback、save/load、action 解析、打字機效果
-   - 改 UI：上方搜尋列 + 可折疊設定抽屜 + 右側欄面板（預設收合）
+   - 改 UI：左側可收合側欄 + 中間對話流 + 底部 composer
    ============================================================ */
 
 if (window.marked) marked.setOptions({ breaks: true, gfm: true });
@@ -20,8 +20,6 @@ const THROTTLE_LIMIT = 2500;
 
 let currentAbortController = null;
 let lastUserMessageText = "";
-let lastProviderKeyUsed = "";
-let lastModelUsed = "";
 
 const FALLBACK_ORDER = ["openrouter", "groq", "gemini", "openai"];
 const MAX_AUTO_RETRIES = 2;
@@ -110,7 +108,7 @@ function buildSystemPrompt() {
 }
 
 /* =========================
-   UI State / toggles
+   Shell helpers
    ========================= */
 function getShell() {
   return document.getElementById("appShell");
@@ -127,29 +125,53 @@ function isShellClass(cls) {
   return !!(shell && shell.classList.contains(cls));
 }
 
+/* =========================
+   Sidebar (kept old function names)
+   - desktop: collapses grid column
+   - mobile: overlay drawer
+   ========================= */
+function isMobileMode() {
+  return window.matchMedia && window.matchMedia("(max-width: 820px)").matches;
+}
+
 window.toggleRightPanel = function () {
-  const open = isShellClass("panel-open");
+  const open = isShellClass("sidebar-open") || !isShellClass("sidebar-collapsed");
   if (open) closeRightPanel();
   else openRightPanel();
 };
 
 window.openRightPanel = function () {
-  setShellClass("panel-open", true);
-  setShellClass("panel-collapsed", false);
   const overlay = document.getElementById("panelOverlay");
-  if (overlay) overlay.style.display = "block";
-  localStorage.setItem("mud_panel_open", "1");
   const panel = document.getElementById("rightPanel");
+
+  if (isMobileMode()) {
+    setShellClass("sidebar-open", true);
+    setShellClass("sidebar-collapsed", true);
+    if (overlay) overlay.style.display = "block";
+  } else {
+    setShellClass("sidebar-collapsed", false);
+  }
+
+  localStorage.setItem("mud_sidebar_open", "1");
+  localStorage.setItem("mud_panel_open", "1");
   if (panel) panel.setAttribute("aria-hidden", "false");
 };
 
 window.closeRightPanel = function () {
-  setShellClass("panel-open", false);
-  setShellClass("panel-collapsed", true);
   const overlay = document.getElementById("panelOverlay");
-  if (overlay) overlay.style.display = "none";
-  localStorage.setItem("mud_panel_open", "0");
   const panel = document.getElementById("rightPanel");
+
+  setShellClass("sidebar-open", false);
+
+  if (isMobileMode()) {
+    if (overlay) overlay.style.display = "none";
+    setShellClass("sidebar-collapsed", true);
+  } else {
+    setShellClass("sidebar-collapsed", true);
+  }
+
+  localStorage.setItem("mud_sidebar_open", "0");
+  localStorage.setItem("mud_panel_open", "0");
   if (panel) panel.setAttribute("aria-hidden", "true");
 };
 
@@ -191,11 +213,15 @@ function enableRetryButton(enabled) {
    ========================= */
 function appendUI(t, c, html = false) {
   const b = document.getElementById("mudChatBox");
+  const loading = document.getElementById("mudLoading");
   const d = document.createElement("div");
   d.className = "mud-msg " + c;
   if (html) d.innerHTML = t;
   else d.textContent = t;
-  b.insertBefore(d, document.getElementById("mudLoading"));
+
+  if (loading) b.insertBefore(d, loading);
+  else b.appendChild(d);
+
   b.scrollTop = b.scrollHeight;
 }
 
@@ -288,13 +314,12 @@ function loadConfig() {
   if (optFallback) optFallback.checked = localStorage.getItem("mudoptfallback") === "1";
   if (optSaveKeyFile) optSaveKeyFile.checked = localStorage.getItem("mudoptsavekeyfile") === "1";
 
-  // UI collapsed state defaults
-  const panelOpen = localStorage.getItem("mud_panel_open") === "1";
-  if (panelOpen) openRightPanel();
-  else closeRightPanel();
-
   const settingsOpen = localStorage.getItem("mud_settings_open") === "1";
   setShellClass("settings-collapsed", !settingsOpen);
+
+  const open = (localStorage.getItem("mud_sidebar_open") || localStorage.getItem("mud_panel_open")) === "1";
+  if (open) openRightPanel();
+  else closeRightPanel();
 }
 
 /* =========================
@@ -305,7 +330,7 @@ window.saveGame = function () {
   const providerKey = document.getElementById("apiProvider")?.value || "";
 
   const saveData = {
-    version: "3.0-ui",
+    version: "3.1-ui-chatgpt-like",
     timestamp: new Date().toISOString(),
     gameState: JSON.parse(JSON.stringify(gameState)),
     messageHistory: messageHistory.slice(-20),
@@ -362,7 +387,12 @@ window.loadGame = function (event) {
       }
 
       const chatBox = document.getElementById("mudChatBox");
-      if (chatBox) chatBox.innerHTML = `<div class="mud-loading" id="mudLoading" style="display:none"><span class="loading-dots">AI 思考中<span>.</span><span>.</span><span>.</span></span></div>`;
+      if (chatBox) {
+        chatBox.innerHTML = `
+          <div class="mud-loading" id="mudLoading" style="display:none">
+            <span class="loading-dots">AI 思考中<span>.</span><span>.</span><span>.</span></span>
+          </div>`;
+      }
 
       messageHistory.forEach(m => {
         if (m.role === "user") appendUI(m.content, "mud-user");
@@ -381,7 +411,7 @@ window.loadGame = function (event) {
 };
 
 /* =========================
-   Chat controls
+   Controls
    ========================= */
 window.stopRequest = function () {
   if (currentAbortController) {
@@ -399,9 +429,14 @@ window.retryLastMessage = function () {
 window.clearChat = function () {
   messageHistory = [{ role: "system", content: buildSystemPrompt() }];
   const chat = document.getElementById("mudChatBox");
-  if (chat) chat.innerHTML = `<div class="mud-loading" id="mudLoading" style="display:none"><span class="loading-dots">AI 思考中<span>.</span><span>.</span><span>.</span></span></div>`;
+  if (chat) {
+    chat.innerHTML = `
+      <div class="mud-loading" id="mudLoading" style="display:none">
+        <span class="loading-dots">AI 思考中<span>.</span><span>.</span><span>.</span></span>
+      </div>`;
+  }
   enableRetryButton(false);
-  appendUI("💬 對話已清空。你可以直接在上方輸入新問題。", "mud-ai mud-system", false);
+  appendUI("💬 新對話已開始。你可以在下方輸入一句話。", "mud-ai mud-system", false);
 };
 
 window.toggleHelpModal = function () {
@@ -608,6 +643,7 @@ window.sendMessage = async function (isRetry = false) {
   if (!primaryKey) {
     appendUI("⚠️ 請先填入 API Key（或為備援供應商也填好 Key）。", "mud-ai mud-system", false);
     if (isShellClass("settings-collapsed")) toggleSettingsDrawer();
+    if (isShellClass("sidebar-collapsed") && !isMobileMode()) openRightPanel();
     return;
   }
 
@@ -632,8 +668,7 @@ window.sendMessage = async function (isRetry = false) {
   messageHistory.push({ role: "user", content: text });
   pruneHistoryKeepRecentTurns(6);
 
-  let payloadMessages = JSON.parse(JSON.stringify(messageHistory));
-
+  const payloadMessages = JSON.parse(JSON.stringify(messageHistory));
   currentAbortController = new AbortController();
 
   const chain = getFallbackChain(providerKey);
@@ -667,9 +702,6 @@ window.sendMessage = async function (isRetry = false) {
           const data = await res.json();
           const aiMsg = extractAiTextFromResponse(pk, data);
           if (!aiMsg) throw new Error("Empty response.");
-
-          lastProviderKeyUsed = pk;
-          lastModelUsed = out.activeModel;
 
           applyActionDeltas(aiMsg);
           const cleanMsg = extractTextForUI(aiMsg);
@@ -749,17 +781,24 @@ document.addEventListener("DOMContentLoaded", () => {
   messageHistory = [{ role: "system", content: buildSystemPrompt() }];
 
   appendUI(
-    "在上方像搜尋一樣輸入一句話就可以開始。你可以試試：『我想點一杯 Teh Tarik！』",
+    "在下方輸入一句話就可以開始。你可以試試：『我想點一杯 Teh Tarik！』",
     "mud-ai mud-system",
     false
   );
 
-  // ESC closes drawers
+  // ESC: close sidebar (mobile drawer) + collapse settings
   document.addEventListener("keydown", (ev) => {
     if (ev.key !== "Escape") return;
     try { closeRightPanel(); } catch(e) {}
-    // settings drawer: collapse
     setShellClass("settings-collapsed", true);
     localStorage.setItem("mud_settings_open", "0");
+  });
+
+  // Ensure overlay display sync in case of resize
+  window.addEventListener("resize", () => {
+    const overlay = document.getElementById("panelOverlay");
+    if (!overlay) return;
+    if (isMobileMode() && isShellClass("sidebar-open")) overlay.style.display = "block";
+    else overlay.style.display = "none";
   });
 });

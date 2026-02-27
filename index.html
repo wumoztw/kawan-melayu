@@ -42,86 +42,101 @@
     </div>
   </div>
 
-  <!-- Right Panel Overlay -->
+  <!-- Sidebar overlay (mobile + collapsed mode) -->
   <div id="panelOverlay" class="panel-overlay" onclick="closeRightPanel()"></div>
 
-  <div id="appShell" class="app-shell panel-collapsed settings-collapsed">
-    <!-- Top Bar (AI Mode style) -->
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-title">Kawan Melayu</div>
-        <div class="brand-sub">AI 馬來語情境練習</div>
-      </div>
-
-      <div class="searchbar">
-        <div class="searchbox">
-          <input
-            type="text"
-            id="userInput"
-            class="search-input"
-            placeholder="像搜尋一樣輸入：我想點一杯 Teh Tarik…"
-            onkeypress="handleKeyPress(event)"
-            autocomplete="off"
-          />
-          <button id="sendBtn" class="search-send" onclick="sendMessage()">送出</button>
-          <button id="stopBtn" class="search-stop" onclick="stopRequest()" disabled>Stop</button>
-        </div>
-
-        <div class="chips" id="mudStatusBar">
-          <div class="chip chip-hp">
-            <span class="chip-label">HP</span>
-            <div class="chip-bar"><div id="hpBar" class="chip-bar-fill hp" style="width:100%"></div></div>
-            <span id="hpVal" class="chip-val">100</span>
-          </div>
-
-          <div class="chip chip-en">
-            <span class="chip-label">EN</span>
-            <div class="chip-bar"><div id="enBar" class="chip-bar-fill en" style="width:0%"></div></div>
-            <span id="enVal" class="chip-val">0</span>
-          </div>
-
-          <div class="chip chip-meta">
-            <span class="chip-pill" id="levelVal">Lv. 1</span>
-            <span class="chip-pill chip-loc" id="locVal">Mamak Stall</span>
-          </div>
+  <div id="appShell" class="app-shell sidebar-collapsed settings-collapsed">
+    <!-- Header -->
+    <header class="cg-header">
+      <div class="hdr-left">
+        <button class="icon-btn" onclick="toggleRightPanel()" title="側欄">☰</button>
+        <div class="hdr-title">
+          <div class="brand-title">Kawan Melayu</div>
+          <div class="brand-sub">AI 馬來語情境練習</div>
         </div>
       </div>
 
-      <div class="top-actions">
+      <div class="hdr-center" id="mudStatusBar" aria-label="狀態">
+        <div class="chip chip-hp">
+          <span class="chip-label">HP</span>
+          <div class="chip-bar">
+            <div id="hpBar" class="chip-bar-fill hp" style="width:100%"></div>
+          </div>
+          <span id="hpVal" class="chip-val">100</span>
+        </div>
+
+        <div class="chip chip-en">
+          <span class="chip-label">EN</span>
+          <div class="chip-bar">
+            <div id="enBar" class="chip-bar-fill en" style="width:0%"></div>
+          </div>
+          <span id="enVal" class="chip-val">0</span>
+        </div>
+
+        <div class="chip chip-meta">
+          <span class="chip-pill" id="levelVal">Lv. 1</span>
+          <span class="chip-pill chip-loc" id="locVal">Mamak Stall</span>
+        </div>
+      </div>
+
+      <div class="hdr-right">
         <button class="icon-btn" onclick="toggleSettingsDrawer()" title="設定">⚙️</button>
-        <button class="icon-btn" onclick="toggleRightPanel()" title="右側欄">☰</button>
         <button class="icon-btn" onclick="toggleHelpModal()" title="說明">?</button>
       </div>
     </header>
 
-    <!-- Settings Drawer (collapsible) -->
-    <section id="settingsDrawer" class="settings-drawer">
-      <div class="drawer-inner">
-        <div class="drawer-row">
+    <!-- Sidebar (kept id=rightPanel for JS compatibility) -->
+    <aside id="rightPanel" class="cg-sidebar" aria-hidden="true">
+      <div class="sb-top">
+        <div class="sb-brand">
+          <div class="sb-logo">🌴</div>
+          <div class="sb-name">Kawan Melayu</div>
+        </div>
+        <button class="sb-close" onclick="closeRightPanel()" title="關閉">×</button>
+      </div>
+
+      <div class="sb-actions">
+        <button class="sb-btn sb-btn-primary" onclick="clearChat()">＋ 新對話</button>
+
+        <div class="sb-row">
+          <button class="sb-btn" onclick="saveGame()">💾 Save</button>
+          <button class="sb-btn" onclick="document.getElementById('fileInput').click()">📂 Load</button>
+          <input type="file" id="fileInput" style="display:none" onchange="loadGame(event)" />
+        </div>
+
+        <div class="sb-row">
+          <button class="sb-btn" id="retryBtn" onclick="retryLastMessage()" disabled>🔁 Retry</button>
+          <button class="sb-btn" id="clearBtn" onclick="clearChat()">🗑 Clear</button>
+        </div>
+      </div>
+
+      <!-- Settings (collapsible inside sidebar) -->
+      <section id="settingsDrawer" class="sb-settings">
+        <div class="sb-section-title">設定</div>
+
+        <div class="sb-field">
+          <div class="sb-label">Provider</div>
           <select id="apiProvider" onchange="handleProviderChange()">
             <option value="openrouter">OpenRouter</option>
             <option value="groq">Groq</option>
             <option value="gemini">Google Gemini</option>
             <option value="openai">OpenAI</option>
           </select>
+        </div>
 
+        <div class="sb-field">
+          <div class="sb-label">API Key</div>
           <input type="password" id="apiKey" placeholder="API Key" onchange="saveConfig()" />
+        </div>
 
+        <div class="sb-field">
+          <div class="sb-label">Model</div>
           <select id="modelSelect" onchange="saveConfig()">
             <option value="auto">Auto</option>
           </select>
-
-          <div class="drawer-btns">
-            <button class="btn btn-save" onclick="saveGame()">Save</button>
-            <button class="btn btn-load" onclick="document.getElementById('fileInput').click()">Load</button>
-            <input type="file" id="fileInput" style="display:none" onchange="loadGame(event)" />
-
-            <button class="btn btn-retry" id="retryBtn" onclick="retryLastMessage()" disabled>Retry</button>
-            <button class="btn btn-clear" id="clearBtn" onclick="clearChat()">Clear</button>
-          </div>
         </div>
 
-        <div class="drawer-row drawer-row-options">
+        <div class="sb-opt">
           <label class="opt">
             <input type="checkbox" id="optFallback" onchange="saveConfig()" />
             自動備援（失敗時換供應商）
@@ -131,57 +146,63 @@
             存檔包含 API Key
           </label>
         </div>
-      </div>
-    </section>
 
-    <!-- Main -->
-    <main class="app-main">
-      <!-- Results stream -->
-      <section class="results">
-        <div class="results-head">
-          <div class="results-title">AI Mode</div>
-          <div class="results-sub">像搜尋一樣輸入問題，下面會以卡片流呈現對話與學習提示。</div>
+        <div class="sb-links">
+          <div class="sb-section-title">取得 API Key</div>
+          <div class="sb-link-row">
+            <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">OpenRouter</a>
+            <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer">Groq</a>
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer">Gemini</a>
+            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">OpenAI</a>
+          </div>
         </div>
+      </section>
 
-        <div class="results-stream" id="mudChatBox">
+      <!-- Vocab -->
+      <section class="sb-vocab">
+        <div class="sb-section-title">
+          <span>📖 Kosa Kata</span>
+          <span id="vocabCount" class="badge">0 個詞</span>
+        </div>
+        <div id="inventoryList" class="vocab-list"></div>
+      </section>
+
+      <div class="sb-foot">
+        <div class="sb-foot-hint">提示：ESC 可收合面板。</div>
+      </div>
+    </aside>
+
+    <!-- Main (chat) -->
+    <main class="cg-main" aria-label="聊天區">
+      <section class="chat-wrap">
+        <div class="chat-stream" id="mudChatBox">
           <div class="mud-loading" id="mudLoading" style="display:none">
             <span class="loading-dots">AI 思考中<span>.</span><span>.</span><span>.</span></span>
           </div>
         </div>
+
+        <!-- Composer (bottom fixed-ish) -->
+        <div class="composer">
+          <div class="composer-inner">
+            <input
+              type="text"
+              id="userInput"
+              class="composer-input"
+              placeholder="輸入馬來語或中文…（Enter 送出）"
+              onkeypress="handleKeyPress(event)"
+              autocomplete="off"
+            />
+            <button id="sendBtn" class="composer-send" onclick="sendMessage()">送出</button>
+            <button id="stopBtn" class="composer-stop" onclick="stopRequest()" disabled>Stop</button>
+          </div>
+          <div class="composer-note">
+            建議：先用一小句開始，例如「Saya mau teh tarik.」
+          </div>
+        </div>
       </section>
     </main>
-
-    <!-- Right Panel (collapsible / overlay on all devices) -->
-    <aside id="rightPanel" class="right-panel" aria-hidden="true">
-      <div class="panel-head">
-        <div class="panel-title">Kosa Kata</div>
-        <button class="panel-close" onclick="closeRightPanel()" title="關閉">×</button>
-      </div>
-
-      <div class="panel-meta">
-        <div class="meta-row">
-          <div class="meta-k">詞彙數</div>
-          <div class="meta-v"><span id="vocabCount" class="badge">0 個詞</span></div>
-        </div>
-        <div class="meta-row">
-          <div class="meta-k">提示</div>
-          <div class="meta-v">點一下 ⚙️ 可展開設定；☰ 可展開詞彙表。</div>
-        </div>
-      </div>
-
-      <div id="inventoryList" class="vocab-list"></div>
-
-      <div class="panel-foot">
-        <div class="panel-foot-title">快捷</div>
-        <div class="panel-foot-btns">
-          <button class="btn btn-retry" onclick="retryLastMessage()">Retry</button>
-          <button class="btn btn-clear" onclick="clearChat()">Clear</button>
-        </div>
-      </div>
-    </aside>
-
   </div>
 
-  <script src="game.js?v=20260228_011900"></script>
+  <script src="game.js?v=20260228_011933_chatgpt_like"></script>
 </body>
 </html>
