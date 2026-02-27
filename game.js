@@ -12,7 +12,7 @@ let messageHistory = [];
 let lastRequestTime = 0;
 const THROTTLE_LIMIT = 3000;
 
-/* ===== NEW: request control / retry / fallback ===== */
+/* ===== request control / retry / fallback ===== */
 let currentAbortController = null;
 let lastUserMessageText = "";
 let lastProviderKeyUsed = "";
@@ -46,8 +46,14 @@ function buildSystemPrompt() {
 【輸出格式（固定）】
 - 先輸出「台灣華語（繁中）」為主的教學引導（初期），或「馬來文」為主的對話（中後期），並依上方比例調整。
 - 不管比例如何，每回合都要讓使用者看得懂你要他說哪一句。
-- 最後一行一定要輸出 action（只能這個 JSON，不要加其他文字）：
+
+【action 規則（非常重要）】
+- action 只用來給程式讀取，不要讓使用者看到。
+- action 必須放在回覆的最後一行，並且必須完全符合下列格式（大小寫與符號要一樣）：
 <action>{"confdelta":0,"fludelta":10,"leveldelta":0,"location":null,"vocabadded":"Nasi Lemak"}</action>
+- action 行前面不要加任何文字（例如不要加 action: 或 action" 或任何說明）。
+- 如果你無法遵守 action 格式，請輸出一個合法的空 action：
+<action>{"confdelta":0,"fludelta":0,"leveldelta":0,"location":null,"vocabadded":""}</action>
 
 【目前玩家狀態】
 - 信心值 confidence=${gameState.confidence}/100
@@ -165,92 +171,42 @@ function normalizeErrorMessage(err, res) {
   return "請求失敗，請稍後再試。";
 }
 
-/* ===== Original config functions (extended, minimal changes) ===== */
-window.saveConfig = function () {
-  const providerKey = document.getElementById("apiProvider").value;
-  const apiKey = document.getElementById("apiKey").value.trim();
-  const selectedModel = document.getElementById("modelSelect").value;
-
-  localStorage.setItem("mudapiprovider", providerKey);
-  localStorage.setItem("mudselectedmodel", selectedModel);
-
-  // NEW: options
-  const optFallback = document.getElementById("optFallback");
-  const optSaveKeyInFile = document.getElementById("optSaveKeyInFile");
-  if (optFallback) localStorage.setItem("mudopt_fallback", optFallback.checked ? "1" : "0");
-  if (optSaveKeyInFile) localStorage.setItem("mudopt_savekeyinfile", optSaveKeyInFile.checked ? "1" : "0");
-
-  if (apiKey) localStorage.setItem("mudapikey" + providerKey, apiKey);
-};
-
-window.handleProviderChange = function () {
-  const providerKey = document.getElementById("apiProvider").value;
-  const modelSelect = document.getElementById("modelSelect");
-  const apiKeyInput = document.getElementById("apiKey");
-
-  const provider = PROVIDERS[providerKey];
-  modelSelect.innerHTML = provider.models.map(m => `<option value="${m.id}">${m.name}</option>`).join("");
-
-  const savedKey = localStorage.getItem("mudapikey" + providerKey);
-  apiKeyInput.value = savedKey || "";
-
-  const savedModel = localStorage.getItem("mudselectedmodel");
-  if (savedModel && provider.models.some(m => m.id === savedModel)) modelSelect.value = savedModel;
-  else modelSelect.value = provider.models[0].id;
-};
-
-window.updateStatusUI = function () {
-  if (gameState.confidence > 100) gameState.confidence = 100;
-  if (gameState.confidence < 0) gameState.confidence = 0;
-  if (gameState.fluency < 0) gameState.fluency = 0;
-
-  if (gameState.fluency >= 100) {
-    gameState.level += 1;
-    gameState.fluency = gameState.fluency - 100;
+function stripTrailingActionLikeLines(text) {
+  if (!text) return "";
+  // Repeatedly remove trailing lines that look like action payloads or tags.
+  // This is intentionally aggressive to prevent leaking control data into UI.
+  let t = String(text).replace(/\r\n/g, "\n");
+  for (let i = 0; i < 5; i++) {
+    const before = t;
+    t = t
+      // remove proper <action>...</action> blocks at end
+      .replace(/\n?\s*<\s*action\s*>[\s\S]*?<\/\s*action\s*>\s*$/i, "")
+      // remove unclosed <action>... at end
+      .replace(/\n?\s*<\s*action\s*>[\s\S]*$/i, "")
+      // remove lines ending with action{...} / action"{...}
+      .replace(/\n?\s*\baction\s*"?\s*{[\s\S]*?}\s*$/i, "")
+      // remove stray action tag tokens at end
+      .replace(/\n?\s*<\/?\s*action\s*>\s*$/i, "")
+      .trimEnd();
+    if (t === before) break;
   }
-
-  document.getElementById("hpVal").innerText = gameState.confidence;
-  document.getElementById("enVal").innerText = gameState.fluency;
-  document.getElementById("levelVal").innerText = `Lv. ${gameState.level}`;
-  document.getElementById("locVal").innerText = gameState.location;
-
-  document.getElementById("hpBar").style.width = `${gameState.confidence}%`;
-  document.getElementById("enBar").style.width = `${gameState.fluency}%`;
-
-  const invList = document.getElementById("inventoryList");
-  if (gameState.vocabulary.length > 0) {
-    invList.innerHTML = gameState.vocabulary.map(item => `<div class="vocab-item">${item}</div>`).join("");
-  } else invList.innerHTML = "";
-
-  // NEW: keep system prompt synced with state
-  if (messageHistory.length > 0 && messageHistory[0].role === "system") {
-    messageHistory[0].content = buildSystemPrompt();
-  }
-};
-
-if (messageHistory.length === 0) messageHistory.push({ role: "system", content: buildSystemPrompt() });
-
-if (gameState.confidence <= 0) {
-  appendUI("遊戲結束。", "mud-ai", true);
-  document.getElementById("sendBtn").disabled = true;
-  document.getElementById("userInput").disabled = true;
+  return t;
 }
 
 /* ===== Parsing improvements ===== */
 function extractTextForUI(text) {
-  let clean = text;
+  let clean = String(text || "");
 
   // Remove think blocks
   clean = clean.replace(/<\s*think\s*>[\s\S]*?<\/\s*think\s*>/gi, "");
 
-  // Remove action blocks completely for UI
+  // Remove proper action blocks anywhere
   clean = clean.replace(/<\s*action\s*>[\s\S]*?<\/\s*action\s*>/gi, "");
 
-  // Remove possible unclosed action blocks
-  clean = clean.replace(/<\s*action\s*>[\s\S]*$/gi, "");
+  // If action-like control data is appended at the end, strip it safely
+  clean = stripTrailingActionLikeLines(clean);
 
-  // Remove 'action{...}' or 'action"{...}' or line-start 'action' labels
-  clean = clean.replace(/\baction\s*"?\s*{[\s\S]*?}\s*$/gim, "");
+  // Remove line-start 'action' labels that sometimes appear
   clean = clean.replace(/^\s*action\s*/gim, "");
 
   // Cleanup stray tags/fences
@@ -262,21 +218,23 @@ function extractTextForUI(text) {
 }
 
 function tryParseActionFromText(text) {
+  const t = String(text || "");
+
   // Priority 1: <action>{...}</action>
-  let match = text.match(/<\s*action\s*>([\s\S]*?)<\/\s*action\s*>/i);
+  let match = t.match(/<\s*action\s*>([\s\S]*?)<\/\s*action\s*>/i);
   if (match && match[1]) {
     const jsonString = match[1].replace(/```json/gi, "").replace(/```/gi, "").trim();
     try { return JSON.parse(jsonString); } catch (e) {}
   }
 
   // Priority 2: action"{...}" (malformed) or action{...}
-  match = text.match(/\baction\s*"?\s*({[\s\S]*?})/i);
+  match = t.match(/\baction\s*"?\s*({[\s\S]*?})/i);
   if (match && match[1]) {
     try { return JSON.parse(match[1]); } catch (e) {}
   }
 
   // Priority 3: first JSON object that contains any expected keys
-  const candidates = text.match(/{[\s\S]*?}/g) || [];
+  const candidates = t.match(/{[\s\S]*?}/g) || [];
   for (const c of candidates) {
     if (!/confdelta|fludelta|leveldelta|location|vocabadded/i.test(c)) continue;
     try { return JSON.parse(c); } catch (e) {}
@@ -406,13 +364,11 @@ window.sendMessage = async function (isRetry = false) {
   let lastErr = null;
 
   try {
-    let attempt = 0;
     for (const pk of chain) {
       const key = getKeyForProvider(pk);
       if (!key) continue;
 
       for (let r = 0; r <= MAX_AUTO_RETRIES; r++) {
-        attempt++;
         let res = null;
         try {
           const out = await requestWithProvider({
@@ -480,7 +436,6 @@ window.sendMessage = async function (isRetry = false) {
         } catch (e) {
           if (e && e.name === "AbortError") throw e;
           lastErr = e;
-          // If we got explicit res error, break retry loop unless retryable
           if (e && e.res && !(e.res.status === 429 || e.res.status >= 500)) break;
         }
       }
@@ -491,7 +446,6 @@ window.sendMessage = async function (isRetry = false) {
   } catch (e) {
     if (loader) loader.style.display = "none";
 
-    // If aborted: do not pop message history aggressively
     if (e && e.name === "AbortError") {
       appendUI("已停止請求。", "mud-ai", true);
     } else if (e && e.res) {
@@ -500,8 +454,6 @@ window.sendMessage = async function (isRetry = false) {
       appendUI(normalizeErrorMessage(e, null), "mud-ai", true);
     }
 
-    // Keep user message in history (so retry can be meaningful),
-    // but don't leave UI locked
     setBusyUI(false);
     enableRetryButton(true);
 
@@ -519,7 +471,6 @@ function appendUI(t, c, html = false) {
   b.scrollTop = b.scrollHeight;
 }
 
-/* Better Enter behavior: Enter send, Shift+Enter newline (but input is <input>, so just block Shift+Enter) */
 window.handleKeyPress = function (e) {
   if (e.key === "Enter" && !e.shiftKey && !document.getElementById("sendBtn").disabled) sendMessage();
 };
@@ -533,7 +484,6 @@ window.saveGame = function () {
     optSaveKeyInFile: getOptSaveKeyInFile()
   };
 
-  // NEW: default do NOT save apiKey into file (privacy)
   if (!getOptSaveKeyInFile()) delete cfg.apiKey;
 
   const data = { state: gameState, history: messageHistory, config: cfg };
@@ -562,10 +512,8 @@ window.loadGame = function (event) {
         handleProviderChange();
         if (d.config.model) document.getElementById("modelSelect").value = d.config.model;
 
-        // NEW: only load apiKey if file contains it
         if (d.config.apiKey) document.getElementById("apiKey").value = d.config.apiKey;
 
-        // NEW: load options if present
         const optFallback = document.getElementById("optFallback");
         const optSaveKeyInFile = document.getElementById("optSaveKeyInFile");
         if (optFallback && typeof d.config.optFallback === "boolean") optFallback.checked = d.config.optFallback;
@@ -595,13 +543,11 @@ const savedProvider = localStorage.getItem("mudapiprovider") || "openrouter";
 document.getElementById("apiProvider").value = savedProvider;
 handleProviderChange();
 
-// NOTE: old generic key remains supported, but prefer provider-specific keys
 document.getElementById("apiKey").value =
   localStorage.getItem("mudapikey" + savedProvider) ||
   localStorage.getItem("mudapikey") ||
   "";
 
-// Restore options
 const optFallback = document.getElementById("optFallback");
 const optSaveKeyInFile = document.getElementById("optSaveKeyInFile");
 if (optFallback) optFallback.checked = (localStorage.getItem("mudopt_fallback") || "0") === "1";
@@ -621,14 +567,12 @@ window.toggleSidebar = function () {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Restore Sidebar: Default to collapsed on ALL devices if no preference
   let savedCollapsed = localStorage.getItem("sidebarCollapsed");
   let shouldCollapse = savedCollapsed !== "false";
 
   const container = document.querySelector(".mud-container");
   if (shouldCollapse && container) container.classList.add("sidebar-collapsed");
 
-  // Restore API Provider and Key
   const savedProvider2 = localStorage.getItem("mudapiprovider");
   if (savedProvider2 && PROVIDERS[savedProvider2]) {
     const providerSelect = document.getElementById("apiProvider");
@@ -636,6 +580,5 @@ document.addEventListener("DOMContentLoaded", () => {
     handleProviderChange();
   }
 
-  // NEW: make retry available if a message exists
   enableRetryButton(false);
 });
