@@ -1,423 +1,580 @@
-(function () {
-    if (window.marked) {
-        marked.setOptions({ breaks: true, gfm: true });
+if (window.marked) marked.setOptions({ breaks: true, gfm: true });
+
+let gameState = {
+  confidence: 100,
+  fluency: 0,
+  level: 1,
+  location: "Mamak Stall",
+  vocabulary: []
+};
+
+let messageHistory = [];
+let lastRequestTime = 0;
+const THROTTLE_LIMIT = 3000;
+
+/* ===== NEW: request control / retry / fallback ===== */
+let currentAbortController = null;
+let lastUserMessageText = "";
+let lastProviderKeyUsed = "";
+let lastModelUsed = "";
+
+const FALLBACK_ORDER = ["openrouter", "groq", "gemini", "openai"];
+const MAX_AUTO_RETRIES = 2;
+
+// System Prompt
+function buildSystemPrompt() {
+  let levelStrategy;
+  if (gameState.level <= 3) levelStrategy = "70% English, 30% Malay";
+  else if (gameState.level <= 6) levelStrategy = "30% English, 70% Malay (include casual particles like 'Lah', 'Meh')";
+  else levelStrategy = "100% Malay";
+
+  return `You are a friendly Bahasa Melayu tutor.
+
+Rules:
+1. Keep responses short and practical.
+2. Teach 1-2 new words max per reply.
+3. Use this language ratio: ${levelStrategy}
+4. Track player stats: fluency=${gameState.fluency}, level=${gameState.level}, confidence=${gameState.confidence}/100
+5. At end, output an action JSON block like:
+<action>{"confdelta":0,"fludelta":10,"leveldelta":0,"location":null,"vocabadded":"Nasi Lemak"}</action>
+
+Current:
+- confidence=${gameState.confidence}/100
+- fluency=${gameState.fluency}/100
+- level=Lv.${gameState.level}
+- location=${gameState.location}
+- vocabulary=${gameState.vocabulary.join(", ")}
+`;
+}
+
+const PROVIDERS = {
+  openrouter: {
+    name: "OpenRouter",
+    baseUrl: "https://openrouter.ai/api/v1/chat/completions",
+    models: [
+      { id: "auto", name: "Auto" },
+      { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B (Free)" },
+      { id: "deepseek/deepseek-r1-distill-llama-70b:free", name: "DeepSeek R1 (Free)" }
+    ]
+  },
+  groq: {
+    name: "Groq",
+    baseUrl: "https://api.groq.com/openai/v1/chat/completions",
+    models: [
+      { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B" },
+      { id: "deepseek-r1-distill-llama-70b", name: "DeepSeek R1 70B" },
+      { id: "mixtral-8x7b-32768", name: "Mixtral 8x7B" }
+    ]
+  },
+  gemini: {
+    name: "Google Gemini",
+    baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+    models: [
+      { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash" },
+      { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro" },
+      { id: "gemini-2.0-flash-exp", name: "Gemini 2.0 Flash" }
+    ]
+  },
+  openai: {
+    name: "OpenAI",
+    baseUrl: "https://api.openai.com/v1/chat/completions",
+    models: [
+      { id: "gpt-4o-mini", name: "GPT-4o Mini" },
+      { id: "gpt-4o", name: "GPT-4o" },
+      { id: "o1-mini", name: "o1 Mini" }
+    ]
+  }
+};
+
+function getOptFallbackEnabled() {
+  const el = document.getElementById("optFallback");
+  return !!(el && el.checked);
+}
+function getOptSaveKeyInFile() {
+  const el = document.getElementById("optSaveKeyInFile");
+  return !!(el && el.checked);
+}
+
+function setBusyUI(isBusy) {
+  const input = document.getElementById("userInput");
+  const sendBtn = document.getElementById("sendBtn");
+  const stopBtn = document.getElementById("stopBtn");
+  if (input) input.disabled = isBusy;
+  if (sendBtn) sendBtn.disabled = isBusy;
+  if (sendBtn) sendBtn.innerText = isBusy ? "..." : "Send";
+  if (stopBtn) stopBtn.disabled = !isBusy;
+}
+
+function enableRetryButton(enabled) {
+  const retryBtn = document.getElementById("retryBtn");
+  if (retryBtn) retryBtn.disabled = !enabled;
+}
+
+window.stopRequest = function () {
+  if (currentAbortController) {
+    try { currentAbortController.abort(); } catch (e) {}
+  }
+};
+
+window.retryLastMessage = function () {
+  if (!lastUserMessageText) return;
+  const input = document.getElementById("userInput");
+  if (input) input.value = lastUserMessageText;
+  sendMessage(true);
+};
+
+window.clearChat = function () {
+  // Keep gameState, reset history and UI
+  messageHistory = [{ role: "system", content: buildSystemPrompt() }];
+  const chat = document.getElementById("mudChatBox");
+  if (chat) chat.innerHTML = `<div class="mud-loading" id="mudLoading" style="display:none">AI thinking...</div>`;
+  enableRetryButton(false);
+};
+
+function pruneHistoryKeepRecentTurns(maxTurns = 6) {
+  // keep: [system] + last maxTurns*2 messages (user+assistant)
+  if (!messageHistory || messageHistory.length <= 1) return;
+  const system = messageHistory[0] && messageHistory[0].role === "system"
+    ? messageHistory[0]
+    : { role: "system", content: buildSystemPrompt() };
+
+  const rest = messageHistory.slice(1);
+  const keepCount = Math.max(0, maxTurns * 2);
+  const trimmed = rest.length > keepCount ? rest.slice(rest.length - keepCount) : rest;
+
+  messageHistory = [system, ...trimmed];
+}
+
+function normalizeErrorMessage(err, res) {
+  if (err && err.name === "AbortError") return "已停止請求。";
+  if (res && res.status === 401) return "API Key 無效或未授權（401）。";
+  if (res && res.status === 429) return "請求太頻繁或額度限制（429），請稍後再試或換模型/供應商。";
+  if (res && res.status >= 500) return `供應商伺服器錯誤（${res.status}），稍後再試或開啟自動備援。`;
+  if (err && err.message) return err.message;
+  return "請求失敗，請稍後再試。";
+}
+
+/* ===== Original config functions (extended, minimal changes) ===== */
+window.saveConfig = function () {
+  const providerKey = document.getElementById("apiProvider").value;
+  const apiKey = document.getElementById("apiKey").value.trim();
+  const selectedModel = document.getElementById("modelSelect").value;
+
+  localStorage.setItem("mudapiprovider", providerKey);
+  localStorage.setItem("mudselectedmodel", selectedModel);
+
+  // NEW: options
+  const optFallback = document.getElementById("optFallback");
+  const optSaveKeyInFile = document.getElementById("optSaveKeyInFile");
+  if (optFallback) localStorage.setItem("mudopt_fallback", optFallback.checked ? "1" : "0");
+  if (optSaveKeyInFile) localStorage.setItem("mudopt_savekeyinfile", optSaveKeyInFile.checked ? "1" : "0");
+
+  if (apiKey) localStorage.setItem("mudapikey" + providerKey, apiKey);
+};
+
+window.handleProviderChange = function () {
+  const providerKey = document.getElementById("apiProvider").value;
+  const modelSelect = document.getElementById("modelSelect");
+  const apiKeyInput = document.getElementById("apiKey");
+
+  const provider = PROVIDERS[providerKey];
+  modelSelect.innerHTML = provider.models.map(m => `<option value="${m.id}">${m.name}</option>`).join("");
+
+  const savedKey = localStorage.getItem("mudapikey" + providerKey);
+  apiKeyInput.value = savedKey || "";
+
+  const savedModel = localStorage.getItem("mudselectedmodel");
+  if (savedModel && provider.models.some(m => m.id === savedModel)) modelSelect.value = savedModel;
+  else modelSelect.value = provider.models[0].id;
+};
+
+window.updateStatusUI = function () {
+  if (gameState.confidence > 100) gameState.confidence = 100;
+  if (gameState.confidence < 0) gameState.confidence = 0;
+  if (gameState.fluency < 0) gameState.fluency = 0;
+
+  if (gameState.fluency >= 100) {
+    gameState.level += 1;
+    gameState.fluency = gameState.fluency - 100;
+  }
+
+  document.getElementById("hpVal").innerText = gameState.confidence;
+  document.getElementById("enVal").innerText = gameState.fluency;
+  document.getElementById("levelVal").innerText = `Lv. ${gameState.level}`;
+  document.getElementById("locVal").innerText = gameState.location;
+
+  document.getElementById("hpBar").style.width = `${gameState.confidence}%`;
+  document.getElementById("enBar").style.width = `${gameState.fluency}%`;
+
+  const invList = document.getElementById("inventoryList");
+  if (gameState.vocabulary.length > 0) {
+    invList.innerHTML = gameState.vocabulary.map(item => `<div class="vocab-item">${item}</div>`).join("");
+  } else invList.innerHTML = "";
+
+  // NEW: keep system prompt synced with state
+  if (messageHistory.length > 0 && messageHistory[0].role === "system") {
+    messageHistory[0].content = buildSystemPrompt();
+  }
+};
+
+if (messageHistory.length === 0) messageHistory.push({ role: "system", content: buildSystemPrompt() });
+
+if (gameState.confidence <= 0) {
+  appendUI("Game Over.", "mud-ai", true);
+  document.getElementById("sendBtn").disabled = true;
+  document.getElementById("userInput").disabled = true;
+}
+
+/* ===== Parsing improvements ===== */
+function extractTextForUI(text) {
+  let clean = text;
+
+  // Remove think blocks
+  clean = clean.replace(/<s*thinks*>[sS]*?</s*thinks*>/gi, "");
+
+  // Remove action blocks completely for UI
+  clean = clean.replace(/<s*actions*>[sS]*?</s*actions*>/gi, "");
+
+  // Cleanup stray tags/fences
+  clean = clean.replace(/</?action>/gi, "");
+  clean = clean.replace(/```json/gi, "");
+  clean = clean.replace(/```/gi, "");
+
+  return clean.trim();
+}
+
+function tryParseActionFromText(text) {
+  // Priority 1: <action>{...}</action>
+  let match = text.match(/<s*actions*>([sS]*?)</s*actions*>/i);
+  if (match && match[1]) {
+    const jsonString = match[1].replace(/```json/gi, "").replace(/```/gi, "").trim();
+    try { return JSON.parse(jsonString); } catch (e) {}
+  }
+
+  // Priority 2: first JSON object that contains any expected keys
+  const candidates = text.match(/{[sS]*?}/g) || [];
+  for (const c of candidates) {
+    if (!/confdelta|fludelta|leveldelta|location|vocabadded/i.test(c)) continue;
+    try { return JSON.parse(c); } catch (e) {}
+  }
+  return null;
+}
+
+function applyActionDeltas(text) {
+  const action = tryParseActionFromText(text);
+  if (action) {
+    try {
+      if (typeof action.confdelta === "number") gameState.confidence += action.confdelta;
+      if (typeof action.fludelta === "number") gameState.fluency += action.fludelta;
+      if (typeof action.leveldelta === "number") gameState.level += action.leveldelta;
+
+      if (action.location !== undefined && action.location !== null && String(action.location).trim() !== "") {
+        gameState.location = String(action.location);
+      }
+
+      if (action.vocabadded !== undefined && action.vocabadded !== null) {
+        let words = String(action.vocabadded).split(",");
+        words.forEach(w => {
+          let trimmed = w.trim();
+          if (trimmed && !gameState.vocabulary.includes(trimmed)) gameState.vocabulary.push(trimmed);
+        });
+      }
+    } catch (e) {
+      console.warn("Action apply error", e);
     }
+  }
 
-    // 遊戲狀態初始化
-    let gameState = {
-        confidence: 100,
-        fluency: 0,
-        level: 1,
-        location: "吉隆坡街頭的嘛嘛檔 (Mamak Stall)",
-        vocabulary: []
-    };
-    let messageHistory = [];
-    let lastRequestTime = 0;
-    const THROTTLE_LIMIT = 3000;
+  updateStatusUI();
+}
 
-    // 動態組合 System Prompt
-    function buildSystemPrompt() {
-        let levelStrategy = "";
-        if (gameState.level <= 3) {
-            levelStrategy = "【教學策略: 初階】使用 70% 中文 / 30% 馬來文。專注於基礎名詞（如食物、數字）與短句。玩家答錯時給予高度鼓勵，清楚解釋正確拼法。";
-        } else if (gameState.level <= 6) {
-            levelStrategy = "【教學策略: 中階】使用 30% 中文 / 70% 馬來文。開始要求玩家用完整的馬來文句子回答（如 Saya mahu...），引入大馬口語（如 Lah, Meh）。";
-        } else {
-            levelStrategy = "【教學策略: 進階沉浸式】使用 100% 馬來文。扮演真實的在地人，語氣自然道地。只有在玩家主動求救（聽不懂）時才提供中文翻譯。";
-        }
+async function requestWithProvider({ providerKey, key, modelId, payloadMessages, signal }) {
+  const provider = PROVIDERS[providerKey];
+  let activeModel = modelId;
 
-        return `你是一位友善、熱情的馬來西亞在地嚮導兼語言家教。你正在陪伴玩家進行一場文字冒險，目標是教會玩家實用的馬來西亞語（Bahasa Melayu）。
+  if (modelId === "auto" && providerKey === "openrouter") activeModel = "meta-llama/llama-3.3-70b-instruct:free";
 
-【底層設計準則】
-1. 你的回應必須融入情境對話（例如：你是嘛嘛檔的老闆、Grab 司機或夜市攤販）。
-2. 每次對話，請在劇情中教玩家 1~2 個實用的馬來文單字或句子，並給予情境測驗要求玩家回答。
-3. ${levelStrategy}
-4. 動態評估：如果玩家答對，增加流暢度(flu_delta)。如果玩家表現優異或流暢度累積足夠，請給予升級(level_delta)。答錯時扣除自信心(conf_delta)；若玩家正確回答或表現優異，也可適度給予自信心獎勵（增加 conf_delta，上限 100）。
-5. 回應格式：絕對嚴格在回覆的最後獨立一行，使用標準的 <action> 標籤包覆 JSON 來表示「數值變動」。
-格式範例：
-<action>{"conf_delta": 0, "flu_delta": 10, "level_delta": 0, "location": "新地點(若無請填 null)", "vocab_added": "Nasi Lemak (椰漿飯)"}</action>
+  const url = providerKey === "gemini" ? `${provider.baseUrl}?key=${encodeURIComponent(key)}` : provider.baseUrl;
 
-【核心記憶區】
-玩家狀態: 自信心 ${gameState.confidence}/100, 流暢度 ${gameState.fluency}/100, 等級 Lv.${gameState.level}
-當前位置: ${gameState.location}
-已學會單字: ${gameState.vocabulary.join(', ') || '無'}`;
-    }
+  const headers = { "Content-Type": "application/json" };
+  if (providerKey !== "gemini") headers["Authorization"] = `Bearer ${key}`;
 
-    const PROVIDERS = {
-        openrouter: {
-            name: "OpenRouter",
-            baseUrl: "https://openrouter.ai/api/v1/chat/completions",
-            models: [
-                { id: "auto", name: "自動切換最佳模型" },
-                { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B (Free)" },
-                { id: "deepseek/deepseek-r1-distill-llama-70b:free", name: "DeepSeek R1 (Free)" }
-            ]
-        },
-        groq: {
-            name: "Groq",
-            baseUrl: "https://api.groq.com/openai/v1/chat/completions",
-            models: [
-                { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B" },
-                { id: "deepseek-r1-distill-llama-70b", name: "DeepSeek R1 70B" },
-                { id: "mixtral-8x7b-32768", name: "Mixtral 8x7B" }
-            ]
-        },
-        gemini: {
-            name: "Google Gemini",
-            baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-            models: [
-                { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash" },
-                { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro" },
-                { id: "gemini-2.0-flash-exp", name: "Gemini 2.0 Flash" }
-            ]
-        },
-        openai: {
-            name: "OpenAI",
-            baseUrl: "https://api.openai.com/v1/chat/completions",
-            models: [
-                { id: "gpt-4o-mini", name: "GPT-4o Mini" },
-                { id: "gpt-4o", name: "GPT-4o" },
-                { id: "o1-mini", name: "o1 Mini" }
-            ]
-        }
-    };
+  const res = await fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      model: activeModel,
+      messages: payloadMessages,
+      temperature: 0.7
+    }),
+    signal
+  });
 
-    window.saveConfig = function () {
-        const providerKey = document.getElementById('apiProvider').value;
-        const apiKey = document.getElementById('apiKey').value.trim();
-        const selectedModel = document.getElementById('modelSelect').value;
+  return { res, activeModel };
+}
 
-        // Store general preference
-        localStorage.setItem('mud_api_provider', providerKey);
-        localStorage.setItem('mud_selected_model', selectedModel);
+function getFallbackChain(primaryKey) {
+  const enabled = getOptFallbackEnabled();
+  if (!enabled) return [primaryKey];
+  const chain = [primaryKey, ...FALLBACK_ORDER.filter(k => k !== primaryKey)];
+  return chain;
+}
 
-        // Store key specifically for this provider
-        if (apiKey) {
-            localStorage.setItem(`mud_api_key_${providerKey}`, apiKey);
-        }
-    };
+/* ===== Main sendMessage (upgraded, minimal restructure) ===== */
+window.sendMessage = async function (isRetry = false) {
+  const providerKey = document.getElementById("apiProvider").value;
+  const modelId = document.getElementById("modelSelect").value;
 
-    window.handleProviderChange = function () {
-        const providerKey = document.getElementById('apiProvider').value;
-        const modelSelect = document.getElementById('modelSelect');
-        const apiKeyInput = document.getElementById('apiKey');
-        const provider = PROVIDERS[providerKey];
+  const input = document.getElementById("userInput");
+  const text = input.value.trim();
 
-        modelSelect.innerHTML = provider.models.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+  if (input.disabled || !text) return;
 
-        // Restore provider-specific key
-        const savedKey = localStorage.getItem(`mud_api_key_${providerKey}`);
-        apiKeyInput.value = savedKey || "";
+  // For each provider, we read its own stored key (so fallback can work)
+  const getKeyForProvider = (pk) => {
+    const currentSelected = document.getElementById("apiProvider").value;
+    const directInput = document.getElementById("apiKey").value.trim();
+    if (pk === currentSelected && directInput) return directInput;
+    return (localStorage.getItem("mudapikey" + pk) || "").trim();
+  };
 
-        const savedModel = localStorage.getItem('mud_selected_model');
-        if (savedModel && provider.models.some(m => m.id === savedModel)) {
-            modelSelect.value = savedModel;
-        } else {
-            modelSelect.value = provider.models[0].id;
-        }
-    };
+  const primaryKey = getKeyForProvider(providerKey);
+  if (!primaryKey) {
+    appendUI("請先填入 API Key（或為備援供應商也填好 Key）。", "mud-ai", true);
+    return;
+  }
 
-    window.updateStatusUI = function () {
-        // ... (unchanged code)
-        if (gameState.confidence > 100) gameState.confidence = 100;
-        if (gameState.confidence < 0) gameState.confidence = 0;
-        if (gameState.fluency < 0) gameState.fluency = 0;
-        if (gameState.fluency >= 100) {
-            gameState.level += 1;
-            gameState.fluency -= 100;
-        }
+  const now = Date.now();
+  if (!isRetry && now - lastRequestTime < THROTTLE_LIMIT) return;
+  lastRequestTime = now;
 
-        document.getElementById('hpVal').innerText = gameState.confidence;
-        document.getElementById('enVal').innerText = gameState.fluency;
-        document.getElementById('levelVal').innerText = `Lv. ${gameState.level} ${gameState.level >= 7 ? '在地人' : (gameState.level >= 4 ? '中階者' : '初學者')}`;
-        document.getElementById('locVal').innerText = gameState.location;
+  // Remember last user message for retry
+  lastUserMessageText = text;
 
-        document.getElementById('hpBar').style.width = gameState.confidence + '%';
-        document.getElementById('enBar').style.width = gameState.fluency + '%';
+  // UI lock
+  setBusyUI(true);
+  enableRetryButton(false);
 
-        const invList = document.getElementById('inventoryList');
-        if (gameState.vocabulary.length > 0) {
-            invList.innerHTML = gameState.vocabulary.map(item => `<div class="vocab-item">${item}</div>`).join('');
-        } else {
-            invList.innerHTML = '(目前還沒有單字，趕快開口吧！)';
-        }
+  appendUI(text, "mud-user");
+  input.value = "";
 
-        if (messageHistory.length > 0 && messageHistory[0].role === 'system') {
-            messageHistory[0].content = buildSystemPrompt();
-        }
+  const loader = document.getElementById("mudLoading");
+  loader.style.display = "block";
 
-        if (gameState.confidence <= 0) {
-            appendUI("[系統通知：你的自信心已歸零！別灰心，語言學習需要耐心。請重新載入網頁再次挑戰！]", 'mud-ai', true);
-            document.getElementById('sendBtn').disabled = true;
-            document.getElementById('userInput').disabled = true;
-        }
-    };
+  // Ensure system message is present and up-to-date
+  if (messageHistory.length === 0) messageHistory.push({ role: "system", content: buildSystemPrompt() });
+  if (messageHistory[0].role === "system") messageHistory[0].content = buildSystemPrompt();
 
-    function extractTextForUI(text) {
-        // More robust cleanup: handles both properly closed and unclosed/malformed tags
-        let clean = text.replace(/<(?:think|action)>[\s\S]*?(?:<\/(?:think|action)>|$)/gi, '');
-        // Also cleanup potential hallucinated $action or stray tags
-        clean = clean.replace(/\$action>[\s\S]*?$/gi, '');
-        clean = clean.replace(/```json[\s\S]*?```/gi, '');
-        clean = clean.replace(/```[\s\S]*?```/gi, '');
-        return clean.trim();
-    }
+  // Push user message
+  messageHistory.push({ role: "user", content: text });
 
-    function applyActionDeltas(text) {
-        // Robust match for <action> or $action> style blocks
-        let match = text.match(/<(?:action|\$action)>([\s\S]*?)(?:<\/(?:action)>|$)/i);
-        if (!match) {
-            match = text.match(/\$action>([\s\S]*?)$/i);
-        }
+  // Prune history more safely (keep system + recent turns)
+  pruneHistoryKeepRecentTurns(6);
 
-        if (match) {
-            try {
-                let jsonString = match[1].replace(/```json/gi, '').replace(/```/gi, '').trim();
-                let action = JSON.parse(jsonString);
+  // Clone payload
+  let payloadMessages = JSON.parse(JSON.stringify(messageHistory));
+  if (payloadMessages[0].role !== "system") payloadMessages[0].role = "user";
+  payloadMessages[0].content = payloadMessages[0].content || "";
 
-                if (typeof action.conf_delta === 'number') gameState.confidence += action.conf_delta;
-                if (typeof action.flu_delta === 'number') gameState.fluency += action.flu_delta;
-                if (typeof action.level_delta === 'number') gameState.level += action.level_delta;
-                if (action.location && action.location !== "null") gameState.location = action.location;
+  // Abort controller per request
+  currentAbortController = new AbortController();
 
-                if (action.vocab_added && action.vocab_added !== "null") {
-                    // Split by comma to handle multiple words in one go
-                    let words = action.vocab_added.split(/[,，]/);
-                    words.forEach(w => {
-                        let trimmed = w.trim();
-                        if (trimmed && !gameState.vocabulary.includes(trimmed)) {
-                            gameState.vocabulary.push(trimmed);
-                        }
-                    });
-                }
-            } catch (e) {
-                console.warn("JSON 格式解析錯誤，略過數值變更", e);
-            }
-        }
-        updateStatusUI();
-    }
+  const chain = getFallbackChain(providerKey);
+  let lastErr = null;
 
-    window.sendMessage = async function () {
-        const key = document.getElementById('apiKey').value.trim();
-        const providerKey = document.getElementById('apiProvider').value;
-        const modelId = document.getElementById('modelSelect').value;
-        const input = document.getElementById('userInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const text = input.value.trim();
+  try {
+    let attempt = 0;
+    for (const pk of chain) {
+      const key = getKeyForProvider(pk);
+      if (!key) continue;
 
-        if (input.disabled || !text) return;
-
-        if (!key) {
-            appendUI(`[系統提示：請先在上方輸入 API Key 才能開始連線喔！]`, 'mud-ai', true);
-            return;
-        }
-
-        const now = Date.now();
-        if (now - lastRequestTime < THROTTLE_LIMIT) return;
-        lastRequestTime = now;
-
-        input.disabled = true;
-        sendBtn.disabled = true;
-        sendBtn.innerText = '思考中...';
-
-        appendUI(text, 'mud-user');
-        input.value = '';
-
-        const loader = document.getElementById('mudLoading');
-        loader.style.display = 'block';
-
-        if (messageHistory.length === 0) {
-            messageHistory.push({ role: "system", content: buildSystemPrompt() });
-        }
-
-        messageHistory.push({ role: "user", content: text });
-
-        let payloadMessages = JSON.parse(JSON.stringify(messageHistory));
-        if (payloadMessages[0].role === 'system') {
-            payloadMessages[0].role = 'user';
-            payloadMessages[0].content = "[系統底層設定]\n" + payloadMessages[0].content;
-        }
-
-        const provider = PROVIDERS[providerKey];
-        let activeModel = modelId;
-        if (modelId === 'auto' && providerKey === 'openrouter') {
-            activeModel = 'meta-llama/llama-3.3-70b-instruct:free';
-        }
-
+      for (let r = 0; r <= MAX_AUTO_RETRIES; r++) {
+        attempt++;
+        let res = null;
         try {
-            const url = providerKey === 'gemini' ? `${provider.baseUrl}?key=${key}` : provider.baseUrl;
-            const headers = { "Content-Type": "application/json" };
-            if (providerKey !== 'gemini') {
-                headers["Authorization"] = `Bearer ${key}`;
+          const out = await requestWithProvider({
+            providerKey: pk,
+            key,
+            modelId,
+            payloadMessages,
+            signal: currentAbortController.signal
+          });
+          res = out.res;
+
+          if (!res.ok) {
+            // Retry only for 429/5xx; otherwise break immediately
+            if ((res.status === 429 || res.status >= 500) && r < MAX_AUTO_RETRIES) {
+              await new Promise(s => setTimeout(s, 400 + r * 600));
+              continue;
             }
+            throw { res };
+          }
 
-            let res = await fetch(url, {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify({ model: activeModel, messages: payloadMessages, temperature: 0.7 })
-            });
+          const data = await res.json();
+          const aiMsg = data.choices && data.choices[0] && data.choices[0].message
+            ? data.choices[0].message.content
+            : "";
 
-            if (!res.ok) throw new Error(`連線錯誤 (${res.status})，請稍後再試。`);
+          if (!aiMsg) throw new Error("Empty response.");
 
-            const data = await res.json();
-            const aiMsg = data.choices[0].message.content;
+          // Track what worked
+          lastProviderKeyUsed = pk;
+          lastModelUsed = out.activeModel;
 
-            applyActionDeltas(aiMsg);
-            const cleanMsg = extractTextForUI(aiMsg);
+          applyActionDeltas(aiMsg);
 
-            messageHistory.push({ role: "assistant", content: aiMsg });
+          const cleanMsg = extractTextForUI(aiMsg);
 
-            if (messageHistory.length > 7) messageHistory.splice(1, 2);
+          messageHistory.push({ role: "assistant", content: aiMsg });
+          pruneHistoryKeepRecentTurns(6);
 
-            loader.style.display = 'none';
+          loader.style.display = "none";
 
-            const b = document.getElementById('mudChatBox');
-            const d = document.createElement('div');
-            d.className = `mud-msg mud-ai`;
-            b.insertBefore(d, document.getElementById('mudLoading'));
+          const b = document.getElementById("mudChatBox");
+          const d = document.createElement("div");
+          d.className = "mud-msg mud-ai";
+          b.insertBefore(d, document.getElementById("mudLoading"));
 
-            let i = 0;
-            function typeWriter() {
-                if (i < cleanMsg.length) {
-                    d.textContent = cleanMsg.substring(0, i + 1) + '▌';
-                    i++;
-                    b.scrollTop = b.scrollHeight;
-                    setTimeout(typeWriter, 15);
-                } else {
-                    d.innerHTML = marked.parse(cleanMsg);
-                    b.scrollTop = b.scrollHeight;
-                    input.disabled = false;
-                    sendBtn.disabled = false;
-                    sendBtn.innerText = '發送';
-                    input.focus();
-                }
+          let i = 0;
+          function typeWriter() {
+            if (i < cleanMsg.length) {
+              d.textContent = cleanMsg.substring(0, i + 1);
+              i++;
+              b.scrollTop = b.scrollHeight;
+              setTimeout(typeWriter, 12);
+            } else {
+              d.innerHTML = marked.parse(cleanMsg);
+              b.scrollTop = b.scrollHeight;
+              setBusyUI(false);
+              enableRetryButton(true);
+              input.focus();
             }
-            typeWriter();
+          }
+          typeWriter();
 
+          currentAbortController = null;
+          return; // success
         } catch (e) {
-            loader.style.display = 'none';
-            appendUI(`[連線異常：${e.message}]`, 'mud-ai', true);
-            messageHistory.pop();
-            input.disabled = false;
-            sendBtn.disabled = false;
-            sendBtn.innerText = '發送';
+          if (e && e.name === "AbortError") throw e;
+          lastErr = e;
+          // If we got explicit res error, break retry loop unless retryable
+          if (e && e.res && !(e.res.status === 429 || e.res.status >= 500)) break;
         }
-    };
-
-    function appendUI(t, c, html = false) {
-        const b = document.getElementById('mudChatBox');
-        const d = document.createElement('div');
-        d.className = `mud-msg ${c}`;
-        html ? d.innerHTML = t : d.textContent = t;
-        b.insertBefore(d, document.getElementById('mudLoading'));
-        b.scrollTop = b.scrollHeight;
+      }
+      // try next provider
     }
 
-    window.handleKeyPress = (e) => {
-        if (e.key === 'Enter' && !document.getElementById('sendBtn').disabled) sendMessage();
-    };
+    throw lastErr || new Error("All providers failed.");
+  } catch (e) {
+    loader.style.display = "none";
 
-    window.saveGame = function () {
-        const data = {
-            state: gameState,
-            history: messageHistory,
-            config: {
-                provider: document.getElementById('apiProvider').value,
-                model: document.getElementById('modelSelect').value,
-                apiKey: document.getElementById('apiKey').value.trim()
-            }
-        };
-        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `KawanMelayu_Save.json`;
-        a.click();
-    };
+    // If aborted: do not pop message history aggressively
+    if (e && e.name === "AbortError") {
+      appendUI("已停止請求。", "mud-ai", true);
+    } else if (e && e.res) {
+      appendUI(normalizeErrorMessage(null, e.res), "mud-ai", true);
+    } else {
+      appendUI(normalizeErrorMessage(e, null), "mud-ai", true);
+    }
 
-    window.loadGame = function (event) {
-        const file = event.target.files[0];
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            try {
-                const d = JSON.parse(e.target.result);
-                gameState = d.state;
-                messageHistory = d.history;
-                updateStatusUI();
+    // Keep user message in history (so retry can be meaningful),
+    // but don't leave UI locked
+    setBusyUI(false);
+    enableRetryButton(true);
 
-                // 確保 Provider UI 同步
-                if (d.config) {
-                    if (d.config.provider) document.getElementById('apiProvider').value = d.config.provider;
-                    handleProviderChange();
-                    if (d.config.model) document.getElementById('modelSelect').value = d.config.model;
-                    if (d.config.apiKey) document.getElementById('apiKey').value = d.config.apiKey;
-                    saveConfig();
-                }
+    currentAbortController = null;
+  }
+};
 
-                document.getElementById('mudChatBox').innerHTML = '<div class="mud-loading" id="mudLoading" style="display:none;"></div>';
-                messageHistory.forEach(m => {
-                    if (m.role === 'user' && !m.content.includes('[系統底層設定]')) appendUI(m.content, 'mud-user');
-                    if (m.role === 'assistant') appendUI(marked.parse(extractTextForUI(m.content)), 'mud-ai', true);
-                });
-            } catch (err) { alert("讀取失敗"); }
-        };
-        reader.readAsText(file);
-    };
+function appendUI(t, c, html = false) {
+  const b = document.getElementById("mudChatBox");
+  const d = document.createElement("div");
+  d.className = "mud-msg " + c;
+  if (html) d.innerHTML = t;
+  else d.textContent = t;
+  b.insertBefore(d, document.getElementById("mudLoading"));
+  b.scrollTop = b.scrollHeight;
+}
 
-    // 載入預設設定
-    const savedProvider = localStorage.getItem('mud_api_provider') || 'openrouter';
-    document.getElementById('apiProvider').value = savedProvider;
-    handleProviderChange(); // 這會更新模型選單並設定正確的模型
+/* Better Enter behavior: Enter send, Shift+Enter newline (but input is <input>, so just block Shift+Enter) */
+window.handleKeyPress = function (e) {
+  if (e.key === "Enter" && !e.shiftKey && !document.getElementById("sendBtn").disabled) sendMessage();
+};
 
-    document.getElementById('apiKey').value = localStorage.getItem('mud_api_key') || '';
-    updateStatusUI();
+window.saveGame = function () {
+  const cfg = {
+    provider: document.getElementById("apiProvider").value,
+    model: document.getElementById("modelSelect").value,
+    apiKey: document.getElementById("apiKey").value.trim(),
+    optFallback: getOptFallbackEnabled(),
+    optSaveKeyInFile: getOptSaveKeyInFile()
+  };
 
-    // 初始對話
-    setTimeout(() => {
-        const welcomeHtml = `
-            <strong>(你聞到濃濃的咖哩與拉茶香，周圍傳來陣陣吵雜的說話聲)</strong><br><br>
-            老闆熱情地走過來：「Boss! Selamat pagi! (早安) 要吃點什麼嗎？我們這裡的 <strong>Nasi Lemak (椰漿飯)</strong> 和 <strong>Roti Canai (印度煎餅)</strong> 最出名啦！」<br><br>
-            <em>👉 試著用中文回答他你想要吃什麼，或是挑戰直接用拼音回覆他！</em>
-        `;
-        appendUI(welcomeHtml, 'mud-ai', true);
-    }, 500);
+  // NEW: default do NOT save apiKey into file (privacy)
+  if (!getOptSaveKeyInFile()) delete cfg.apiKey;
 
-    window.toggleSidebar = function () {
-        const container = document.querySelector('.mud-container');
-        const isCollapsed = container.classList.toggle('sidebar-collapsed');
-        localStorage.setItem('sidebarCollapsed', isCollapsed);
+  const data = { state: gameState, history: messageHistory, config: cfg };
 
-        // Update button text if needed
-        const btn = document.querySelector('.vocab-toggle-btn');
-        if (btn) {
-            btn.innerText = isCollapsed ? '展開 ▶' : '收起 ◀';
-        }
-    };
+  const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "KawanMelayuSave.json";
+  a.click();
+};
 
-    // Initialize sidebar and API settings state
-    document.addEventListener('DOMContentLoaded', () => {
-        // Check if on mobile
-        const isMobile = window.innerWidth <= 768;
+window.loadGame = function (event) {
+  const file = event.target.files[0];
+  const reader = new FileReader();
 
-        // Restore Sidebar (Default to collapsed on ALL devices if no preference)
-        let savedCollapsed = localStorage.getItem('sidebarCollapsed');
-        let shouldCollapse = savedCollapsed !== 'false'; // null or 'true' will both result in collapse
+  reader.onload = function (e) {
+    try {
+      const d = JSON.parse(e.target.result);
+      gameState = d.state;
+      messageHistory = d.history;
 
-        const container = document.querySelector('.mud-container');
-        if (shouldCollapse && container) {
-            container.classList.add('sidebar-collapsed');
-            const btn = document.querySelector('.vocab-toggle-btn');
-            if (btn) btn.innerText = '展開 ▶';
-        }
+      updateStatusUI();
 
-        // Restore API Provider and Key
-        const savedProvider = localStorage.getItem('mud_api_provider');
-        if (savedProvider && PROVIDERS[savedProvider]) {
-            const providerSelect = document.getElementById('apiProvider');
-            if (providerSelect) {
-                providerSelect.value = savedProvider;
-                handleProviderChange(); // This will also restore the key for this provider
-            }
-        }
-    });
+      if (d.config) {
+        if (d.config.provider) document.getElementById("apiProvider").value = d.config.provider;
+        handleProviderChange();
+        if (d.config.model) document.getElementById("modelSelect").value = d.config.model;
 
-})();
+        // NEW: only load apiKey if file contains it
+        if (d.config.apiKey) document.getElementById("apiKey").value = d.config.apiKey;
+
+        // NEW: load options if present
+        const optFallback = document.getElementById("optFallback");
+        const optSaveKeyInFile = document.getElementById("optSaveKeyInFile");
+        if (optFallback && typeof d.config.optFallback === "boolean") optFallback.checked = d.config.optFallback;
+        if (optSaveKeyInFile && typeof d.config.optSaveKeyInFile === "boolean") optSaveKeyInFile.checked = d.config.optSaveKeyInFile;
+
+        saveConfig();
+      }
+
+      document.getElementById("mudChatBox").innerHTML =
+        `<div class="mud-loading" id="mudLoading" style="display:none">AI thinking...</div>`;
+
+      messageHistory.forEach(m => {
+        if (m.role === "user" && !m.content.includes("<action>")) appendUI(m.content, "mud-user");
+        if (m.role === "assistant") appendUI(marked.parse(extractTextForUI(m.content)), "mud-ai", true);
+      });
+
+      enableRetryButton(!!lastUserMessageText);
+    } catch (err) {
+      alert("Load failed.");
+    }
+  };
+
+  reader.readAsText(file);
+};
+
+const savedProvider = localStorage.getItem("mudapiprovider") || "openrouter";
+document.getElementById("apiProvider").value = savedProvider;
+handleProviderChange();
+
+// NOTE: old generic key remains supported, but prefer provider-specific keys
+document.getElementById("apiKey").value = localStorage.getItem("mudapikey" + savedProvider) || localStorage.getItem("mudapikey") || "";
+
+// Restore options
+const optFallback = document.getElementById("optFallback");
+const optSaveKeyInFile = document.getElementById("optSaveKeyInFile");
+if (optFall
