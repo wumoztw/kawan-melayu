@@ -12,7 +12,7 @@ let messageHistory = [];
 let lastRequestTime = 0;
 const THROTTLE_LIMIT = 3000;
 
-/* ===== request control / retry / fallback ===== */
+/* ===== NEW: request control / retry / fallback ===== */
 let currentAbortController = null;
 let lastUserMessageText = "";
 let lastProviderKeyUsed = "";
@@ -23,27 +23,35 @@ const MAX_AUTO_RETRIES = 2;
 
 // System Prompt
 function buildSystemPrompt() {
-  let levelStrategy;
-  if (gameState.level <= 3) levelStrategy = "70% English, 30% Malay";
-  else if (gameState.level <= 6) levelStrategy = "30% English, 70% Malay (include casual particles like 'Lah', 'Meh')";
-  else levelStrategy = "100% Malay";
+  let ratioRule;
+  if (gameState.level <= 3) ratioRule = "馬來文 30%，台灣華語（繁體中文）70%";
+  else if (gameState.level <= 6) ratioRule = "馬來文 70%，台灣華語（繁體中文）30%（可加入口語語氣詞如：lah、meh）";
+  else ratioRule = "馬來文 100%（必要時可用台灣華語補充 1–2 句，但禁止英文）";
 
-  return `You are a friendly Bahasa Melayu tutor.
+  return `你是馬來文（Bahasa Melayu）的情境導師，場景在馬來西亞嘛嘛檔（Mamak Stall）。
 
-Rules:
-1. Keep responses short and practical.
-2. Teach 1-2 new words max per reply.
-3. Use this language ratio: ${levelStrategy}
-4. Track player stats: fluency=${gameState.fluency}, level=${gameState.level}, confidence=${gameState.confidence}/100
-5. At end, output an action JSON block like:
+【硬性語言規則（非常重要）】
+- 你只能使用兩種語言：①台灣華語（繁體中文）②馬來文。
+- 禁止使用英文（包含解釋、例句、標題、條列、註解、縮寫都不可以）。
+- 每次回覆請遵守語言比例：${ratioRule}
+
+【教學策略】
+1. 回覆要短、可立即拿來講，避免長篇理論。
+2. 每回合最多教 1–2 個新詞（新詞用馬來文呈現，台灣華語解釋）。
+3. 依玩家狀態調整難度並鼓勵他開口。
+
+【輸出格式（固定）】
+A) 先輸出馬來文對話 1–3 句，符合目前場景「${gameState.location}」。
+B) 再用台灣華語（繁中）簡短解釋重點 1–3 句（可含發音提示，但不要用英文規則教學）。
+C) 最後一行一定要輸出 action（只能這個 JSON，不要加其他文字）：
 <action>{"confdelta":0,"fludelta":10,"leveldelta":0,"location":null,"vocabadded":"Nasi Lemak"}</action>
 
-Current:
-- confidence=${gameState.confidence}/100
-- fluency=${gameState.fluency}/100
-- level=Lv.${gameState.level}
-- location=${gameState.location}
-- vocabulary=${gameState.vocabulary.join(", ")}
+【目前玩家狀態】
+- 信心值 confidence=${gameState.confidence}/100
+- 流利度 fluency=${gameState.fluency}/100
+- 等級 level=Lv.${gameState.level}
+- 地點 location=${gameState.location}
+- 已學詞彙 vocabulary=${gameState.vocabulary.join(", ")}
 `;
 }
 
@@ -110,29 +118,6 @@ function enableRetryButton(enabled) {
   if (retryBtn) retryBtn.disabled = !enabled;
 }
 
-/* ===== NEW: immersive onboarding prompt builder ===== */
-function buildOnboardingHtml() {
-  const provider = document.getElementById("apiProvider")?.value || "openrouter";
-  const providerName = PROVIDERS[provider]?.name || provider;
-  const hasKey = (document.getElementById("apiKey")?.value || "").trim().length > 0;
-
-  const keyHint = hasKey
-    ? `✅ 已偵測到 ${providerName} 的 API Key，可以直接開始。`
-    : `🔑 先在上方貼上 ${providerName} 的 API Key（只會存在你的瀏覽器 localStorage）。`;
-
-  return `
-<strong>Selamat datang ke Mamak Stall!</strong><br>
-你一推開油煙味的玻璃門，老闆抬頭笑：<br>
-<strong>Boss, nak makan apa?</strong>（老闆：想吃什麼？）<br><br>
-${keyHint}<br><br>
-<b>可以直接照抄一句開局：</b><br>
-1) <code>Saya mahu nasi lemak.</code>（我要椰漿飯）<br>
-2) <code>Boleh tambah telur?</code>（可以加蛋嗎？）<br>
-3) <code>Air teh ais satu.</code>（一杯冰奶茶）<br><br>
-今天任務：學會點 <strong>Nasi Lemak</strong> 和 <strong>Roti Canai</strong>，講得越自然，<em>Fluency</em> 升得越快。<br>
-<em>Jom mula!</em>`;
-}
-
 window.stopRequest = function () {
   if (currentAbortController) {
     try { currentAbortController.abort(); } catch (e) {}
@@ -152,9 +137,6 @@ window.clearChat = function () {
   const chat = document.getElementById("mudChatBox");
   if (chat) chat.innerHTML = `<div class="mud-loading" id="mudLoading" style="display:none">AI thinking...</div>`;
   enableRetryButton(false);
-
-  // Optional: re-show onboarding after clear
-  setTimeout(() => appendUI(buildOnboardingHtml(), "mud-ai", true), 80);
 };
 
 function pruneHistoryKeepRecentTurns(maxTurns = 6) {
@@ -180,7 +162,7 @@ function normalizeErrorMessage(err, res) {
   return "請求失敗，請稍後再試。";
 }
 
-/* ===== Config ===== */
+/* ===== Original config functions (extended, minimal changes) ===== */
 window.saveConfig = function () {
   const providerKey = document.getElementById("apiProvider").value;
   const apiKey = document.getElementById("apiKey").value.trim();
@@ -189,6 +171,7 @@ window.saveConfig = function () {
   localStorage.setItem("mudapiprovider", providerKey);
   localStorage.setItem("mudselectedmodel", selectedModel);
 
+  // NEW: options
   const optFallback = document.getElementById("optFallback");
   const optSaveKeyInFile = document.getElementById("optSaveKeyInFile");
   if (optFallback) localStorage.setItem("mudopt_fallback", optFallback.checked ? "1" : "0");
@@ -236,6 +219,7 @@ window.updateStatusUI = function () {
     invList.innerHTML = gameState.vocabulary.map(item => `<div class="vocab-item">${item}</div>`).join("");
   } else invList.innerHTML = "";
 
+  // NEW: keep system prompt synced with state
   if (messageHistory.length > 0 && messageHistory[0].role === "system") {
     messageHistory[0].content = buildSystemPrompt();
   }
@@ -249,13 +233,17 @@ if (gameState.confidence <= 0) {
   document.getElementById("userInput").disabled = true;
 }
 
-/* ===== Parsing ===== */
+/* ===== Parsing improvements ===== */
 function extractTextForUI(text) {
   let clean = text;
 
+  // Remove think blocks
   clean = clean.replace(/<\s*think\s*>[\s\S]*?<\/\s*think\s*>/gi, "");
+
+  // Remove action blocks completely for UI
   clean = clean.replace(/<\s*action\s*>[\s\S]*?<\/\s*action\s*>/gi, "");
 
+  // Cleanup stray tags/fences
   clean = clean.replace(/<\/?action>/gi, "");
   clean = clean.replace(/```json/gi, "");
   clean = clean.replace(/```/gi, "");
@@ -264,12 +252,14 @@ function extractTextForUI(text) {
 }
 
 function tryParseActionFromText(text) {
+  // Priority 1: <action>{...}</action>
   let match = text.match(/<\s*action\s*>([\s\S]*?)<\/\s*action\s*>/i);
   if (match && match[1]) {
     const jsonString = match[1].replace(/```json/gi, "").replace(/```/gi, "").trim();
     try { return JSON.parse(jsonString); } catch (e) {}
   }
 
+  // Priority 2: first JSON object that contains any expected keys
   const candidates = text.match(/{[\s\S]*?}/g) || [];
   for (const c of candidates) {
     if (!/confdelta|fludelta|leveldelta|location|vocabadded/i.test(c)) continue;
@@ -337,7 +327,7 @@ function getFallbackChain(primaryKey) {
   return chain;
 }
 
-/* ===== Main sendMessage ===== */
+/* ===== Main sendMessage (upgraded, minimal restructure) ===== */
 window.sendMessage = async function (isRetry = false) {
   const providerKey = document.getElementById("apiProvider").value;
   const modelId = document.getElementById("modelSelect").value;
@@ -356,10 +346,8 @@ window.sendMessage = async function (isRetry = false) {
   };
 
   const primaryKey = getKeyForProvider(providerKey);
-
-  // ===== MODIFIED: show immersive onboarding if missing key =====
   if (!primaryKey) {
-    appendUI(buildOnboardingHtml(), "mud-ai", true);
+    appendUI("請先填入 API Key（或為備援供應商也填好 Key）。", "mud-ai", true);
     return;
   }
 
@@ -367,8 +355,10 @@ window.sendMessage = async function (isRetry = false) {
   if (!isRetry && now - lastRequestTime < THROTTLE_LIMIT) return;
   lastRequestTime = now;
 
+  // Remember last user message for retry
   lastUserMessageText = text;
 
+  // UI lock
   setBusyUI(true);
   enableRetryButton(false);
 
@@ -378,27 +368,35 @@ window.sendMessage = async function (isRetry = false) {
   const loader = document.getElementById("mudLoading");
   loader.style.display = "block";
 
+  // Ensure system message is present and up-to-date
   if (messageHistory.length === 0) messageHistory.push({ role: "system", content: buildSystemPrompt() });
   if (messageHistory[0].role === "system") messageHistory[0].content = buildSystemPrompt();
 
+  // Push user message
   messageHistory.push({ role: "user", content: text });
+
+  // Prune history more safely (keep system + recent turns)
   pruneHistoryKeepRecentTurns(6);
 
+  // Clone payload
   let payloadMessages = JSON.parse(JSON.stringify(messageHistory));
   if (payloadMessages[0].role !== "system") payloadMessages[0].role = "user";
   payloadMessages[0].content = payloadMessages[0].content || "";
 
+  // Abort controller per request
   currentAbortController = new AbortController();
 
   const chain = getFallbackChain(providerKey);
   let lastErr = null;
 
   try {
+    let attempt = 0;
     for (const pk of chain) {
       const key = getKeyForProvider(pk);
       if (!key) continue;
 
       for (let r = 0; r <= MAX_AUTO_RETRIES; r++) {
+        attempt++;
         let res = null;
         try {
           const out = await requestWithProvider({
@@ -411,6 +409,7 @@ window.sendMessage = async function (isRetry = false) {
           res = out.res;
 
           if (!res.ok) {
+            // Retry only for 429/5xx; otherwise break immediately
             if ((res.status === 429 || res.status >= 500) && r < MAX_AUTO_RETRIES) {
               await new Promise(s => setTimeout(s, 400 + r * 600));
               continue;
@@ -425,6 +424,7 @@ window.sendMessage = async function (isRetry = false) {
 
           if (!aiMsg) throw new Error("Empty response.");
 
+          // Track what worked
           lastProviderKeyUsed = pk;
           lastModelUsed = out.activeModel;
 
@@ -460,19 +460,22 @@ window.sendMessage = async function (isRetry = false) {
           typeWriter();
 
           currentAbortController = null;
-          return;
+          return; // success
         } catch (e) {
           if (e && e.name === "AbortError") throw e;
           lastErr = e;
+          // If we got explicit res error, break retry loop unless retryable
           if (e && e.res && !(e.res.status === 429 || e.res.status >= 500)) break;
         }
       }
+      // try next provider
     }
 
     throw lastErr || new Error("All providers failed.");
   } catch (e) {
     loader.style.display = "none";
 
+    // If aborted: do not pop message history aggressively
     if (e && e.name === "AbortError") {
       appendUI("已停止請求。", "mud-ai", true);
     } else if (e && e.res) {
@@ -481,6 +484,8 @@ window.sendMessage = async function (isRetry = false) {
       appendUI(normalizeErrorMessage(e, null), "mud-ai", true);
     }
 
+    // Keep user message in history (so retry can be meaningful),
+    // but don't leave UI locked
     setBusyUI(false);
     enableRetryButton(true);
 
@@ -498,6 +503,7 @@ function appendUI(t, c, html = false) {
   b.scrollTop = b.scrollHeight;
 }
 
+/* Better Enter behavior: Enter send, Shift+Enter newline (but input is <input>, so just block Shift+Enter) */
 window.handleKeyPress = function (e) {
   if (e.key === "Enter" && !e.shiftKey && !document.getElementById("sendBtn").disabled) sendMessage();
 };
@@ -511,6 +517,7 @@ window.saveGame = function () {
     optSaveKeyInFile: getOptSaveKeyInFile()
   };
 
+  // NEW: default do NOT save apiKey into file (privacy)
   if (!getOptSaveKeyInFile()) delete cfg.apiKey;
 
   const data = { state: gameState, history: messageHistory, config: cfg };
@@ -539,8 +546,10 @@ window.loadGame = function (event) {
         handleProviderChange();
         if (d.config.model) document.getElementById("modelSelect").value = d.config.model;
 
+        // NEW: only load apiKey if file contains it
         if (d.config.apiKey) document.getElementById("apiKey").value = d.config.apiKey;
 
+        // NEW: load options if present
         const optFallback = document.getElementById("optFallback");
         const optSaveKeyInFile = document.getElementById("optSaveKeyInFile");
         if (optFallback && typeof d.config.optFallback === "boolean") optFallback.checked = d.config.optFallback;
@@ -558,11 +567,6 @@ window.loadGame = function (event) {
       });
 
       enableRetryButton(!!lastUserMessageText);
-
-      // Optional: show onboarding after load if no key
-      const providerKey = document.getElementById("apiProvider").value;
-      const k = (localStorage.getItem("mudapikey" + providerKey) || document.getElementById("apiKey").value || "").trim();
-      if (!k) setTimeout(() => appendUI(buildOnboardingHtml(), "mud-ai", true), 120);
     } catch (err) {
       alert("Load failed.");
     }
@@ -575,11 +579,13 @@ const savedProvider = localStorage.getItem("mudapiprovider") || "openrouter";
 document.getElementById("apiProvider").value = savedProvider;
 handleProviderChange();
 
+// NOTE: old generic key remains supported, but prefer provider-specific keys
 document.getElementById("apiKey").value =
   localStorage.getItem("mudapikey" + savedProvider) ||
   localStorage.getItem("mudapikey") ||
   "";
 
+// Restore options
 const optFallback = document.getElementById("optFallback");
 const optSaveKeyInFile = document.getElementById("optSaveKeyInFile");
 if (optFallback) optFallback.checked = (localStorage.getItem("mudopt_fallback") || "0") === "1";
@@ -587,28 +593,26 @@ if (optSaveKeyInFile) optSaveKeyInFile.checked = (localStorage.getItem("mudopt_s
 
 updateStatusUI();
 
-/* ===== MODIFIED: opening message uses the same immersive onboarding ===== */
 setTimeout(() => {
-  appendUI(buildOnboardingHtml(), "mud-ai", true);
+  const welcomeHtml = `<strong>Selamat pagi!</strong><br><br>Boss! Hari ini kita belajar: <strong>Nasi Lemak</strong>, <strong>Roti Canai</strong>.<br><br><em>Jom mula!</em>`;
+  appendUI(welcomeHtml, "mud-ai", true);
 }, 500);
 
-/* Sidebar toggle: new behavior + old compatibility for optional .vocab-toggle-btn text */
 window.toggleSidebar = function () {
   const container = document.querySelector(".mud-container");
   const isCollapsed = container.classList.toggle("sidebar-collapsed");
   localStorage.setItem("sidebarCollapsed", isCollapsed);
-
-  const btn = document.querySelector(".vocab-toggle-btn");
-  if (btn) btn.innerText = isCollapsed ? "📖" : "✖";
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Restore Sidebar: Default to collapsed on ALL devices if no preference
   let savedCollapsed = localStorage.getItem("sidebarCollapsed");
   let shouldCollapse = savedCollapsed !== "false";
 
   const container = document.querySelector(".mud-container");
   if (shouldCollapse && container) container.classList.add("sidebar-collapsed");
 
+  // Restore API Provider and Key
   const savedProvider2 = localStorage.getItem("mudapiprovider");
   if (savedProvider2 && PROVIDERS[savedProvider2]) {
     const providerSelect = document.getElementById("apiProvider");
@@ -616,5 +620,6 @@ document.addEventListener("DOMContentLoaded", () => {
     handleProviderChange();
   }
 
+  // NEW: make retry available if a message exists
   enableRetryButton(false);
 });
