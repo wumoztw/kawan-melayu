@@ -105,13 +105,11 @@
             <button class="mud-btn mud-btn-load" onclick="document.getElementById('fileInput').click()">Load</button>
             <input type="file" id="fileInput" style="display:none" onchange="loadGame(event)" />
 
-            <!-- NEW: in-game controls -->
             <button class="mud-btn mud-btn-stop" id="stopBtn" onclick="stopRequest()" disabled>Stop</button>
             <button class="mud-btn mud-btn-retry" id="retryBtn" onclick="retryLastMessage()" disabled>Retry</button>
             <button class="mud-btn mud-btn-clear" id="clearBtn" onclick="clearChat()">Clear</button>
           </div>
 
-          <!-- NEW: options row -->
           <div class="mud-opt-row">
             <label class="mud-opt">
               <input type="checkbox" id="optFallback" onchange="saveConfig()" />
@@ -144,6 +142,7 @@
     </div>
   </div>
 
-  <script src="game.js"></script>
+  <!-- Cache-busting to avoid stale JS on GitHub Pages -->
+  <script src="game.js?v=20260227_234900"></script>
 </body>
-              </html>
+</html>
