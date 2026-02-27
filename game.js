@@ -585,8 +585,27 @@ if (optSaveKeyInFile) optSaveKeyInFile.checked = (localStorage.getItem("mudopt_s
 
 updateStatusUI();
 
+/* ===== NEW: immersive onboarding prompt (open page) ===== */
 setTimeout(() => {
-  const welcomeHtml = `<strong>Selamat pagi!</strong><br><br>Boss! Hari ini kita belajar: <strong>Nasi Lemak</strong>, <strong>Roti Canai</strong>.<br><br><em>Jom mula!</em>`;
+  const provider = document.getElementById("apiProvider")?.value || "openrouter";
+  const hasKey = (document.getElementById("apiKey")?.value || "").trim().length > 0;
+
+  const keyHint = hasKey
+    ? `✅ 已偵測到 ${PROVIDERS[provider]?.name || provider} 的 API Key，可以直接開始。`
+    : `🔑 先在上方貼上 ${PROVIDERS[provider]?.name || provider} 的 API Key（只會存在你的瀏覽器 localStorage）。`;
+
+  const welcomeHtml = `
+<strong>Selamat datang ke Mamak Stall!</strong><br>
+你一推開油煙味的玻璃門，老闆抬頭笑：<br>
+<strong>Boss, nak makan apa?</strong>（老闆：想吃什麼？）<br><br>
+${keyHint}<br><br>
+<b>可以直接照抄一句開局：</b><br>
+1) <code>Saya mahu nasi lemak.</code>（我要椰漿飯）<br>
+2) <code>Boleh tambah telur?</code>（可以加蛋嗎？）<br>
+3) <code>Air teh ais satu.</code>（一杯冰奶茶）<br><br>
+今天任務：學會點 <strong>Nasi Lemak</strong> 和 <strong>Roti Canai</strong>，講得越自然，<em>Fluency</em> 升得越快。<br>
+<em>Jom mula!</em>`;
+
   appendUI(welcomeHtml, "mud-ai", true);
 }, 500);
 
