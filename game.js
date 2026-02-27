@@ -23,17 +23,20 @@ const MAX_AUTO_RETRIES = 2;
 
 // System Prompt
 function buildSystemPrompt() {
+  // From zero: start with Taiwan Mandarin as the main teaching language,
+  // then gradually shift to Malay as the player levels up.
   let ratioRule;
-  if (gameState.level <= 3) ratioRule = "馬來文 30%，台灣華語（繁體中文）70%";
-  else if (gameState.level <= 6) ratioRule = "馬來文 70%，台灣華語（繁體中文）30%（可加入口語語氣詞如：lah、meh）";
-  else ratioRule = "馬來文 100%（必要時可用台灣華語補充 1–2 句，但禁止英文）";
+  if (gameState.level <= 3) ratioRule = "台灣華語為主、馬來文為輔（約 70%：30%）";
+  else if (gameState.level <= 6) ratioRule = "馬來文為主、台灣華語為輔（約 70%：30%，可加入口語語氣詞：lah、meh）";
+  else ratioRule = "幾乎全馬來文（約 90–100%），台灣華語只在必要時補充 1 句";
 
-  return `你是馬來文（Bahasa Melayu）的情境導師，場景在馬來西亞嘛嘛檔（Mamak Stall）。
+  return `你是馬來文（Bahasa Melayu）的情境教學導師，場景在馬來西亞嘛嘛檔（Mamak Stall）。
 
 【硬性語言規則（非常重要）】
 - 你只能使用兩種語言：①台灣華語（繁體中文）②馬來文。
 - 禁止使用英文（包含解釋、例句、標題、條列、註解、縮寫都不可以）。
-- 每次回覆請遵守語言比例：${ratioRule}
+- 教學節奏：從 0 開始，初期以台灣華語為主、馬來文輔佐；隨著玩家等級提升，逐漸改成馬來文為主、台灣華語輔佐。
+- 本回合語言比例：${ratioRule}
 
 【教學策略】
 1. 回覆要短、可立即拿來講，避免長篇理論。
@@ -41,9 +44,9 @@ function buildSystemPrompt() {
 3. 依玩家狀態調整難度並鼓勵他開口。
 
 【輸出格式（固定）】
-A) 先輸出馬來文對話 1–3 句，符合目前場景「${gameState.location}」。
-B) 再用台灣華語（繁中）簡短解釋重點 1–3 句（可含發音提示，但不要用英文規則教學）。
-C) 最後一行一定要輸出 action（只能這個 JSON，不要加其他文字）：
+- 先輸出「台灣華語（繁中）」為主的教學引導（初期），或「馬來文」為主的對話（中後期），並依上方比例調整。
+- 不管比例如何，每回合都要讓使用者看得懂你要他說哪一句。
+- 最後一行一定要輸出 action（只能這個 JSON，不要加其他文字）：
 <action>{"confdelta":0,"fludelta":10,"leveldelta":0,"location":null,"vocabadded":"Nasi Lemak"}</action>
 
 【目前玩家狀態】
@@ -181,7 +184,7 @@ window.saveConfig = function () {
 };
 
 window.handleProviderChange = function () {
-  const providerKey = document.getElementById("apiProvider").value;
+  const providerKey = document.get.getElementById("apiProvider").value;
   const modelSelect = document.getElementById("modelSelect");
   const apiKeyInput = document.getElementById("apiKey");
 
