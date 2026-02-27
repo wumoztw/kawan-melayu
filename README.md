@@ -1,17 +1,57 @@
 # Kawan Melayu (馬來文夥伴)
 
-這是一個基於純前端 HTML/CSS/JS 開發的「情境式馬來文學習文字冒險遊戲」。
-透過串接大型語言模型 (LLM)，系統會扮演馬來西亞在地響導，引導你從點餐、問路等日常情境中，一步步學會道地的馬來西亞語。
+這是一個「情境式馬來文學習文字冒險遊戲」。
 
-## 遊戲特色
-* **動態程度分級**：系統會自動根據你的對話表現，將你的等級從 Lv.1 (初學者) 提升至 Lv.7+ (在地人)。
-* **自動學習單字本**：在對話中學到的新單字，AI 會自動幫你整理並存入右側的單字本。
-* **無後端輕量架構**：只需要準備 OpenRouter 的免費 API Key，即可直接在瀏覽器遊玩。
+目前提供兩種模式：
 
-## 如何部屬到 GitHub Pages？
-1. 在 GitHub 上建立一個新的 Repository (例如命名為 `kawan-melayu`)。
-2. 將 `index.html`、`style.css`、`game.js` 和 `README.md` 上傳至該 Repository。
-3. 進入該 Repository 的 **Settings** -> **Pages**。
-4. 在 "Build and deployment" 下方的 "Source" 選擇 `Deploy from a branch`。
-5. Branch 選擇 `main` (或 `master`) 並點擊 Save。
-6. 等待約 1~2 分鐘，你的專案就會上線並獲得專屬網址！
+1) **純前端模式（GitHub Pages）**：不需要後端，可直接在瀏覽器輸入你的 API Key 使用。
+2) **FastAPI 後端模式（推薦）**：由後端負責呼叫 LLM、解析 action、回傳乾淨 UI 文本，避免 action/程式碼外洩，並更容易擴充。
+
+---
+
+## FastAPI 後端模式（推薦）
+
+### 1. 安裝
+
+需要 Python 3.10+。
+
+```bash
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+# macOS/Linux:
+source .venv/bin/activate
+
+pip install -r backend/requirements.txt
+```
+
+### 2. 啟動
+
+```bash
+uvicorn backend.app:app --reload --host 0.0.0.0 --port 8000
+```
+
+打開：
+- http://localhost:8000 （前端 UI）
+- http://localhost:8000/docs （API 文件）
+
+### 3. 環境變數（後端代管 Key，建議）
+
+你也可以用前端傳入的 key（不推薦），但最穩的方式是後端用環境變數代管。
+
+支援：
+- `OPENROUTER_API_KEY`
+- `GROQ_API_KEY`
+- `GEMINI_API_KEY`
+- `OPENAI_API_KEY`
+
+---
+
+## 純前端模式（GitHub Pages）
+
+如要部署到 GitHub Pages：
+1. 將 `index.html`、`style.css`、`game.js` 上傳至該 Repository。
+2. 進入 Repository 的 **Settings** -> **Pages**。
+3. Source 選擇 `Deploy from a branch`。
+4. Branch 選擇 `main`。
+
+> 注意：GitHub Pages 不能執行 FastAPI，你需要另外部署後端（例如 Zeabur / Render / Fly.io / Railway）。
