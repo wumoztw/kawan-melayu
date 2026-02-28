@@ -1,8 +1,7 @@
 /* ============================================================
-   Kawan Melayu — game.js (ChatGPT-like layout v3.4)
-   - 多 Provider、fallback、save/load、action 解析、打字機效果
-   - 更新：AI 回覆時一律自動把最新內容捲到可視範圍（把最新訊息往上推讓你看到）
-   - 更新：依 composer 高度動態補足聊天區底部 padding，避免最新訊息被輸入框遮住
+   Kawan Melayu — game.js (ChatGPT-like layout v3.4.1)
+   - 修正：對話自動捲動在部分瀏覽器/版面下不生效
+   - 作法：快取破壞 + 更穩健的捲動（含 fallback 到整頁 scrollingElement + 多階段重試）
    ============================================================ */
 
 if (window.marked) marked.setOptions({ breaks: true, gfm: true });
@@ -223,22 +222,63 @@ function enableRetryButton(enabled) {
 /* =========================
    Chat scroll helpers
    ========================= */
-function scrollToBottom(el) {
-  if (!el) return;
-  el.scrollTop = el.scrollHeight;
-}
-
-function scrollChatToLatest() {
-  const b = document.getElementById("mudChatBox");
-  if (!b) return;
-  requestAnimationFrame(() => scrollToBottom(b));
-}
-
 function syncComposerPadding() {
   const composer = document.querySelector(".composer");
   if (!composer) return;
   const h = Math.ceil(composer.getBoundingClientRect().height || 0);
   document.documentElement.style.setProperty("--composerPad", (h + 12) + "px");
+}
+
+function isScrollable(el) {
+  if (!el) return false;
+  return (el.scrollHeight - el.clientHeight) > 4;
+}
+
+function scrollToBottomCompat(el) {
+  if (!el) return;
+  try {
+    if (typeof el.scrollTo === "function") el.scrollTo({ top: el.scrollHeight, behavior: "auto" });
+    else el.scrollTop = el.scrollHeight;
+  } catch (e) {
+    try { el.scrollTop = el.scrollHeight; } catch (e2) {}
+  }
+}
+
+function forceScrollLatestOnce() {
+  const box = document.getElementById("mudChatBox");
+  const loading = document.getElementById("mudLoading");
+
+  // 1) Prefer scrolling inside the chat stream when it is actually scrollable.
+  if (box && isScrollable(box)) {
+    scrollToBottomCompat(box);
+    try { (loading || box.lastElementChild)?.scrollIntoView({ block: "end" }); } catch (e) {}
+    return;
+  }
+
+  // 2) Fallback: some layouts end up scrolling the whole page instead of the chat box.
+  const root = document.scrollingElement || document.documentElement || document.body;
+  scrollToBottomCompat(root);
+  try { window.scrollTo(0, root.scrollHeight); } catch (e) {}
+}
+
+let _scrollReq = 0;
+function scrollChatToLatest() {
+  // Coalesce frequent calls (typewriter) into the most recent request.
+  const token = ++_scrollReq;
+  syncComposerPadding();
+
+  const run = () => {
+    if (token !== _scrollReq) return;
+    forceScrollLatestOnce();
+  };
+
+  // Multi-stage: layout/markdown render/fonts can change height after the first frame.
+  requestAnimationFrame(() => {
+    run();
+    requestAnimationFrame(run);
+  });
+  setTimeout(run, 60);
+  setTimeout(run, 180);
 }
 
 /* =========================
@@ -257,7 +297,6 @@ function appendUI(t, c, html = false) {
   if (loading) b.insertBefore(d, loading);
   else b.appendChild(d);
 
-  // Requirement: whenever new content is appended, always bring latest into view.
   scrollChatToLatest();
 }
 
@@ -366,7 +405,7 @@ window.saveGame = function () {
   const providerKey = document.getElementById("apiProvider")?.value || "";
 
   const saveData = {
-    version: "3.4-ui-force-scroll",
+    version: "3.4.1-ui-scrollfix",
     timestamp: new Date().toISOString(),
     gameState: JSON.parse(JSON.stringify(gameState)),
     messageHistory: messageHistory.slice(-20),
@@ -435,7 +474,6 @@ window.loadGame = function (event) {
         else if (m.role === "assistant") appendUI(extractTextForUI(m.content), "mud-ai");
       });
 
-      syncComposerPadding();
       scrollChatToLatest();
 
       updateStatusUI();
@@ -476,7 +514,6 @@ window.clearChat = function () {
   }
   enableRetryButton(false);
   appendUI("💬 新對話已開始。你可以在下方輸入一句話。", "mud-ai mud-system", false);
-  syncComposerPadding();
   scrollChatToLatest();
 };
 
@@ -700,8 +737,6 @@ window.sendMessage = async function (isRetry = false) {
   appendUI(text, "mud-user");
   input.value = "";
 
-  syncComposerPadding();
-
   const loader = document.getElementById("mudLoading");
   if (loader) loader.style.display = "block";
   scrollChatToLatest();
@@ -755,7 +790,6 @@ window.sendMessage = async function (isRetry = false) {
 
           if (loader) loader.style.display = "none";
 
-          // Typewriter effect (always keep latest visible)
           const b = document.getElementById("mudChatBox");
           const d = document.createElement("div");
           d.className = "mud-msg mud-ai";
@@ -846,5 +880,6 @@ document.addEventListener("DOMContentLoaded", () => {
       else overlay.style.display = "none";
     }
     syncComposerPadding();
+    scrollChatToLatest();
   });
 });
