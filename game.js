@@ -1,6 +1,6 @@
 /* ============================================================
-   Kawan Melayu — game.js (ChatGPT-like layout v3.5.1)
-   - 小改：預設歡迎訊息加入『第一次使用請輸入：你好』提示
+   Kawan Melayu — game.js (ChatGPT-like layout v3.5.2)
+   - 手機新增：左上角『回顧對話』捲動按鈕（↑/↓）
    ============================================================ */
 
 if (window.marked) marked.setOptions({ breaks: true, gfm: true });
@@ -241,6 +241,10 @@ function isMobileMode() {
   return window.matchMedia && window.matchMedia("(max-width: 820px)").matches;
 }
 
+function isMobileSmallMode() {
+  return window.matchMedia && window.matchMedia("(max-width: 640px)").matches;
+}
+
 window.toggleRightPanel = function () {
   const open = isShellClass("sidebar-open") || !isShellClass("sidebar-collapsed");
   if (open) closeRightPanel();
@@ -386,6 +390,75 @@ function scrollChatToLatest() {
   setTimeout(run, 180);
 }
 
+function initMobileReviewScrollButton() {
+  const btnId = "reviewScrollBtn";
+  if (document.getElementById(btnId)) return;
+
+  const btn = document.createElement("button");
+  btn.id = btnId;
+  btn.className = "icon-btn review-scroll-btn";
+  btn.type = "button";
+  btn.title = "回顧對話";
+  btn.setAttribute("aria-label", "回顧對話 / 回到底部");
+  btn.textContent = "↑";
+
+  const host = document.querySelector(".hdr-left");
+  if (host) host.insertBefore(btn, host.firstChild);
+  else document.body.appendChild(btn);
+
+  const box = document.getElementById("mudChatBox");
+  if (!box) return;
+
+  const isNearBottom = () => {
+    const gap = box.scrollHeight - box.clientHeight - box.scrollTop;
+    return gap < 24;
+  };
+
+  const update = () => {
+    if (!isMobileSmallMode()) {
+      btn.classList.add("review-scroll-hidden");
+      return;
+    }
+
+    const canScroll = isScrollable(box);
+    btn.classList.toggle("review-scroll-hidden", !canScroll);
+    if (!canScroll) return;
+
+    btn.textContent = isNearBottom() ? "↑" : "↓";
+  };
+
+  const scrollUpPage = () => {
+    const delta = Math.max(220, Math.floor(box.clientHeight * 0.72));
+    try { box.scrollBy({ top: -delta, behavior: "smooth" }); }
+    catch (e) { box.scrollTop = Math.max(0, box.scrollTop - delta); }
+  };
+
+  const scrollToBottomSmooth = () => {
+    try { box.scrollTo({ top: box.scrollHeight, behavior: "smooth" }); }
+    catch (e) { scrollToBottomCompat(box); }
+  };
+
+  btn.addEventListener("click", () => {
+    if (!isMobileSmallMode()) return;
+    if (!isScrollable(box)) return;
+
+    if (isNearBottom()) scrollUpPage();
+    else scrollToBottomSmooth();
+
+    setTimeout(update, 180);
+  });
+
+  box.addEventListener("scroll", () => {
+    requestAnimationFrame(update);
+  }, { passive: true });
+
+  window.addEventListener("resize", () => {
+    update();
+  });
+
+  update();
+}
+
 /* =========================
    Chat rendering
    ========================= */
@@ -511,7 +584,7 @@ window.saveGame = function () {
   const providerKey = document.getElementById("apiProvider")?.value || "";
 
   const saveData = {
-    version: "3.5.1-ui-scene-mission-welcome",
+    version: "3.5.2-ui-mobile-review-scroll",
     timestamp: new Date().toISOString(),
     gameState: JSON.parse(JSON.stringify(gameState)),
     messageHistory: messageHistory.slice(-20),
@@ -587,6 +660,8 @@ window.loadGame = function (event) {
       updateStatusUI();
       enableRetryButton(false);
       appendUI("✅ 讀檔完成！繼續加油～", "mud-ai mud-system", false);
+
+      initMobileReviewScrollButton();
     } catch (err) {
       appendUI("❌ 讀檔失敗，請確認檔案格式正確。", "mud-ai mud-system", false);
     }
@@ -627,6 +702,8 @@ window.clearChat = function () {
 
   appendUI("💬 新對話已開始。你會拿到新的任務。", "mud-ai mud-system", false);
   scrollChatToLatest();
+
+  initMobileReviewScrollButton();
 };
 
 window.toggleHelpModal = function () {
@@ -991,6 +1068,8 @@ document.addEventListener("DOMContentLoaded", () => {
     false
   );
 
+  initMobileReviewScrollButton();
+
   document.addEventListener("keydown", (ev) => {
     if (ev.key !== "Escape") return;
     try { closeRightPanel(); } catch(e) {}
@@ -1006,5 +1085,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     syncComposerPadding();
     scrollChatToLatest();
+    initMobileReviewScrollButton();
   });
 });

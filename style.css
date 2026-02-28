@@ -127,6 +127,10 @@ a:hover{color: rgba(0,36,125,1);}
 }
 .icon-btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,0.98); }
 
+/* Mobile-only: review/scroll button (in header left) */
+.review-scroll-btn{ display:none; }
+.review-scroll-btn.review-scroll-hidden{ display:none !important; }
+
 /* ===== Status chips ===== */
 .chip{
   display:flex;
@@ -719,6 +723,9 @@ a:hover{color: rgba(0,36,125,1);}
     grid-column: 3;
     justify-content:flex-end;
   }
+
+  /* Show mobile review/scroll button */
+  .review-scroll-btn{ display:inline-flex; }
 
   /* Hide HP/EN chips, keep only Lv/Location */
   .chip-hp,
