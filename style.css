@@ -698,6 +698,10 @@ a:hover{color: rgba(0,36,125,1);}
 
 /* small */
 @media (max-width: 640px){
+  /* Mobile: keep only Lv/Location chip to save vertical space */
+  .chip-hp,
+  .chip-en{ display:none; }
+
   .chip-bar{ width: 70px; }
   .info-grid{ grid-template-columns: 1fr; }
 }
