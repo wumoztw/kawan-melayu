@@ -1,7 +1,6 @@
 /* ============================================================
-   Kawan Melayu — game.js (ChatGPT-like layout v3.5)
-   - 新增：情境式角色扮演 + 依等級解鎖場景
-   - 新增：任務感（任務進度由 action.mission 回傳並存入 gameState）
+   Kawan Melayu — game.js (ChatGPT-like layout v3.5.1)
+   - 小改：預設歡迎訊息加入『第一次使用請輸入：你好』提示
    ============================================================ */
 
 if (window.marked) marked.setOptions({ breaks: true, gfm: true });
@@ -512,7 +511,7 @@ window.saveGame = function () {
   const providerKey = document.getElementById("apiProvider")?.value || "";
 
   const saveData = {
-    version: "3.5-ui-scene-mission",
+    version: "3.5.1-ui-scene-mission-welcome",
     timestamp: new Date().toISOString(),
     gameState: JSON.parse(JSON.stringify(gameState)),
     messageHistory: messageHistory.slice(-20),
@@ -987,7 +986,7 @@ document.addEventListener("DOMContentLoaded", () => {
   syncComposerPadding();
 
   appendUI(
-    "你現在在嘛嘛檔（Kedai Mamak）。等一下我會給你一個任務，你照著『你可以說』那句講就好。",
+    "你現在在嘛嘛檔（Kedai Mamak）。等一下我會給你一個任務，你照著『你可以說』那句講就好，第一次使用請先在下方輸入框輸入：你好",
     "mud-ai mud-system",
     false
   );
