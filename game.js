@@ -1,6 +1,6 @@
 /* ============================================================
-   Kawan Melayu — game.js (ChatGPT-like layout v3.5.2)
-   - 手機新增：左上角『回顧對話』捲動按鈕（↑/↓）
+   Kawan Melayu — game.js (ChatGPT-like layout v3.5.3)
+   - 手機：允許手指滑動在對話視窗自然捲動（避免被自動捲到底打斷）
    ============================================================ */
 
 if (window.marked) marked.setOptions({ breaks: true, gfm: true });
@@ -241,10 +241,6 @@ function isMobileMode() {
   return window.matchMedia && window.matchMedia("(max-width: 820px)").matches;
 }
 
-function isMobileSmallMode() {
-  return window.matchMedia && window.matchMedia("(max-width: 640px)").matches;
-}
-
 window.toggleRightPanel = function () {
   const open = isShellClass("sidebar-open") || !isShellClass("sidebar-collapsed");
   if (open) closeRightPanel();
@@ -335,6 +331,9 @@ function enableRetryButton(enabled) {
 /* =========================
    Chat scroll helpers
    ========================= */
+let userPinnedToBottom = true;
+let userTouchingChat = false;
+
 function syncComposerPadding() {
   const composer = document.querySelector(".composer");
   if (!composer) return;
@@ -345,6 +344,12 @@ function syncComposerPadding() {
 function isScrollable(el) {
   if (!el) return false;
   return (el.scrollHeight - el.clientHeight) > 4;
+}
+
+function isNearBottom(el, threshold = 24) {
+  if (!el) return true;
+  const gap = el.scrollHeight - el.clientHeight - el.scrollTop;
+  return gap < threshold;
 }
 
 function scrollToBottomCompat(el) {
@@ -373,7 +378,17 @@ function forceScrollLatestOnce() {
 }
 
 let _scrollReq = 0;
-function scrollChatToLatest() {
+function scrollChatToLatest(opts = {}) {
+  const { force = false } = opts || {};
+  const box = document.getElementById("mudChatBox");
+
+  if (!force) {
+    if (box && isScrollable(box)) {
+      if (!userPinnedToBottom) return;
+      if (userTouchingChat) return;
+    }
+  }
+
   const token = ++_scrollReq;
   syncComposerPadding();
 
@@ -390,73 +405,49 @@ function scrollChatToLatest() {
   setTimeout(run, 180);
 }
 
-function initMobileReviewScrollButton() {
-  const btnId = "reviewScrollBtn";
-  if (document.getElementById(btnId)) return;
-
-  const btn = document.createElement("button");
-  btn.id = btnId;
-  btn.className = "icon-btn review-scroll-btn";
-  btn.type = "button";
-  btn.title = "回顧對話";
-  btn.setAttribute("aria-label", "回顧對話 / 回到底部");
-  btn.textContent = "↑";
-
-  const host = document.querySelector(".hdr-left");
-  if (host) host.insertBefore(btn, host.firstChild);
-  else document.body.appendChild(btn);
-
+function initChatTouchScroll() {
   const box = document.getElementById("mudChatBox");
   if (!box) return;
+  if (box.dataset.touchScrollInit === "1") return;
+  box.dataset.touchScrollInit = "1";
 
-  const isNearBottom = () => {
-    const gap = box.scrollHeight - box.clientHeight - box.scrollTop;
-    return gap < 24;
+  const refreshPinned = () => {
+    userPinnedToBottom = isNearBottom(box, 24);
   };
 
-  const update = () => {
-    if (!isMobileSmallMode()) {
-      btn.classList.add("review-scroll-hidden");
-      return;
-    }
-
-    const canScroll = isScrollable(box);
-    btn.classList.toggle("review-scroll-hidden", !canScroll);
-    if (!canScroll) return;
-
-    btn.textContent = isNearBottom() ? "↑" : "↓";
-  };
-
-  const scrollUpPage = () => {
-    const delta = Math.max(220, Math.floor(box.clientHeight * 0.72));
-    try { box.scrollBy({ top: -delta, behavior: "smooth" }); }
-    catch (e) { box.scrollTop = Math.max(0, box.scrollTop - delta); }
-  };
-
-  const scrollToBottomSmooth = () => {
-    try { box.scrollTo({ top: box.scrollHeight, behavior: "smooth" }); }
-    catch (e) { scrollToBottomCompat(box); }
-  };
-
-  btn.addEventListener("click", () => {
-    if (!isMobileSmallMode()) return;
-    if (!isScrollable(box)) return;
-
-    if (isNearBottom()) scrollUpPage();
-    else scrollToBottomSmooth();
-
-    setTimeout(update, 180);
-  });
+  refreshPinned();
 
   box.addEventListener("scroll", () => {
-    requestAnimationFrame(update);
+    requestAnimationFrame(refreshPinned);
   }, { passive: true });
 
-  window.addEventListener("resize", () => {
-    update();
-  });
+  box.addEventListener("touchstart", () => {
+    userTouchingChat = true;
+  }, { passive: true });
 
-  update();
+  box.addEventListener("touchend", () => {
+    userTouchingChat = false;
+    refreshPinned();
+  }, { passive: true });
+
+  box.addEventListener("touchcancel", () => {
+    userTouchingChat = false;
+    refreshPinned();
+  }, { passive: true });
+
+  box.addEventListener("pointerdown", () => {
+    userTouchingChat = true;
+  }, { passive: true });
+
+  box.addEventListener("pointerup", () => {
+    userTouchingChat = false;
+    refreshPinned();
+  }, { passive: true });
+
+  box.addEventListener("pointercancel", () => {
+    userTouchingChat = false;
+    refreshPinned();
+  }, { passive: true });
 }
 
 /* =========================
@@ -584,7 +575,7 @@ window.saveGame = function () {
   const providerKey = document.getElementById("apiProvider")?.value || "";
 
   const saveData = {
-    version: "3.5.2-ui-mobile-review-scroll",
+    version: "3.5.3-ui-touch-scroll",
     timestamp: new Date().toISOString(),
     gameState: JSON.parse(JSON.stringify(gameState)),
     messageHistory: messageHistory.slice(-20),
@@ -655,13 +646,13 @@ window.loadGame = function (event) {
         else if (m.role === "assistant") appendUI(extractTextForUI(m.content), "mud-ai");
       });
 
-      scrollChatToLatest();
+      scrollChatToLatest({ force: true });
 
       updateStatusUI();
       enableRetryButton(false);
       appendUI("✅ 讀檔完成！繼續加油～", "mud-ai mud-system", false);
 
-      initMobileReviewScrollButton();
+      initChatTouchScroll();
     } catch (err) {
       appendUI("❌ 讀檔失敗，請確認檔案格式正確。", "mud-ai mud-system", false);
     }
@@ -683,6 +674,8 @@ window.retryLastMessage = function () {
   if (!lastUserMessageText) return;
   const input = document.getElementById("userInput");
   if (input) input.value = lastUserMessageText;
+  userPinnedToBottom = true;
+  scrollChatToLatest({ force: true });
   sendMessage(true);
 };
 
@@ -701,9 +694,8 @@ window.clearChat = function () {
   updateStatusUI();
 
   appendUI("💬 新對話已開始。你會拿到新的任務。", "mud-ai mud-system", false);
-  scrollChatToLatest();
-
-  initMobileReviewScrollButton();
+  userPinnedToBottom = true;
+  scrollChatToLatest({ force: true });
 };
 
 window.toggleHelpModal = function () {
@@ -936,12 +928,14 @@ window.sendMessage = async function (isRetry = false) {
   setBusyUI(true);
   enableRetryButton(false);
 
+  userPinnedToBottom = true;
+
   appendUI(text, "mud-user");
   input.value = "";
 
   const loader = document.getElementById("mudLoading");
   if (loader) loader.style.display = "block";
-  scrollChatToLatest();
+  scrollChatToLatest({ force: true });
 
   if (messageHistory.length === 0) messageHistory.push({ role: "system", content: buildSystemPrompt() });
   if (messageHistory[0].role === "system") messageHistory[0].content = buildSystemPrompt();
@@ -1068,7 +1062,7 @@ document.addEventListener("DOMContentLoaded", () => {
     false
   );
 
-  initMobileReviewScrollButton();
+  initChatTouchScroll();
 
   document.addEventListener("keydown", (ev) => {
     if (ev.key !== "Escape") return;
@@ -1085,6 +1079,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     syncComposerPadding();
     scrollChatToLatest();
-    initMobileReviewScrollButton();
+    initChatTouchScroll();
   });
 });
