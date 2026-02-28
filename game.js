@@ -1,6 +1,6 @@
 /* ============================================================
-   Kawan Melayu — game.js (ChatGPT-like layout v3.5.3)
-   - 手機：允許手指滑動在對話視窗自然捲動（避免被自動捲到底打斷）
+   Kawan Melayu — game.js (ChatGPT-like layout v3.5.4)
+   - Mobile scroll: make chat box the only scroll container; avoid fighting touch scroll
    ============================================================ */
 
 if (window.marked) marked.setOptions({ breaks: true, gfm: true });
@@ -153,9 +153,6 @@ function sanitizeMission(m) {
   return { title, objective, step, total, status };
 }
 
-/* =========================
-   System Prompt
-   ========================= */
 function buildSystemPrompt() {
   let ratioRule;
   if (gameState.level <= 3) ratioRule = "台灣華語為主、馬來文為輔（約 70%：30%）";
@@ -216,9 +213,6 @@ ${missionSummary}
 `;
 }
 
-/* =========================
-   Shell helpers
-   ========================= */
 function getShell() {
   return document.getElementById("appShell");
 }
@@ -234,9 +228,6 @@ function isShellClass(cls) {
   return !!(shell && shell.classList.contains(cls));
 }
 
-/* =========================
-   Sidebar
-   ========================= */
 function isMobileMode() {
   return window.matchMedia && window.matchMedia("(max-width: 820px)").matches;
 }
@@ -301,9 +292,6 @@ window.toggleSettingsDrawer = function () {
   localStorage.setItem("mud_settings_open", "0");
 };
 
-/* =========================
-   Options
-   ========================= */
 function getOptFallbackEnabled() {
   const el = document.getElementById("optFallback");
   return !!(el && el.checked);
@@ -328,9 +316,6 @@ function enableRetryButton(enabled) {
   if (retryBtn) retryBtn.disabled = !enabled;
 }
 
-/* =========================
-   Chat scroll helpers
-   ========================= */
 let userPinnedToBottom = true;
 let userTouchingChat = false;
 
@@ -365,25 +350,19 @@ function scrollToBottomCompat(el) {
 function forceScrollLatestOnce() {
   const box = document.getElementById("mudChatBox");
   const loading = document.getElementById("mudLoading");
-
-  if (box && isScrollable(box)) {
-    scrollToBottomCompat(box);
-    try { (loading || box.lastElementChild)?.scrollIntoView({ block: "end" }); } catch (e) {}
-    return;
-  }
-
-  const root = document.scrollingElement || document.documentElement || document.body;
-  scrollToBottomCompat(root);
-  try { window.scrollTo(0, root.scrollHeight); } catch (e) {}
+  if (!box) return;
+  scrollToBottomCompat(box);
+  try { (loading || box.lastElementChild)?.scrollIntoView({ block: "end" }); } catch (e) {}
 }
 
 let _scrollReq = 0;
 function scrollChatToLatest(opts = {}) {
   const { force = false } = opts || {};
   const box = document.getElementById("mudChatBox");
+  if (!box) return;
 
   if (!force) {
-    if (box && isScrollable(box)) {
+    if (isScrollable(box)) {
       if (!userPinnedToBottom) return;
       if (userTouchingChat) return;
     }
@@ -425,6 +404,10 @@ function initChatTouchScroll() {
     userTouchingChat = true;
   }, { passive: true });
 
+  box.addEventListener("touchmove", () => {
+    userTouchingChat = true;
+  }, { passive: true });
+
   box.addEventListener("touchend", () => {
     userTouchingChat = false;
     refreshPinned();
@@ -450,9 +433,6 @@ function initChatTouchScroll() {
   }, { passive: true });
 }
 
-/* =========================
-   Chat rendering
-   ========================= */
 function appendUI(t, c, html = false) {
   const b = document.getElementById("mudChatBox");
   if (!b) return;
@@ -503,9 +483,6 @@ function updateStatusUI() {
   if (counter) counter.textContent = gameState.vocabulary.length + " 個詞";
 }
 
-/* =========================
-   Provider UI / Config
-   ========================= */
 window.handleProviderChange = function () {
   const providerKey = document.getElementById("apiProvider").value;
   const provider = PROVIDERS[providerKey];
@@ -567,15 +544,12 @@ function loadConfig() {
   else closeRightPanel();
 }
 
-/* =========================
-   Save / Load game
-   ========================= */
 window.saveGame = function () {
   const includeKey = getOptSaveKeyInFile();
   const providerKey = document.getElementById("apiProvider")?.value || "";
 
   const saveData = {
-    version: "3.5.3-ui-touch-scroll",
+    version: "3.5.4-ui-mobile-scroll-root",
     timestamp: new Date().toISOString(),
     gameState: JSON.parse(JSON.stringify(gameState)),
     messageHistory: messageHistory.slice(-20),
@@ -661,9 +635,6 @@ window.loadGame = function (event) {
   event.target.value = "";
 };
 
-/* =========================
-   Controls
-   ========================= */
 window.stopRequest = function () {
   if (currentAbortController) {
     try { currentAbortController.abort(); } catch (e) {}
@@ -704,9 +675,6 @@ window.toggleHelpModal = function () {
   modal.style.display = modal.style.display === "flex" ? "none" : "flex";
 };
 
-/* =========================
-   History pruning
-   ========================= */
 function pruneHistoryKeepRecentTurns(maxTurns = 6) {
   if (!messageHistory || messageHistory.length <= 1) return;
   const system = messageHistory[0]?.role === "system"
@@ -719,9 +687,6 @@ function pruneHistoryKeepRecentTurns(maxTurns = 6) {
   messageHistory = [system, ...trimmed];
 }
 
-/* =========================
-   Text cleanup + action parsing
-   ========================= */
 function stripTrailingActionLikeLines(text) {
   if (!text) return "";
   let t = String(text).replace(/\r\n/g, "\n");
@@ -804,9 +769,6 @@ function applyActionDeltas(text) {
   updateStatusUI();
 }
 
-/* =========================
-   Errors
-   ========================= */
 function normalizeErrorMessage(err, res) {
   if (err?.name === "AbortError") return "⏹ 已停止請求。";
   if (res?.status === 401) return "❌ API Key 無效或未授權（401）。";
@@ -818,9 +780,6 @@ function normalizeErrorMessage(err, res) {
   return "❌ 請求失敗，請稍後再試。";
 }
 
-/* =========================
-   Gemini native
-   ========================= */
 function messagesToGeminiContents(messages) {
   const result = [];
   const system = messages.find(m => m.role === "system");
@@ -840,9 +799,6 @@ function messagesToGeminiContents(messages) {
   return result;
 }
 
-/* =========================
-   Requests
-   ========================= */
 async function requestWithProvider({ providerKey, key, modelId, payloadMessages, signal }) {
   const provider = PROVIDERS[providerKey];
   let activeModel = modelId;
@@ -893,9 +849,6 @@ function getFallbackChain(primaryKey) {
   return [primaryKey, ...FALLBACK_ORDER.filter(k => k !== primaryKey)];
 }
 
-/* =========================
-   Send
-   ========================= */
 window.sendMessage = async function (isRetry = false) {
   const providerKey = document.getElementById("apiProvider").value;
   const modelId = document.getElementById("modelSelect").value;
@@ -1036,18 +989,12 @@ window.sendMessage = async function (isRetry = false) {
   }
 };
 
-/* =========================
-   Keyboard
-   ========================= */
 window.handleKeyPress = function (e) {
   if (e.key === "Enter" && !e.shiftKey && !document.getElementById("sendBtn").disabled) {
     sendMessage();
   }
 };
 
-/* =========================
-   Init
-   ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   loadConfig();
   updateStatusUI();
