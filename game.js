@@ -1,17 +1,22 @@
 /* ============================================================
-   Kawan Melayu — game.js (ChatGPT-like layout v3.4.1)
-   - 修正：對話自動捲動在部分瀏覽器/版面下不生效
-   - 作法：快取破壞 + 更穩健的捲動（含 fallback 到整頁 scrollingElement + 多階段重試）
+   Kawan Melayu — game.js (ChatGPT-like layout v3.5)
+   - 新增：情境式角色扮演 + 依等級解鎖場景
+   - 新增：任務感（任務進度由 action.mission 回傳並存入 gameState）
    ============================================================ */
 
 if (window.marked) marked.setOptions({ breaks: true, gfm: true });
+
+function defaultMission() {
+  return { title: "", objective: "", step: 0, total: 0, status: "" };
+}
 
 let gameState = {
   confidence: 100,
   fluency: 0,
   level: 1,
-  location: "Mamak Stall",
-  vocabulary: []
+  location: "嘛嘛檔（Kedai Mamak）",
+  vocabulary: [],
+  mission: defaultMission()
 };
 
 let messageHistory = [];
@@ -64,6 +69,91 @@ const PROVIDERS = {
   }
 };
 
+const SCENES = [
+  {
+    key: "mamak",
+    minLevel: 1,
+    name: "嘛嘛檔（Kedai Mamak）",
+    roles: "服務生、阿姨、收銀",
+    vibe: "鐵桌椅、炒粿條的香氣、玻璃杯叮噹聲",
+    missionExamples: [
+      "點一杯 Teh Tarik，並確認要不要 kurang manis（少糖）。",
+      "點一份 roti canai，並問要不要加蛋（telur）。",
+      "結帳並說謝謝。"
+    ]
+  },
+  {
+    key: "stall",
+    minLevel: 3,
+    name: "路邊小攤（Gerai）",
+    roles: "攤販老闆、老闆娘",
+    vibe: "炭火烤肉的煙、塑膠椅、車流聲",
+    missionExamples: [
+      "問價格（berapa）並指定外帶（bungkus）。",
+      "選擇辣度（pedas / tak pedas）並加料。"
+    ]
+  },
+  {
+    key: "shop",
+    minLevel: 5,
+    name: "商店（Kedai）",
+    roles: "店員",
+    vibe: "冷氣、貨架、掃描器嗶聲",
+    missionExamples: [
+      "問某個商品在哪一排（di mana）。",
+      "詢問促銷（promosi）並完成結帳。"
+    ]
+  },
+  {
+    key: "restaurant",
+    minLevel: 7,
+    name: "餐廳（Restoran）",
+    roles: "服務生、領檯",
+    vibe: "餐具碰撞聲、客人聊天、點餐本翻頁聲",
+    missionExamples: [
+      "訂位或表明人數，並提出不要冰（tak mau ais）或不要辣（tak pedas）。",
+      "點主餐並加一個飲料。"
+    ]
+  },
+  {
+    key: "nightmarket",
+    minLevel: 9,
+    name: "夜市（Pasar malam）",
+    roles: "小販",
+    vibe: "人潮、燈泡、油鍋滋滋聲",
+    missionExamples: [
+      "排隊點餐並確認份量（satu / dua）。",
+      "簡單詢問能不能便宜一點（boleh murah sikit）。"
+    ]
+  }
+];
+
+function getSceneByName(name) {
+  const t = String(name || "").trim();
+  if (!t) return null;
+  return SCENES.find(s => s.name === t) || null;
+}
+
+function getUnlockedScenesByLevel(level) {
+  return SCENES.filter(s => s.minLevel <= level);
+}
+
+function getCurrentScene() {
+  return getSceneByName(gameState.location) || getUnlockedScenesByLevel(gameState.level)[0] || SCENES[0];
+}
+
+function sanitizeMission(m) {
+  if (!m || typeof m !== "object") return null;
+  const title = String(m.title || "").trim();
+  const objective = String(m.objective || "").trim();
+  let step = Number.isFinite(+m.step) ? Math.max(0, Math.floor(+m.step)) : 0;
+  let total = Number.isFinite(+m.total) ? Math.max(0, Math.floor(+m.total)) : 0;
+  const status = String(m.status || "").trim();
+  if (!title && !objective && !step && !total && !status) return null;
+  if (total > 0 && step > total) step = total;
+  return { title, objective, step, total, status };
+}
+
 /* =========================
    System Prompt
    ========================= */
@@ -73,7 +163,18 @@ function buildSystemPrompt() {
   else if (gameState.level <= 6) ratioRule = "馬來文為主、台灣華語為輔（約 70%：30%，可加入口語語氣詞：lah、meh）";
   else ratioRule = "幾乎全馬來文（約 90–100%），台灣華語只在必要時補充 1 句";
 
-  return `你是馬來文（Bahasa Melayu）的情境教學導師，場景在馬來西亞嘛嘛檔（Mamak Stall）。
+  const currentScene = getCurrentScene();
+  const unlocked = getUnlockedScenesByLevel(gameState.level);
+  const unlockedNames = unlocked.map(s => s.name).join("、");
+
+  const m = gameState.mission || defaultMission();
+  const missionSummary = (m.title || m.objective)
+    ? `- 目前任務：${m.title || "（未命名任務）"}\n- 目標：${m.objective || ""}\n- 進度：${m.step || 0}/${m.total || 0}\n- 狀態：${m.status || ""}`
+    : "- 目前任務：（尚無，請你立刻建立一個新任務）";
+
+  const sceneHint = `- 目前地點：${gameState.location}\n- 目前可用場景（依等級解鎖）：${unlockedNames}\n- 當前場景氛圍提示：${currentScene.vibe}\n- 你可扮演的角色（擇一，不要每句換人）：${currentScene.roles}\n- 任務範例（擇一或自行改寫）：${currentScene.missionExamples.join("；")}`;
+
+  return `你是一個在馬來西亞現場的情境式馬來文教練，同時也是對話中的店員/攤販/服務生（你要入戲扮演）。
 
 【硬性語言規則（非常重要）】
 - 你只能使用兩種語言：①台灣華語（繁體中文）②馬來文。
@@ -81,28 +182,37 @@ function buildSystemPrompt() {
 - 教學節奏：從 0 開始，初期以台灣華語為主、馬來文輔佐；隨著玩家等級提升，逐漸改成馬來文為主、台灣華語輔佐。
 - 本回合語言比例：${ratioRule}
 
-【教學策略】
-1. 回覆要短、可立即拿來講，避免長篇理論。
-2. 每回合最多教 1–2 個新詞（新詞用馬來文呈現，台灣華語解釋）。
-3. 依玩家狀態調整難度並鼓勵他開口。
+【情境式對話（非常重要）】
+- 你要讓使用者有身歷其境的感覺：每回合開頭先用 1–2 句簡短的場景描寫（聲音、氣味、動作、距離）。
+- 然後你用「當下角色」的口吻直接跟使用者說話（短句、口語、自然），可加 lah、meh 但不要過度。
+- 不要說你是模型、你在扮演、你在模擬；你就是現場那個人。
 
-【輸出格式（固定）】
-- 先輸出「台灣華語（繁中）」為主的教學引導（初期），或「馬來文」為主的對話（中後期）。
-- 不管比例如何，每回合都要讓使用者看得懂你要他說哪一句。
+【任務系統（非常重要）】
+- 你必須維持一個任務，讓使用者像在闖關。
+- 若目前任務為空、或狀態是 completed，請立刻建立一個新任務（total 建議 2–4）。
+- 每回合你要讓任務往前推進（step +1 或維持），並在最後的 action 裡回傳 mission 物件。
+- 只有在「任務完成」且「使用者等級達到下一場景解鎖」時，你才可以在 action.location 指定新的地點（否則不要改 location）。
+
+【回覆格式（固定）】
+1) 場景：用 1–2 句描寫現在的環境。
+2) 角色：用當下角色的口吻跟使用者說話（1–3 句）。
+3) 你可以說：給使用者 1 句可直接照念的馬來文。
+4) 新詞：最多 1–2 個（馬來文 + 台灣華語解釋）。
 
 【action 規則（非常重要）】
 - action 只用來給程式讀取，不要讓使用者看到。
 - action 必須放在回覆的最後一行，格式如下（大小寫與符號要完全一樣）：
-<action>{"confdelta":0,"fludelta":10,"leveldelta":0,"location":null,"vocabadded":"Nasi Lemak"}</action>
+<action>{"confdelta":0,"fludelta":10,"leveldelta":0,"location":null,"vocabadded":"Nasi Lemak","mission":{"title":"點飲料","objective":"點一杯 Teh Tarik，並確認少糖","step":1,"total":3,"status":"ongoing"}}</action>
 - action 行前面不要加任何文字。
-- 如果無法遵守格式，請輸出空 action：
-<action>{"confdelta":0,"fludelta":0,"leveldelta":0,"location":null,"vocabadded":""}</action>
+- 如果無法遵守格式，請輸出空 action（mission 也要帶回）：
+<action>{"confdelta":0,"fludelta":0,"leveldelta":0,"location":null,"vocabadded":"","mission":{"title":"","objective":"","step":0,"total":0,"status":""}}</action>
 
 【目前玩家狀態】
 - 信心值 confidence=${gameState.confidence}/100
 - 流利度 fluency=${gameState.fluency}/100
 - 等級 level=Lv.${gameState.level}
-- 地點 location=${gameState.location}
+${sceneHint}
+${missionSummary}
 - 已學詞彙 vocabulary=${gameState.vocabulary.join(", ") || "（尚無）"}
 `;
 }
@@ -248,14 +358,12 @@ function forceScrollLatestOnce() {
   const box = document.getElementById("mudChatBox");
   const loading = document.getElementById("mudLoading");
 
-  // 1) Prefer scrolling inside the chat stream when it is actually scrollable.
   if (box && isScrollable(box)) {
     scrollToBottomCompat(box);
     try { (loading || box.lastElementChild)?.scrollIntoView({ block: "end" }); } catch (e) {}
     return;
   }
 
-  // 2) Fallback: some layouts end up scrolling the whole page instead of the chat box.
   const root = document.scrollingElement || document.documentElement || document.body;
   scrollToBottomCompat(root);
   try { window.scrollTo(0, root.scrollHeight); } catch (e) {}
@@ -263,7 +371,6 @@ function forceScrollLatestOnce() {
 
 let _scrollReq = 0;
 function scrollChatToLatest() {
-  // Coalesce frequent calls (typewriter) into the most recent request.
   const token = ++_scrollReq;
   syncComposerPadding();
 
@@ -272,7 +379,6 @@ function scrollChatToLatest() {
     forceScrollLatestOnce();
   };
 
-  // Multi-stage: layout/markdown render/fonts can change height after the first frame.
   requestAnimationFrame(() => {
     run();
     requestAnimationFrame(run);
@@ -304,6 +410,7 @@ function updateStatusUI() {
   gameState.confidence = Math.max(0, Math.min(100, gameState.confidence));
   gameState.fluency = Math.max(0, Math.min(100, gameState.fluency));
   gameState.level = Math.max(1, gameState.level);
+  if (!gameState.mission) gameState.mission = defaultMission();
 
   const hpBar = document.getElementById("hpBar");
   const enBar = document.getElementById("enBar");
@@ -317,7 +424,7 @@ function updateStatusUI() {
   if (hpVal) hpVal.textContent = gameState.confidence;
   if (enVal) enVal.textContent = gameState.fluency;
   if (lvVal) lvVal.textContent = "Lv. " + gameState.level;
-  if (locVal) locVal.textContent = gameState.location;
+  if (locVal) locVal.textContent = String(gameState.location || "").split("（")[0] || gameState.location;
 
   const list = document.getElementById("inventoryList");
   const counter = document.getElementById("vocabCount");
@@ -405,7 +512,7 @@ window.saveGame = function () {
   const providerKey = document.getElementById("apiProvider")?.value || "";
 
   const saveData = {
-    version: "3.4.1-ui-scrollfix",
+    version: "3.5-ui-scene-mission",
     timestamp: new Date().toISOString(),
     gameState: JSON.parse(JSON.stringify(gameState)),
     messageHistory: messageHistory.slice(-20),
@@ -439,6 +546,8 @@ window.loadGame = function (event) {
       const data = JSON.parse(e.target.result);
 
       if (data.gameState) Object.assign(gameState, data.gameState);
+      if (!gameState.mission) gameState.mission = defaultMission();
+
       if (data.messageHistory) messageHistory = data.messageHistory;
       else messageHistory = [{ role: "system", content: buildSystemPrompt() }];
 
@@ -513,7 +622,11 @@ window.clearChat = function () {
       </div>`;
   }
   enableRetryButton(false);
-  appendUI("💬 新對話已開始。你可以在下方輸入一句話。", "mud-ai mud-system", false);
+
+  gameState.mission = defaultMission();
+  updateStatusUI();
+
+  appendUI("💬 新對話已開始。你會拿到新的任務。", "mud-ai mud-system", false);
   scrollChatToLatest();
 };
 
@@ -590,13 +703,15 @@ function tryParseActionFromText(text) {
 function applyActionDeltas(text) {
   const action = tryParseActionFromText(text);
   if (!action) { updateStatusUI(); return; }
+
+  let incomingMission = null;
   try {
     if (typeof action.confdelta === "number") gameState.confidence += action.confdelta;
     if (typeof action.fludelta === "number") gameState.fluency += action.fludelta;
     if (typeof action.leveldelta === "number") gameState.level += action.leveldelta;
 
-    if (action.location && String(action.location).trim())
-      gameState.location = String(action.location).trim();
+    incomingMission = sanitizeMission(action.mission);
+    if (incomingMission) gameState.mission = incomingMission;
 
     if (action.vocabadded) {
       String(action.vocabadded).split(",").forEach(w => {
@@ -604,9 +719,20 @@ function applyActionDeltas(text) {
         if (t && !gameState.vocabulary.includes(t)) gameState.vocabulary.push(t);
       });
     }
+
+    if (action.location && String(action.location).trim()) {
+      const target = getSceneByName(String(action.location).trim());
+      if (target && target.minLevel <= gameState.level) {
+        const same = target.name === gameState.location;
+        const completed = (incomingMission?.status === "completed") || (gameState.mission?.status === "completed");
+        if (same || completed) gameState.location = target.name;
+      }
+    }
+
   } catch (e) {
     console.warn("Action apply error", e);
   }
+
   updateStatusUI();
 }
 
@@ -861,7 +987,7 @@ document.addEventListener("DOMContentLoaded", () => {
   syncComposerPadding();
 
   appendUI(
-    "在下方輸入一句話就可以開始。你可以試試：『我想點一杯 Teh Tarik！』",
+    "你現在在嘛嘛檔（Kedai Mamak）。等一下我會給你一個任務，你照著『你可以說』那句講就好。",
     "mud-ai mud-system",
     false
   );
