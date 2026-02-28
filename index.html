@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kawan Melayu</title>
-  <link rel="stylesheet" href="style.css?v=20260228_2335_welcome_nihao" />
+  <link rel="stylesheet" href="style.css?v=20260228_2355_help_guide" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
@@ -14,29 +14,59 @@
   <div id="helpModal" class="modal-overlay" onclick="if(event.target===this)toggleHelpModal()">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>玩法說明</h2>
+        <h2>使用說明</h2>
         <button class="close-btn" onclick="toggleHelpModal()">&times;</button>
       </div>
 
       <div class="info-grid">
         <div class="info-card green-card">
-          <div class="card-title">✅ 目標</div>
-          <div>用馬來語和 AI 對話，提升 Fluency，並維持 Confidence。</div>
-        </div>
-
-        <div class="info-card orange-card">
-          <div class="card-title">⚠️ 注意</div>
-          <div>輸入越自然、越能帶出情境，越容易升級與解鎖新詞彙。</div>
+          <div class="card-title">🚀 第一次使用（3 分鐘上手）</div>
+          <ol>
+            <li>點右上角 ⚙️ 打開設定。</li>
+            <li>選擇 Provider（OpenRouter / Groq / Gemini / OpenAI）。</li>
+            <li>申請 API Key，貼到側欄的「API Key」欄位。</li>
+            <li>回到聊天區，在下方輸入框先輸入：<span class="inline-code">你好</span>。</li>
+            <li>接著照著 AI 的「你可以說」那一句念出來就好。</li>
+          </ol>
         </div>
 
         <div class="info-card blue-card">
-          <div class="card-title">📈 等級系統</div>
-          <div>Lv.1–3 以華語為主；Lv.4–6 轉以馬來文為主；Lv.7+ 幾乎全馬來文。</div>
+          <div class="card-title">🔑 取得 API Key（必做）</div>
+          <div>本網站不內建金鑰，因為各家 AI 供應商都需要你自行註冊並建立金鑰。</div>
+          <div class="help-link-row">
+            <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">OpenRouter</a>
+            <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer">Groq</a>
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer">Gemini</a>
+            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">OpenAI</a>
+          </div>
+          <div>提示：第一次建議用 OpenRouter，模型先選 Auto 就能開始。</div>
+        </div>
+
+        <div class="info-card orange-card">
+          <div class="card-title">✅ 目標</div>
+          <div>用馬來文和 AI 對話，提升 Fluency，並維持 Confidence。</div>
         </div>
 
         <div class="info-card purple-card">
           <div class="card-title">💾 存檔 / 讀檔</div>
-          <div>Save 可下載 JSON 存檔；Load 可還原進度。API Key 可選擇是否一起存入。</div>
+          <div>Save 會下載 JSON 存檔；Load 會還原進度。</div>
+          <div>提醒：如果要分享存檔，請取消勾選「存檔包含 API Key」。</div>
+        </div>
+
+        <div class="info-card green-card">
+          <div class="card-title">📈 等級 / 場景 / 任務</div>
+          <div>Lv.1–3 以華語為主；Lv.4–6 轉以馬來文為主；Lv.7+ 幾乎全馬來文。</div>
+          <div>每次都會有任務推進，場景會依等級逐步解鎖。</div>
+        </div>
+
+        <div class="info-card orange-card">
+          <div class="card-title">🧩 常見問題</div>
+          <ul>
+            <li>看到「請先填入 API Key」：打開 ⚙️ 設定，把 Key 貼上後再送出。</li>
+            <li>出現 401/403：通常是 Key 無效、貼錯、或該供應商沒有權限。</li>
+            <li>出現 429：請求太頻繁或額度用完，稍等一下或換供應商。</li>
+            <li>手機看不到側欄：按左上角 ☰，或按右上角 ⚙️。</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -81,7 +111,7 @@
 
       <div class="hdr-right">
         <button class="icon-btn" onclick="toggleSettingsDrawer()" title="設定">⚙️</button>
-        <button class="icon-btn" onclick="toggleHelpModal()" title="說明">?</button>
+        <button class="icon-btn" onclick="toggleHelpModal()" title="使用說明">?</button>
       </div>
     </header>
 
@@ -203,6 +233,6 @@
     </main>
   </div>
 
-  <script src="game.js?v=20260228_2335_welcome_nihao"></script>
+  <script src="game.js?v=20260228_2355_help_guide"></script>
 </body>
 </html>

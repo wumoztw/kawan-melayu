@@ -571,6 +571,8 @@ a:hover{color: rgba(0,36,125,1);}
   padding: 24px;
   box-shadow: 0 22px 70px rgba(2,6,23,0.16);
   animation: modalPop .22s cubic-bezier(0.34,1.56,0.64,1);
+  max-height: min(86vh, 760px);
+  overflow:auto;
 }
 @keyframes modalPop{
   from{ transform: scale(0.92); opacity:0; }
@@ -608,6 +610,12 @@ a:hover{color: rgba(0,36,125,1);}
   line-height: 1.6;
   color: rgba(15,23,42,0.90);
 }
+.info-card ol,
+.info-card ul{
+  margin: 0.35em 0 0.35em 1.25em;
+  padding: 0;
+}
+.info-card li{ margin: 0.2em 0; }
 .card-title{
   font-weight: 900;
   margin-bottom: 6px;
@@ -617,6 +625,34 @@ a:hover{color: rgba(0,36,125,1);}
 .orange-card { border-left: 4px solid rgba(255,209,0,0.92); background: rgba(255,209,0,0.10); }
 .blue-card   { border-left: 4px solid rgba(0,50,160,0.92); background: rgba(0,50,160,0.08); }
 .purple-card { border-left: 4px solid rgba(167,139,250,0.92); background: rgba(167,139,250,0.10); }
+
+.help-link-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  font-weight:900;
+}
+.help-link-row a{
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,50,160,0.14);
+  background: rgba(255,255,255,0.88);
+  text-decoration: none;
+  color: rgba(0,50,160,0.92);
+}
+.help-link-row a:hover{ background: rgba(255,255,255,0.99); }
+
+.inline-code{
+  display:inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,50,160,0.14);
+  background: rgba(0,50,160,0.06);
+  color: rgba(15,23,42,0.92);
+  font-weight: 900;
+}
 
 /* ===== Responsive ===== */
 @media (max-width: 1020px){
