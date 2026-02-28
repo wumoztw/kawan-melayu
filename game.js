@@ -1,6 +1,6 @@
 /* ============================================================
-   Kawan Melayu — game.js (ChatGPT-like layout v3.5.5)
-   - Desktop autoscroll: if chat box isn't scrollable, fall back to page scroll
+   Kawan Melayu — game.js (ChatGPT-like layout v3.5.6)
+   - Desktop: page is not scrollable; always scroll inside chat box
    - Mobile behavior unchanged
    ============================================================ */
 
@@ -351,18 +351,9 @@ function scrollToBottomCompat(el) {
 function forceScrollLatestOnce() {
   const box = document.getElementById("mudChatBox");
   const loading = document.getElementById("mudLoading");
-
-  if (box && (isMobileMode() || isScrollable(box))) {
-    scrollToBottomCompat(box);
-    try { (loading || box.lastElementChild)?.scrollIntoView({ block: "end" }); } catch (e) {}
-    return;
-  }
-
-  if (!isMobileMode()) {
-    const root = document.scrollingElement || document.documentElement || document.body;
-    scrollToBottomCompat(root);
-    try { window.scrollTo(0, root.scrollHeight); } catch (e) {}
-  }
+  if (!box) return;
+  scrollToBottomCompat(box);
+  try { (loading || box.lastElementChild)?.scrollIntoView({ block: "end" }); } catch (e) {}
 }
 
 let _scrollReq = 0;
@@ -559,7 +550,7 @@ window.saveGame = function () {
   const providerKey = document.getElementById("apiProvider")?.value || "";
 
   const saveData = {
-    version: "3.5.5-desktop-autoscroll-fallback",
+    version: "3.5.6-desktop-chatbox-only-scroll",
     timestamp: new Date().toISOString(),
     gameState: JSON.parse(JSON.stringify(gameState)),
     messageHistory: messageHistory.slice(-20),
