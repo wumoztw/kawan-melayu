@@ -698,7 +698,29 @@ a:hover{color: rgba(0,36,125,1);}
 
 /* small */
 @media (max-width: 640px){
-  /* Mobile: keep only Lv/Location chip to save vertical space */
+  /* Mobile: move Lv/Location + buttons to the top-right area (keep desktop unchanged) */
+  .cg-header{
+    grid-template-columns: 1fr auto auto;
+    height: var(--headerH);
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .brand-sub{ display:none; }
+
+  .hdr-center{
+    grid-column: 2;
+    justify-content:flex-end;
+    overflow:hidden;
+    padding-bottom:0;
+  }
+
+  .hdr-right{
+    grid-column: 3;
+    justify-content:flex-end;
+  }
+
+  /* Hide HP/EN chips, keep only Lv/Location */
   .chip-hp,
   .chip-en{ display:none; }
 
