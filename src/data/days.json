@@ -1,0 +1,272 @@
+[
+  {
+    "id": "day_01",
+    "day": 1,
+    "phase": 1,
+    "title": "便利商店的第 1 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p1_enc_01",
+    "reviewed": false
+  },
+  {
+    "id": "day_02",
+    "day": 2,
+    "phase": 1,
+    "title": "便利商店的第 2 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p1_enc_02",
+    "reviewed": false
+  },
+  {
+    "id": "day_03",
+    "day": 3,
+    "phase": 1,
+    "title": "便利商店的第 3 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p1_enc_03",
+    "reviewed": false
+  },
+  {
+    "id": "day_04",
+    "day": 4,
+    "phase": 1,
+    "title": "便利商店的第 4 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p1_enc_04",
+    "reviewed": false
+  },
+  {
+    "id": "day_05",
+    "day": 5,
+    "phase": 1,
+    "title": "便利商店的第 5 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p1_enc_05",
+    "reviewed": false
+  },
+  {
+    "id": "day_06",
+    "day": 6,
+    "phase": 1,
+    "title": "便利商店的第 6 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p1_enc_06",
+    "reviewed": false
+  },
+  {
+    "id": "day_07",
+    "day": 7,
+    "phase": 1,
+    "title": "便利商店的第 7 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p1_enc_07",
+    "reviewed": false
+  },
+  {
+    "id": "day_08",
+    "day": 8,
+    "phase": 1,
+    "title": "便利商店的第 8 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p1_enc_08",
+    "reviewed": false
+  },
+  {
+    "id": "day_09",
+    "day": 9,
+    "phase": 1,
+    "title": "便利商店的第 9 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p1_enc_09",
+    "reviewed": false
+  },
+  {
+    "id": "day_10",
+    "day": 10,
+    "phase": 1,
+    "title": "便利商店的第 10 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p1_enc_10",
+    "reviewed": false
+  },
+  {
+    "id": "day_11",
+    "day": 11,
+    "phase": 2,
+    "title": "便利商店的第 11 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p2_enc_11",
+    "reviewed": false
+  },
+  {
+    "id": "day_12",
+    "day": 12,
+    "phase": 2,
+    "title": "便利商店的第 12 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p2_enc_12",
+    "reviewed": false
+  },
+  {
+    "id": "day_13",
+    "day": 13,
+    "phase": 2,
+    "title": "便利商店的第 13 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p2_enc_13",
+    "reviewed": false
+  },
+  {
+    "id": "day_14",
+    "day": 14,
+    "phase": 2,
+    "title": "便利商店的第 14 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p2_enc_14",
+    "reviewed": false
+  },
+  {
+    "id": "day_15",
+    "day": 15,
+    "phase": 2,
+    "title": "便利商店的第 15 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p2_enc_15",
+    "reviewed": false
+  },
+  {
+    "id": "day_16",
+    "day": 16,
+    "phase": 2,
+    "title": "便利商店的第 16 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p2_enc_01",
+    "reviewed": false
+  },
+  {
+    "id": "day_17",
+    "day": 17,
+    "phase": 2,
+    "title": "便利商店的第 17 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p2_enc_02",
+    "reviewed": false
+  },
+  {
+    "id": "day_18",
+    "day": 18,
+    "phase": 2,
+    "title": "便利商店的第 18 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p2_enc_03",
+    "reviewed": false
+  },
+  {
+    "id": "day_19",
+    "day": 19,
+    "phase": 2,
+    "title": "便利商店的第 19 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p2_enc_04",
+    "reviewed": false
+  },
+  {
+    "id": "day_20",
+    "day": 20,
+    "phase": 2,
+    "title": "便利商店的第 20 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p2_enc_05",
+    "reviewed": false
+  },
+  {
+    "id": "day_21",
+    "day": 21,
+    "phase": 3,
+    "title": "便利商店的第 21 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p3_enc_01",
+    "reviewed": false
+  },
+  {
+    "id": "day_22",
+    "day": 22,
+    "phase": 3,
+    "title": "便利商店的第 22 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p3_enc_02",
+    "reviewed": false
+  },
+  {
+    "id": "day_23",
+    "day": 23,
+    "phase": 3,
+    "title": "便利商店的第 23 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p3_enc_03",
+    "reviewed": false
+  },
+  {
+    "id": "day_24",
+    "day": 24,
+    "phase": 3,
+    "title": "便利商店的第 24 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p3_enc_04",
+    "reviewed": false
+  },
+  {
+    "id": "day_25",
+    "day": 25,
+    "phase": 3,
+    "title": "便利商店的第 25 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p3_enc_05",
+    "reviewed": false
+  },
+  {
+    "id": "day_26",
+    "day": 26,
+    "phase": 3,
+    "title": "便利商店的第 26 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p3_enc_06",
+    "reviewed": false
+  },
+  {
+    "id": "day_27",
+    "day": 27,
+    "phase": 3,
+    "title": "便利商店的第 27 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p3_enc_07",
+    "reviewed": false
+  },
+  {
+    "id": "day_28",
+    "day": 28,
+    "phase": 3,
+    "title": "便利商店的第 28 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p3_enc_08",
+    "reviewed": false
+  },
+  {
+    "id": "day_29",
+    "day": 29,
+    "phase": 3,
+    "title": "便利商店的第 29 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p3_enc_09",
+    "reviewed": false
+  },
+  {
+    "id": "day_30",
+    "day": 30,
+    "phase": 3,
+    "title": "便利商店的第 30 天",
+    "story": "今天有新的顧客來到店裡，練習招呼、詢問與結帳。",
+    "encounterId": "p3_enc_10",
+    "reviewed": false
+  }
+]

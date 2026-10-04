@@ -1,0 +1,162 @@
+[
+  {
+    "id": "exam_1_1",
+    "phase": 1,
+    "type": "translation",
+    "prompt": "我要水。",
+    "answer": "Saya mahu air mineral.",
+    "reviewed": false
+  },
+  {
+    "id": "exam_1_2",
+    "phase": 1,
+    "type": "translation",
+    "prompt": "這個多少錢？",
+    "answer": "Berapa harga ini?",
+    "reviewed": false
+  },
+  {
+    "id": "exam_1_3",
+    "phase": 1,
+    "type": "translation",
+    "prompt": "早安。",
+    "answer": "Selamat pagi.",
+    "reviewed": false
+  },
+  {
+    "id": "exam_1_4",
+    "phase": 1,
+    "type": "translation",
+    "prompt": "我要麵包。",
+    "answer": "Saya mahu roti.",
+    "reviewed": false
+  },
+  {
+    "id": "exam_1_5",
+    "phase": 1,
+    "type": "translation",
+    "prompt": "謝謝。",
+    "answer": "Terima kasih.",
+    "reviewed": false
+  },
+  {
+    "id": "exam_1_6",
+    "phase": 1,
+    "type": "translation",
+    "prompt": "我要咖啡。",
+    "answer": "Saya mahu kopi.",
+    "reviewed": false
+  },
+  {
+    "id": "exam_1_7",
+    "phase": 1,
+    "type": "translation",
+    "prompt": "有牛奶嗎？",
+    "answer": "Ada susu?",
+    "reviewed": false
+  },
+  {
+    "id": "exam_1_8",
+    "phase": 1,
+    "type": "translation",
+    "prompt": "我要兩個。",
+    "answer": "Saya mahu dua.",
+    "reviewed": false
+  },
+  {
+    "id": "exam_1_9",
+    "phase": 1,
+    "type": "translation",
+    "prompt": "請給我餅乾。",
+    "answer": "Tolong beri saya biskut.",
+    "reviewed": false
+  },
+  {
+    "id": "exam_1_10",
+    "phase": 1,
+    "type": "translation",
+    "prompt": "再見。",
+    "answer": "Selamat tinggal.",
+    "reviewed": false
+  },
+  {
+    "id": "exam_2_1",
+    "phase": 2,
+    "type": "translation",
+    "prompt": "今天有折扣嗎？",
+    "answer": "Ada diskaun hari ini?",
+    "reviewed": false
+  },
+  {
+    "id": "exam_2_2",
+    "phase": 2,
+    "type": "translation",
+    "prompt": "我可以刷卡嗎？",
+    "answer": "Boleh saya bayar dengan kad?",
+    "reviewed": false
+  },
+  {
+    "id": "exam_2_3",
+    "phase": 2,
+    "type": "translation",
+    "prompt": "我要兩包。",
+    "answer": "Saya mahu dua bungkus.",
+    "reviewed": false
+  },
+  {
+    "id": "exam_2_4",
+    "phase": 2,
+    "type": "translation",
+    "prompt": "總共多少？",
+    "answer": "Jumlah semuanya berapa?",
+    "reviewed": false
+  },
+  {
+    "id": "exam_2_5",
+    "phase": 2,
+    "type": "translation",
+    "prompt": "可以推薦嗎？",
+    "answer": "Boleh cadangkan sesuatu?",
+    "reviewed": false
+  },
+  {
+    "id": "exam_2_6",
+    "phase": 2,
+    "type": "translation",
+    "prompt": "我要冰咖啡。",
+    "answer": "Saya mahu kopi ais.",
+    "reviewed": false
+  },
+  {
+    "id": "exam_2_7",
+    "phase": 2,
+    "type": "translation",
+    "prompt": "請分開包裝。",
+    "answer": "Tolong bungkus berasingan.",
+    "reviewed": false
+  },
+  {
+    "id": "exam_2_8",
+    "phase": 2,
+    "type": "translation",
+    "prompt": "這個比較便宜。",
+    "answer": "Ini lebih murah.",
+    "reviewed": false
+  },
+  {
+    "id": "exam_2_9",
+    "phase": 2,
+    "type": "translation",
+    "prompt": "我稍後回來。",
+    "answer": "Saya akan kembali nanti.",
+    "reviewed": false
+  },
+  {
+    "id": "exam_2_10",
+    "phase": 2,
+    "type": "translation",
+    "prompt": "你有茶嗎？",
+    "answer": "Ada teh?",
+    "reviewed": false
+  }
+]

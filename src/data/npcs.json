@@ -1,0 +1,72 @@
+[
+  {
+    "id": "abang_zul",
+    "name": "Abang Zul",
+    "role": "店主",
+    "personality": "親切熱心",
+    "reviewed": false
+  },
+  {
+    "id": "pak_cik_hamid",
+    "name": "Pak Cik Hamid",
+    "role": "退休教師",
+    "personality": "健談",
+    "reviewed": false
+  },
+  {
+    "id": "kak_siti",
+    "name": "Kak Siti",
+    "role": "上班族",
+    "personality": "爽快",
+    "reviewed": false
+  },
+  {
+    "id": "amir",
+    "name": "Amir",
+    "role": "學生",
+    "personality": "活潑",
+    "reviewed": false
+  },
+  {
+    "id": "mak_cik_rohani",
+    "name": "Mak Cik Rohani",
+    "role": "家庭主婦",
+    "personality": "細心",
+    "reviewed": false
+  },
+  {
+    "id": "uncle_tan",
+    "name": "Uncle Tan",
+    "role": "鄰居",
+    "personality": "幽默",
+    "reviewed": false
+  },
+  {
+    "id": "encik_raju",
+    "name": "Encik Raju",
+    "role": "司機",
+    "personality": "直率",
+    "reviewed": false
+  },
+  {
+    "id": "encik_lim",
+    "name": "Encik Lim",
+    "role": "店長",
+    "personality": "謹慎",
+    "reviewed": false
+  },
+  {
+    "id": "cikgu_farid",
+    "name": "Cikgu Farid",
+    "role": "老師",
+    "personality": "耐心",
+    "reviewed": false
+  },
+  {
+    "id": "aisyah",
+    "name": "Aisyah",
+    "role": "大學生",
+    "personality": "友善",
+    "reviewed": false
+  }
+]

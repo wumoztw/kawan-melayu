@@ -1,0 +1,520 @@
+[
+  {
+    "id": "air_mineral",
+    "ms": "air mineral",
+    "msVariants": [
+      "air mineral"
+    ],
+    "zh": "礦泉水",
+    "emoji": "💧",
+    "category": "minuman",
+    "unlockLevel": 1,
+    "buyPrice": 2,
+    "refPrice": 2.5,
+    "reviewed": false
+  },
+  {
+    "id": "kopi",
+    "ms": "kopi",
+    "msVariants": [
+      "kopi"
+    ],
+    "zh": "咖啡",
+    "emoji": "☕",
+    "category": "minuman",
+    "unlockLevel": 1,
+    "buyPrice": 2.5,
+    "refPrice": 3.2,
+    "reviewed": false
+  },
+  {
+    "id": "susu",
+    "ms": "susu",
+    "msVariants": [
+      "susu"
+    ],
+    "zh": "牛奶",
+    "emoji": "🥛",
+    "category": "minuman",
+    "unlockLevel": 1,
+    "buyPrice": 3,
+    "refPrice": 3.8,
+    "reviewed": false
+  },
+  {
+    "id": "jus",
+    "ms": "jus",
+    "msVariants": [
+      "jus"
+    ],
+    "zh": "果汁",
+    "emoji": "🧃",
+    "category": "minuman",
+    "unlockLevel": 1,
+    "buyPrice": 2.5,
+    "refPrice": 3.5,
+    "reviewed": false
+  },
+  {
+    "id": "roti",
+    "ms": "roti",
+    "msVariants": [
+      "roti"
+    ],
+    "zh": "麵包",
+    "emoji": "🍞",
+    "category": "makanan",
+    "unlockLevel": 1,
+    "buyPrice": 1.5,
+    "refPrice": 2.2,
+    "reviewed": false
+  },
+  {
+    "id": "telur",
+    "ms": "telur",
+    "msVariants": [
+      "telur"
+    ],
+    "zh": "雞蛋",
+    "emoji": "🥚",
+    "category": "makanan",
+    "unlockLevel": 1,
+    "buyPrice": 0.5,
+    "refPrice": 0.8,
+    "reviewed": false
+  },
+  {
+    "id": "nasi_lemak",
+    "ms": "nasi lemak",
+    "msVariants": [
+      "nasi lemak"
+    ],
+    "zh": "椰漿飯",
+    "emoji": "🍛",
+    "category": "makanan",
+    "unlockLevel": 1,
+    "buyPrice": 3,
+    "refPrice": 4.5,
+    "reviewed": false
+  },
+  {
+    "id": "mi_segera",
+    "ms": "mi segera",
+    "msVariants": [
+      "mi segera"
+    ],
+    "zh": "泡麵",
+    "emoji": "🍜",
+    "category": "makanan",
+    "unlockLevel": 1,
+    "buyPrice": 1.2,
+    "refPrice": 1.8,
+    "reviewed": false
+  },
+  {
+    "id": "biskut",
+    "ms": "biskut",
+    "msVariants": [
+      "biskut"
+    ],
+    "zh": "餅乾",
+    "emoji": "🍪",
+    "category": "snek",
+    "unlockLevel": 1,
+    "buyPrice": 1.5,
+    "refPrice": 2.3,
+    "reviewed": false
+  },
+  {
+    "id": "gula_gula",
+    "ms": "gula-gula",
+    "msVariants": [
+      "gula-gula"
+    ],
+    "zh": "糖果",
+    "emoji": "🍬",
+    "category": "snek",
+    "unlockLevel": 1,
+    "buyPrice": 0.2,
+    "refPrice": 0.5,
+    "reviewed": false
+  },
+  {
+    "id": "coklat",
+    "ms": "coklat",
+    "msVariants": [
+      "coklat"
+    ],
+    "zh": "巧克力",
+    "emoji": "🍫",
+    "category": "snek",
+    "unlockLevel": 1,
+    "buyPrice": 1.8,
+    "refPrice": 2.8,
+    "reviewed": false
+  },
+  {
+    "id": "keropok",
+    "ms": "keropok",
+    "msVariants": [
+      "keropok"
+    ],
+    "zh": "蝦餅",
+    "emoji": "🥠",
+    "category": "snek",
+    "unlockLevel": 1,
+    "buyPrice": 1,
+    "refPrice": 1.8,
+    "reviewed": false
+  },
+  {
+    "id": "aiskrim",
+    "ms": "aiskrim",
+    "msVariants": [
+      "aiskrim"
+    ],
+    "zh": "冰淇淋",
+    "emoji": "🍦",
+    "category": "snek",
+    "unlockLevel": 1,
+    "buyPrice": 2,
+    "refPrice": 3,
+    "reviewed": false
+  },
+  {
+    "id": "teh",
+    "ms": "teh",
+    "msVariants": [
+      "teh"
+    ],
+    "zh": "茶",
+    "emoji": "🍵",
+    "category": "makanan",
+    "unlockLevel": 2,
+    "buyPrice": 2,
+    "refPrice": 3,
+    "reviewed": false
+  },
+  {
+    "id": "ayam_goreng",
+    "ms": "ayam goreng",
+    "msVariants": [
+      "ayam goreng"
+    ],
+    "zh": "炸雞",
+    "emoji": "🍗",
+    "category": "makanan",
+    "unlockLevel": 2,
+    "buyPrice": 3,
+    "refPrice": 4,
+    "reviewed": false
+  },
+  {
+    "id": "sandwic",
+    "ms": "sandwic",
+    "msVariants": [
+      "sandwic"
+    ],
+    "zh": "三明治",
+    "emoji": "🥪",
+    "category": "makanan",
+    "unlockLevel": 2,
+    "buyPrice": 4,
+    "refPrice": 5,
+    "reviewed": false
+  },
+  {
+    "id": "pisang",
+    "ms": "pisang",
+    "msVariants": [
+      "pisang"
+    ],
+    "zh": "香蕉",
+    "emoji": "🍌",
+    "category": "makanan",
+    "unlockLevel": 2,
+    "buyPrice": 5,
+    "refPrice": 6,
+    "reviewed": false
+  },
+  {
+    "id": "epal",
+    "ms": "epal",
+    "msVariants": [
+      "epal"
+    ],
+    "zh": "蘋果",
+    "emoji": "🍎",
+    "category": "makanan",
+    "unlockLevel": 2,
+    "buyPrice": 2,
+    "refPrice": 3,
+    "reviewed": false
+  },
+  {
+    "id": "keju",
+    "ms": "keju",
+    "msVariants": [
+      "keju"
+    ],
+    "zh": "起司",
+    "emoji": "🧀",
+    "category": "makanan",
+    "unlockLevel": 2,
+    "buyPrice": 3,
+    "refPrice": 4,
+    "reviewed": false
+  },
+  {
+    "id": "air_gas",
+    "ms": "air gas",
+    "msVariants": [
+      "air gas"
+    ],
+    "zh": "汽水",
+    "emoji": "🥤",
+    "category": "makanan",
+    "unlockLevel": 2,
+    "buyPrice": 4,
+    "refPrice": 5,
+    "reviewed": false
+  },
+  {
+    "id": "mee_goreng",
+    "ms": "mee goreng",
+    "msVariants": [
+      "mee goreng"
+    ],
+    "zh": "炒麵",
+    "emoji": "🍝",
+    "category": "makanan",
+    "unlockLevel": 2,
+    "buyPrice": 5,
+    "refPrice": 6,
+    "reviewed": false
+  },
+  {
+    "id": "kacang",
+    "ms": "kacang",
+    "msVariants": [
+      "kacang"
+    ],
+    "zh": "花生",
+    "emoji": "🥜",
+    "category": "makanan",
+    "unlockLevel": 2,
+    "buyPrice": 2,
+    "refPrice": 3,
+    "reviewed": false
+  },
+  {
+    "id": "yogurt",
+    "ms": "yogurt",
+    "msVariants": [
+      "yogurt"
+    ],
+    "zh": "優格",
+    "emoji": "🥣",
+    "category": "makanan",
+    "unlockLevel": 2,
+    "buyPrice": 3,
+    "refPrice": 4,
+    "reviewed": false
+  },
+  {
+    "id": "minyak",
+    "ms": "minyak masak",
+    "msVariants": [
+      "minyak masak"
+    ],
+    "zh": "食用油",
+    "emoji": "🫗",
+    "category": "makanan",
+    "unlockLevel": 2,
+    "buyPrice": 4,
+    "refPrice": 5,
+    "reviewed": false
+  },
+  {
+    "id": "beras",
+    "ms": "beras",
+    "msVariants": [
+      "beras"
+    ],
+    "zh": "米",
+    "emoji": "🍚",
+    "category": "makanan",
+    "unlockLevel": 2,
+    "buyPrice": 5,
+    "refPrice": 6,
+    "reviewed": false
+  },
+  {
+    "id": "sabun",
+    "ms": "sabun",
+    "msVariants": [
+      "sabun"
+    ],
+    "zh": "肥皂",
+    "emoji": "🧼",
+    "category": "makanan",
+    "unlockLevel": 2,
+    "buyPrice": 2,
+    "refPrice": 3,
+    "reviewed": false
+  },
+  {
+    "id": "kopi_ais",
+    "ms": "kopi ais",
+    "msVariants": [
+      "kopi ais"
+    ],
+    "zh": "冰咖啡",
+    "emoji": "🧋",
+    "category": "makanan",
+    "unlockLevel": 2,
+    "buyPrice": 3,
+    "refPrice": 4,
+    "reviewed": false
+  },
+  {
+    "id": "ubat",
+    "ms": "ubat",
+    "msVariants": [
+      "ubat"
+    ],
+    "zh": "藥品",
+    "emoji": "💊",
+    "category": "makanan",
+    "unlockLevel": 3,
+    "buyPrice": 2,
+    "refPrice": 3,
+    "reviewed": false
+  },
+  {
+    "id": "bateri",
+    "ms": "bateri",
+    "msVariants": [
+      "bateri"
+    ],
+    "zh": "電池",
+    "emoji": "🔋",
+    "category": "makanan",
+    "unlockLevel": 3,
+    "buyPrice": 3,
+    "refPrice": 4,
+    "reviewed": false
+  },
+  {
+    "id": "payung",
+    "ms": "payung",
+    "msVariants": [
+      "payung"
+    ],
+    "zh": "雨傘",
+    "emoji": "☂️",
+    "category": "makanan",
+    "unlockLevel": 3,
+    "buyPrice": 4,
+    "refPrice": 5,
+    "reviewed": false
+  },
+  {
+    "id": "susu_soya",
+    "ms": "susu soya",
+    "msVariants": [
+      "susu soya"
+    ],
+    "zh": "豆漿",
+    "emoji": "🥛",
+    "category": "makanan",
+    "unlockLevel": 3,
+    "buyPrice": 5,
+    "refPrice": 6,
+    "reviewed": false
+  },
+  {
+    "id": "durian",
+    "ms": "durian",
+    "msVariants": [
+      "durian"
+    ],
+    "zh": "榴槤",
+    "emoji": "🍈",
+    "category": "makanan",
+    "unlockLevel": 3,
+    "buyPrice": 2,
+    "refPrice": 3,
+    "reviewed": false
+  },
+  {
+    "id": "mangga",
+    "ms": "mangga",
+    "msVariants": [
+      "mangga"
+    ],
+    "zh": "芒果",
+    "emoji": "🥭",
+    "category": "makanan",
+    "unlockLevel": 3,
+    "buyPrice": 3,
+    "refPrice": 4,
+    "reviewed": false
+  },
+  {
+    "id": "roti_canai",
+    "ms": "roti canai",
+    "msVariants": [
+      "roti canai"
+    ],
+    "zh": "印度煎餅",
+    "emoji": "🫓",
+    "category": "makanan",
+    "unlockLevel": 3,
+    "buyPrice": 4,
+    "refPrice": 5,
+    "reviewed": false
+  },
+  {
+    "id": "sup",
+    "ms": "sup",
+    "msVariants": [
+      "sup"
+    ],
+    "zh": "湯",
+    "emoji": "🍲",
+    "category": "makanan",
+    "unlockLevel": 3,
+    "buyPrice": 5,
+    "refPrice": 6,
+    "reviewed": false
+  },
+  {
+    "id": "keperluan",
+    "ms": "keperluan",
+    "msVariants": [
+      "keperluan"
+    ],
+    "zh": "日用品",
+    "emoji": "🧴",
+    "category": "makanan",
+    "unlockLevel": 3,
+    "buyPrice": 2,
+    "refPrice": 3,
+    "reviewed": false
+  },
+  {
+    "id": "hadiah",
+    "ms": "hadiah",
+    "msVariants": [
+      "hadiah"
+    ],
+    "zh": "禮物",
+    "emoji": "🎁",
+    "category": "makanan",
+    "unlockLevel": 3,
+    "buyPrice": 3,
+    "refPrice": 4,
+    "reviewed": false
+  }
+]

@@ -1,0 +1,377 @@
+[
+  {
+    "id": "p2_enc_01",
+    "type": "fill_blank",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "abang_zul",
+    "lines": [
+      {
+        "ms": "Boleh saya beli air mineral?",
+        "zh": "我要礦泉水。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "item",
+      "productId": "air_mineral"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "air_mineral"
+    ],
+    "hint": "商品：礦泉水",
+    "reviewed": false
+  },
+  {
+    "id": "p2_enc_02",
+    "type": "ask_discount",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "pak_cik_hamid",
+    "lines": [
+      {
+        "ms": "Boleh saya beli kopi?",
+        "zh": "我要咖啡。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "number",
+      "productId": "kopi"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "kopi"
+    ],
+    "hint": "商品：咖啡",
+    "reviewed": false
+  },
+  {
+    "id": "p2_enc_03",
+    "type": "quantity",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "kak_siti",
+    "lines": [
+      {
+        "ms": "Boleh saya beli susu?",
+        "zh": "我要牛奶。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "text",
+      "productId": "susu"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "susu"
+    ],
+    "hint": "商品：牛奶",
+    "reviewed": false
+  },
+  {
+    "id": "p2_enc_04",
+    "type": "recommendation",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "amir",
+    "lines": [
+      {
+        "ms": "Boleh saya beli jus?",
+        "zh": "我要果汁。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "item",
+      "productId": "jus"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "jus"
+    ],
+    "hint": "商品：果汁",
+    "reviewed": false
+  },
+  {
+    "id": "p2_enc_05",
+    "type": "fill_blank",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "mak_cik_rohani",
+    "lines": [
+      {
+        "ms": "Boleh saya beli roti?",
+        "zh": "我要麵包。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "number",
+      "productId": "roti"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "roti"
+    ],
+    "hint": "商品：麵包",
+    "reviewed": false
+  },
+  {
+    "id": "p2_enc_06",
+    "type": "ask_discount",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "uncle_tan",
+    "lines": [
+      {
+        "ms": "Boleh saya beli telur?",
+        "zh": "我要雞蛋。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "text",
+      "productId": "telur"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "telur"
+    ],
+    "hint": "商品：雞蛋",
+    "reviewed": false
+  },
+  {
+    "id": "p2_enc_07",
+    "type": "quantity",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "encik_raju",
+    "lines": [
+      {
+        "ms": "Boleh saya beli nasi lemak?",
+        "zh": "我要椰漿飯。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "item",
+      "productId": "nasi_lemak"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "nasi_lemak"
+    ],
+    "hint": "商品：椰漿飯",
+    "reviewed": false
+  },
+  {
+    "id": "p2_enc_08",
+    "type": "recommendation",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "encik_lim",
+    "lines": [
+      {
+        "ms": "Boleh saya beli mi segera?",
+        "zh": "我要泡麵。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "number",
+      "productId": "mi_segera"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "mi_segera"
+    ],
+    "hint": "商品：泡麵",
+    "reviewed": false
+  },
+  {
+    "id": "p2_enc_09",
+    "type": "fill_blank",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "cikgu_farid",
+    "lines": [
+      {
+        "ms": "Boleh saya beli biskut?",
+        "zh": "我要餅乾。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "text",
+      "productId": "biskut"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "biskut"
+    ],
+    "hint": "商品：餅乾",
+    "reviewed": false
+  },
+  {
+    "id": "p2_enc_10",
+    "type": "ask_discount",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "aisyah",
+    "lines": [
+      {
+        "ms": "Boleh saya beli gula-gula?",
+        "zh": "我要糖果。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "item",
+      "productId": "gula_gula"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "gula_gula"
+    ],
+    "hint": "商品：糖果",
+    "reviewed": false
+  },
+  {
+    "id": "p2_enc_11",
+    "type": "quantity",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "abang_zul",
+    "lines": [
+      {
+        "ms": "Boleh saya beli coklat?",
+        "zh": "我要巧克力。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "number",
+      "productId": "coklat"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "coklat"
+    ],
+    "hint": "商品：巧克力",
+    "reviewed": false
+  },
+  {
+    "id": "p2_enc_12",
+    "type": "recommendation",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "pak_cik_hamid",
+    "lines": [
+      {
+        "ms": "Boleh saya beli keropok?",
+        "zh": "我要蝦餅。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "text",
+      "productId": "keropok"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "keropok"
+    ],
+    "hint": "商品：蝦餅",
+    "reviewed": false
+  },
+  {
+    "id": "p2_enc_13",
+    "type": "fill_blank",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "kak_siti",
+    "lines": [
+      {
+        "ms": "Boleh saya beli aiskrim?",
+        "zh": "我要冰淇淋。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "item",
+      "productId": "aiskrim"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "aiskrim"
+    ],
+    "hint": "商品：冰淇淋",
+    "reviewed": false
+  },
+  {
+    "id": "p2_enc_14",
+    "type": "ask_discount",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "amir",
+    "lines": [
+      {
+        "ms": "Boleh saya beli teh?",
+        "zh": "我要茶。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "number",
+      "productId": "teh"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "teh"
+    ],
+    "hint": "商品：茶",
+    "reviewed": false
+  },
+  {
+    "id": "p2_enc_15",
+    "type": "quantity",
+    "phase": 2,
+    "minLevel": 2,
+    "speaker": "mak_cik_rohani",
+    "lines": [
+      {
+        "ms": "Boleh saya beli ayam goreng?",
+        "zh": "我要炸雞。",
+        "reviewed": false
+      }
+    ],
+    "expect": {
+      "kind": "text",
+      "productId": "ayam_goreng"
+    },
+    "success": "Bagus! Terima kasih.",
+    "fail": "Boleh cuba sekali lagi?",
+    "vocab": [
+      "ayam_goreng"
+    ],
+    "hint": "商品：炸雞",
+    "reviewed": false
+  }
+]

@@ -1,0 +1,107 @@
+[
+  {
+    "id": "p1_phrase_1",
+    "phase": 1,
+    "ms": "Selamat pagi.",
+    "zh": "早安。",
+    "reviewed": false
+  },
+  {
+    "id": "p1_phrase_2",
+    "phase": 1,
+    "ms": "Apa yang awak mahu?",
+    "zh": "你想要什麼？",
+    "reviewed": false
+  },
+  {
+    "id": "p1_phrase_3",
+    "phase": 1,
+    "ms": "Saya mahu air mineral.",
+    "zh": "我要礦泉水。",
+    "reviewed": false
+  },
+  {
+    "id": "p1_phrase_4",
+    "phase": 1,
+    "ms": "Berapa harga ini?",
+    "zh": "這個多少錢？",
+    "reviewed": false
+  },
+  {
+    "id": "p1_phrase_5",
+    "phase": 1,
+    "ms": "Terima kasih.",
+    "zh": "謝謝。",
+    "reviewed": false
+  },
+  {
+    "id": "p2_phrase_1",
+    "phase": 2,
+    "ms": "Ada diskaun hari ini?",
+    "zh": "今天有折扣嗎？",
+    "reviewed": false
+  },
+  {
+    "id": "p2_phrase_2",
+    "phase": 2,
+    "ms": "Boleh saya bayar dengan kad?",
+    "zh": "我可以刷卡嗎？",
+    "reviewed": false
+  },
+  {
+    "id": "p2_phrase_3",
+    "phase": 2,
+    "ms": "Saya mahu dua bungkus.",
+    "zh": "我要兩包。",
+    "reviewed": false
+  },
+  {
+    "id": "p2_phrase_4",
+    "phase": 2,
+    "ms": "Boleh cadangkan sesuatu?",
+    "zh": "可以推薦一些東西嗎？",
+    "reviewed": false
+  },
+  {
+    "id": "p2_phrase_5",
+    "phase": 2,
+    "ms": "Jumlah semuanya berapa?",
+    "zh": "總共多少錢？",
+    "reviewed": false
+  },
+  {
+    "id": "p3_phrase_1",
+    "phase": 3,
+    "ms": "Jika saya beli tiga, boleh kurang?",
+    "zh": "如果我買三個，可以便宜一點嗎？",
+    "reviewed": false
+  },
+  {
+    "id": "p3_phrase_2",
+    "phase": 3,
+    "ms": "Saya sedang mencari hadiah.",
+    "zh": "我正在找禮物。",
+    "reviewed": false
+  },
+  {
+    "id": "p3_phrase_3",
+    "phase": 3,
+    "ms": "Boleh bungkus secara berasingan?",
+    "zh": "可以分開包裝嗎？",
+    "reviewed": false
+  },
+  {
+    "id": "p3_phrase_4",
+    "phase": 3,
+    "ms": "Saya akan kembali nanti.",
+    "zh": "我等一下會再回來。",
+    "reviewed": false
+  },
+  {
+    "id": "p3_phrase_5",
+    "phase": 3,
+    "ms": "Terima kasih atas bantuan anda.",
+    "zh": "謝謝你的幫忙。",
+    "reviewed": false
+  }
+]

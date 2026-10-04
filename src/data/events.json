@@ -1,0 +1,23 @@
+[
+  {
+    "id": "event_1",
+    "title": "下雨天",
+    "description": "雨勢突然變大，顧客想買雨具。",
+    "effect": "payung",
+    "reviewed": false
+  },
+  {
+    "id": "event_2",
+    "title": "促銷日",
+    "description": "顧客詢問今日優惠。",
+    "effect": "discount",
+    "reviewed": false
+  },
+  {
+    "id": "event_3",
+    "title": "忙碌時段",
+    "description": "店內顧客增加，請保持耐心。",
+    "effect": "bonus",
+    "reviewed": false
+  }
+]
