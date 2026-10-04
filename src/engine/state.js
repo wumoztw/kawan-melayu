@@ -6,7 +6,7 @@ export function createInitialState(options = {}) {
   return {
     version: STATE_VERSION, day: 1, phase: 'BRIEFING', cash,
     inventory: {}, prices: {}, experience: 0, level: 1,
-    vocab: {}, encounters: [], history: [], rngSeed: Number.isFinite(options.seed) ? options.seed >>> 0 : 1,
+    vocab: {}, encounters: [], history: [], reputation: 0, endlessUnlocked: false, endlessMode: false, rngSeed: Number.isFinite(options.seed) ? options.seed >>> 0 : 1,
   };
 }
 

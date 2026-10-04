@@ -44,3 +44,17 @@
 - [x] 補足 Encik Lim（華裔）及 Encik Raju（印度裔）批發商設定與 Hari Raya、Tahun Baru Cina、Deepavali 節慶事件
 - [x] Day 20 完成十題隨機中期考，七題（70%）通過
 - [x] 保持本機資料與邏輯執行，無 AI 或網路服務依賴；擴充資料測試
+
+## M6 — AI 整合架構
+
+- [x] 建立可關閉的 AIService、OpenAI 相容介面、繁中／標準馬來文提示與安全資料注入
+- [x] 加入 10 秒超時、例外及無效 JSON 預寫回退、嚴格 JSON 批改驗證
+- [x] 加入 explainMistake localStorage 快取、請求節流與常客閒聊介面
+- [x] AI 單元測試全面使用 Mock，不呼叫真實服務
+
+## M7 — 高期 Lv.7–10 與無盡模式
+
+- [x] 延伸遊戲至第 30 天並支援答題口碑、高期畢業條件與最佳商店結局／延長期
+- [x] 加入高期自由輸入降級策略、華語微扣經驗輔助與無盡模式解鎖狀態
+- [x] 增加高期流程與結局測試
+- [x] 通過 `npm run lint`、`npm test`、`npm run validate:data` 與 `npm run build`

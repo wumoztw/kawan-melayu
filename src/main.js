@@ -12,6 +12,7 @@ import { dialogue } from './ui/components/dialogue.js';
 import { statusBar } from './ui/components/statusBar.js';
 import { fillBlank } from './ui/components/fillBlank.js';
 import { speakMalay, hasMalayVoice } from './ui/tts.js';
+import { evaluateFinale, revealTranslation, startEndlessMode } from './engine/p3.js';
 
 const root = document.querySelector('#app');
 let state = loadFromStorage() || createInitialState();
@@ -28,11 +29,11 @@ function render() {
   if (screen === 'briefing' || screen === 'store' || screen === 'summary') {
     if (state.day === 11) { startExam(1); return; }
     if (state.day === 21) { startExam(2); return; }
-    if (state.day > 20) { title.textContent = '中期畢業！'; button(wrap, '繼續冒險', () => go('title')); return; }
+    if (state.day > 30) { state = evaluateFinale(state, Boolean(state.p3GraduationPassed)); title.textContent = state.finale === 'winner' ? 'Anugerah Kedai Terbaik Pekan' : '延長營業期'; wrap.append(document.createTextNode(state.finale === 'winner' ? '恭喜！你以優異口碑完成高期旅程。' : '再累積口碑並通過高期畢業小考，即可獲得最佳商店獎。')); if (state.endlessUnlocked) button(wrap, '開始無盡模式', () => { state = startEndlessMode(state); state.day = 31; persist(); go('briefing'); }); button(wrap, '繼續冒險', () => { state.day = 30; persist(); go('briefing'); }); persist(); return; }
     const d = days.find((item) => item.day === state.day); const enc = encounters.find((item) => item.id === d?.encounterId);
     const cast = { encik_lim: 'Encik Lim（華裔批發商）', encik_raju: 'Encik Raju（印度裔批發商）' };
     const ms = enc?.lines?.[0]?.ms || ''; dialogue(wrap, cast[enc?.speaker] || enc?.speaker || 'Abang Zul', `${d?.title || `第 ${state.day} 天`}：${d?.story || '歡迎光臨！'} ${ms}`, { typewriter: true, onSpeak: hasMalayVoice() ? () => speakMalay(ms) : undefined });
-    const translation = document.createElement('p'); translation.hidden = true; translation.textContent = enc?.lines?.[0]?.zh || ''; wrap.append(translation); button(wrap, '顯示華語翻譯', () => { translation.hidden = !translation.hidden; });
+    const translation = document.createElement('p'); translation.hidden = true; translation.textContent = enc?.lines?.[0]?.zh || ''; wrap.append(translation); button(wrap, '顯示華語翻譯（微扣經驗）', () => { translation.hidden = !translation.hidden; if (!translation.hidden) { state = revealTranslation(state); persist(); render(); } });
     const input = fillBlank(wrap, state.day <= 15 ? '選擇字庫答案或輸入馬來語' : '自行輸入馬來語填空');
     if (enc?.wordBank?.length) for (const word of enc.wordBank) button(wrap, word, () => { input.value = word; }, true);
     const prompt = document.createElement('p'); prompt.textContent = enc?.prompt || enc?.hint || ''; wrap.append(prompt);
@@ -40,7 +41,7 @@ function render() {
       const answer = input.value.trim(); const correct = gradeAnswer(answer, enc?.acceptedAnswers || enc?.answer || '').correct;
       if (enc?.vocab?.[0]) state = reviewWord(state, enc.vocab[0], correct);
       state.experience += correct ? 10 : 2; state.level = Math.min(state.day <= 10 ? 3 : 6, Math.max(state.level, state.day <= 10 ? 1 + Math.floor(state.experience / 40) : 4 + Math.floor((state.day - 11) / 5)));
-      state.history.push({ day: state.day, answer, correct }); state.cash += correct ? 2 : 0; state.day++; persist();
+      state.history.push({ day: state.day, answer, correct }); state.reputation = Math.max(0, (state.reputation || 0) + (correct ? 10 : 0)); state.cash += correct ? 2 : 0; if (state.day === 30) state.p3GraduationPassed = state.history.filter((entry) => entry.day >= 21 && entry.day <= 30 && entry.correct).length + Number(correct) >= 7; state.day++; persist();
       if (state.day === 11) startExam(1); else if (state.day === 21) startExam(2); else go('summary');
     });
     button(wrap, '借款／救濟（Pak Cik Hamid）', () => { state.cash += 10; state.history.push({ day: state.day, relief: true }); persist(); render(); }, true); button(wrap, '單字本', () => go('vocabBook'), true); button(wrap, '回主選單', () => go('title'), true); return;
