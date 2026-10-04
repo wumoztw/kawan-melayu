@@ -2,11 +2,14 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://openrouter.ai https://api.groq.com https://generativelanguage.googleapis.com https://api.openai.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kawan Melayu</title>
   <link rel="stylesheet" href="style.css?v=20260301_0114_desktop_chatbox_scroll" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- 安全性修復：引入固定版本庫 -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/lib/marked.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 </head>
 
 <body>

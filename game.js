@@ -19,6 +19,60 @@ let gameState = {
   mission: defaultMission()
 };
 
+function renderMarkdownSafe(md) {
+  try {
+    const rawHtml = marked.parse(md);
+    return DOMPurify.sanitize(rawHtml);
+  } catch (e) {
+    console.error("Markdown parse failed, fallback to text", e);
+    return md.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, '<br>');
+  }
+}
+
+function clamp(val, min, max) {
+  return Math.min(Math.max(val, min), max);
+}
+
+function extractBalancedJson(text) {
+  const start = text.lastIndexOf("<action>");
+  const end = text.lastIndexOf("</action>");
+  if (start === -1 || end === -1 || end < start) return null;
+  const jsonStr = text.substring(start + 8, end).trim();
+  try {
+    return JSON.parse(jsonStr);
+  } catch (e) {
+    return null;
+  }
+}
+
+window.speakMalay = function(text) {
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "ms-MY";
+  window.speechSynthesis.speak(utterance);
+};
+
+function getTurnSnapshot() {
+  return {
+    gameState: structuredClone(gameState),
+    historyLen: messageHistory.length
+  };
+}
+
+function rollbackTurn(snapshot) {
+  if (!snapshot) return;
+  gameState = structuredClone(snapshot.gameState);
+  while (messageHistory.length > snapshot.historyLen) {
+    messageHistory.pop();
+  }
+  const container = document.getElementById("chatContainer");
+  if (container && container.lastElementChild) {
+    container.removeChild(container.lastElementChild);
+  }
+  updateUI();
+}
+
 let messageHistory = [];
 let lastRequestTime = 0;
 const THROTTLE_LIMIT = 2500;
@@ -33,6 +87,7 @@ const PROVIDERS = {
   openrouter: {
     name: "OpenRouter",
     baseUrl: "https://openrouter.ai/api/v1/chat/completions",
+    defaultModel: "meta-llama/llama-3.3-70b-instruct:free",
     models: [
       { id: "auto", name: "Auto" },
       { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B (Free)" },
@@ -43,6 +98,7 @@ const PROVIDERS = {
   groq: {
     name: "Groq",
     baseUrl: "https://api.groq.com/openai/v1/chat/completions",
+    defaultModel: "llama-3.3-70b-versatile",
     models: [
       { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B" },
       { id: "deepseek-r1-distill-llama-70b", name: "DeepSeek R1 70B" },
@@ -52,6 +108,7 @@ const PROVIDERS = {
   gemini: {
     name: "Google Gemini",
     baseUrl: "https://generativelanguage.googleapis.com/v1beta/models",
+    defaultModel: "gemini-2.0-flash",
     models: [
       { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash" },
       { id: "gemini-2.0-flash-lite", name: "Gemini 2.0 Flash Lite" },
@@ -61,6 +118,7 @@ const PROVIDERS = {
   openai: {
     name: "OpenAI",
     baseUrl: "https://api.openai.com/v1/chat/completions",
+    defaultModel: "gpt-4o-mini",
     models: [
       { id: "gpt-4o-mini", name: "GPT-4o Mini" },
       { id: "gpt-4o", name: "GPT-4o" },
@@ -129,10 +187,14 @@ const SCENES = [
 ];
 
 function getSceneByName(name) {
-  const t = String(name || "").trim();
+  const t = String(name || "").trim().toLowerCase().replace(/[\(\)（）]/g, "");
   if (!t) return null;
-  return SCENES.find(s => s.name === t) || null;
+  return SCENES.find(s => {
+    const sName = s.name.toLowerCase().replace(/[\(\)（）]/g, "");
+    return sName.includes(t) || t.includes(sName) || s.key === t;
+  }) || null;
 }
+
 
 function getUnlockedScenesByLevel(level) {
   return SCENES.filter(s => s.minLevel <= level);
@@ -811,7 +873,7 @@ async function requestWithProvider({ providerKey, key, modelId, payloadMessages,
     const url = `${provider.baseUrl}/${encodeURIComponent(activeModel)}:generateContent?key=${encodeURIComponent(key)}`;
     const body = {
       contents: messagesToGeminiContents(payloadMessages),
-      generationConfig: { temperature: 0.7 }
+      generationConfig: { temperature: 0.7, maxOutputTokens: 800 }
     };
     const res = await fetch(url, {
       method: "POST",
@@ -831,7 +893,8 @@ async function requestWithProvider({ providerKey, key, modelId, payloadMessages,
     body: JSON.stringify({
       model: activeModel,
       messages: payloadMessages,
-      temperature: 0.7
+      temperature: 0.7,
+      max_tokens: 800
     }),
     signal
   });
@@ -845,58 +908,78 @@ function extractAiTextFromResponse(providerKey, data) {
   return data?.choices?.[0]?.message?.content || "";
 }
 
-function getFallbackChain(primaryKey) {
-  if (!getOptFallbackEnabled()) return [primaryKey];
-  return [primaryKey, ...FALLBACK_ORDER.filter(k => k !== primaryKey)];
+function saveGameState() {
+  try {
+    const data = { gameState, history: messageHistory };
+    localStorage.setItem("mud_autosave", JSON.stringify(data));
+  } catch (e) { console.error("Autosave failed", e); }
+}
+
+function loadGameState() {
+  try {
+    const raw = localStorage.getItem("mud_autosave");
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.gameState) {
+      gameState = data.gameState;
+      gameState.confidence = clamp(gameState.confidence, 0, 100);
+      gameState.fluency = clamp(gameState.fluency, 0, 100);
+      gameState.level = clamp(gameState.level, 1, 10);
+      gameState.vocabulary = Array.isArray(gameState.vocabulary) ? gameState.vocabulary : [];
+    }
+    if (data.history) messageHistory = data.history.filter(m => ["user", "assistant", "system"].includes(m.role));
+  } catch (e) { localStorage.removeItem("mud_autosave"); }
+}
+
+
+function getModelFor(pk, primaryModel) {
+  const custom = localStorage.getItem(`mud_model_${pk}`);
+  if (custom) return custom;
+  return PROVIDERS[pk]?.defaultModel || primaryModel;
 }
 
 window.sendMessage = async function (isRetry = false) {
   const providerKey = document.getElementById("apiProvider").value;
-  const modelId = document.getElementById("modelSelect").value;
-
+  const primaryModel = document.getElementById("modelSelect").value;
   const input = document.getElementById("userInput");
   const text = input.value.trim();
-  if (input.disabled || !text) return;
+  
+  if (input.disabled || (!isRetry && !text)) return;
 
   const getKeyForProvider = (pk) => {
-    const currentSelected = document.getElementById("apiProvider").value;
     const directInput = document.getElementById("apiKey").value.trim();
-    if (pk === currentSelected && directInput) return directInput;
+    if (pk === providerKey && directInput) return directInput;
     return (localStorage.getItem("mudapikey" + pk) || "").trim();
   };
 
   const primaryKey = getKeyForProvider(providerKey);
   if (!primaryKey) {
-    appendUI("⚠️ 請先填入 API Key（或為備援供應商也填好 Key）。", "mud-ai mud-system", false);
+    appendUI("⚠️ 請先填入 API Key。", "mud-ai mud-system", false);
     if (isShellClass("settings-collapsed")) toggleSettingsDrawer();
-    if (isShellClass("sidebar-collapsed") && !isMobileMode()) openRightPanel();
     return;
   }
 
-  const now = Date.now();
-  if (!isRetry && now - lastRequestTime < THROTTLE_LIMIT) return;
-  lastRequestTime = now;
+  if (!isRetry) {
+    const now = Date.now();
+    if (now - lastRequestTime < THROTTLE_LIMIT) return;
+    lastRequestTime = now;
+    lastUserMessageText = text;
+  }
 
-  lastUserMessageText = text;
-
+  const snapshot = getTurnSnapshot();
   setBusyUI(true);
   enableRetryButton(false);
 
-  userPinnedToBottom = true;
+  if (!isRetry) {
+    appendUI(text, "mud-user");
+    input.value = "";
+    if (messageHistory.length === 0) messageHistory.push({ role: "system", content: buildSystemPrompt() });
+    messageHistory.push({ role: "user", content: text.replace(/<think>[\s\S]*?<\/think>/g, "") });
+  } else {
+    // Retry logic: don't double add user message, rely on history
+  }
 
-  appendUI(text, "mud-user");
-  input.value = "";
-
-  const loader = document.getElementById("mudLoading");
-  if (loader) loader.style.display = "block";
-  scrollChatToLatest({ force: true });
-
-  if (messageHistory.length === 0) messageHistory.push({ role: "system", content: buildSystemPrompt() });
-  if (messageHistory[0].role === "system") messageHistory[0].content = buildSystemPrompt();
-
-  messageHistory.push({ role: "user", content: text });
   pruneHistoryKeepRecentTurns(6);
-
   const payloadMessages = JSON.parse(JSON.stringify(messageHistory));
   currentAbortController = new AbortController();
 
@@ -907,6 +990,8 @@ window.sendMessage = async function (isRetry = false) {
     for (const pk of chain) {
       const key = getKeyForProvider(pk);
       if (!key) continue;
+      
+      const modelId = getModelFor(pk, primaryModel);
 
       for (let r = 0; r <= MAX_AUTO_RETRIES; r++) {
         let res = null;
@@ -921,8 +1006,8 @@ window.sendMessage = async function (isRetry = false) {
           res = out.res;
 
           if (!res.ok) {
-            if ((res.status === 429 || res.status >= 500) && r < MAX_AUTO_RETRIES) {
-              await new Promise(s => setTimeout(s, 500 + r * 800));
+             if ((res.status === 429 || res.status >= 500) && r < MAX_AUTO_RETRIES) {
+              await new Promise(s => setTimeout(s, 1000 + r * 1000));
               continue;
             }
             throw { res };
@@ -935,16 +1020,16 @@ window.sendMessage = async function (isRetry = false) {
           applyActionDeltas(aiMsg);
           const cleanMsg = extractTextForUI(aiMsg);
 
-          messageHistory.push({ role: "assistant", content: aiMsg });
+          messageHistory.push({ role: "assistant", content: aiMsg.replace(/<think>[\s\S]*?<\/think>/g, "") });
           pruneHistoryKeepRecentTurns(6);
-
-          if (loader) loader.style.display = "none";
+          saveGameState(); // Autosave
 
           const b = document.getElementById("mudChatBox");
           const d = document.createElement("div");
           d.className = "mud-msg mud-ai";
-          b.insertBefore(d, document.getElementById("mudLoading"));
-
+          d.setAttribute("role", "log");
+          b.appendChild(d);
+          
           let i = 0;
           function typeWriter() {
             if (i < cleanMsg.length) {
@@ -953,7 +1038,7 @@ window.sendMessage = async function (isRetry = false) {
               scrollChatToLatest();
               setTimeout(typeWriter, 10);
             } else {
-              d.innerHTML = marked.parse(cleanMsg);
+              d.innerHTML = renderMarkdownSafe(cleanMsg);
               scrollChatToLatest();
               setBusyUI(false);
               enableRetryButton(true);
@@ -961,10 +1046,8 @@ window.sendMessage = async function (isRetry = false) {
             }
           }
           typeWriter();
-
           currentAbortController = null;
           return;
-
         } catch (e) {
           if (e?.name === "AbortError") throw e;
           lastErr = e;
@@ -972,18 +1055,14 @@ window.sendMessage = async function (isRetry = false) {
         }
       }
     }
-
     throw lastErr || new Error("All providers failed.");
   } catch (e) {
-    if (loader) loader.style.display = "none";
-
-    if (e?.name === "AbortError")
-      appendUI("⏹ 已停止請求。", "mud-ai mud-system", false);
-    else if (e?.res)
-      appendUI(normalizeErrorMessage(null, e.res), "mud-ai mud-system", false);
-    else
-      appendUI(normalizeErrorMessage(e, null), "mud-ai mud-system", false);
-
+    if (e?.name !== "AbortError") {
+      rollbackTurn(snapshot);
+      if (e?.res) appendUI(normalizeErrorMessage(null, e.res), "mud-ai mud-system", false);
+      else appendUI("❌ 請求失敗，請檢查網路或 API Key。", "mud-ai mud-system", false);
+      if (!isRetry) input.value = lastUserMessageText; // Restore input
+    }
     setBusyUI(false);
     enableRetryButton(true);
     currentAbortController = null;
@@ -998,6 +1077,7 @@ window.handleKeyPress = function (e) {
 
 document.addEventListener("DOMContentLoaded", () => {
   loadConfig();
+  loadGameState(); // Add this
   updateStatusUI();
 
   messageHistory = [{ role: "system", content: buildSystemPrompt() }];
@@ -1013,6 +1093,10 @@ document.addEventListener("DOMContentLoaded", () => {
   initChatTouchScroll();
 
   document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter" && !ev.shiftKey) {
+      if (ev.isComposing || ev.keyCode === 229) return;
+      sendMessage();
+    }
     if (ev.key !== "Escape") return;
     try { closeRightPanel(); } catch(e) {}
     setShellClass("settings-collapsed", true);
