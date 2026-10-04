@@ -22,3 +22,11 @@
 - [x] 建立存檔驗證／遷移、localStorage 及 JSON 匯入匯出（預設排除金鑰）
 - [x] 增加引擎單元測試與固定種子 10 天機器人玩家測試
 - [x] 通過 `npm run lint`、`npm test`、`npm run validate:data` 與 `npm run build`
+
+## M3 / M4 — UI 與初期可玩切片
+
+- [x] 建立安全 DOM UI、七個畫面與五種元件；採嚴格 CSP、系統字型及離線資源
+- [x] 支援逐字對話跳過、減少動態效果偏好、1-4 鍵盤操作與 Malay TTS 降級
+- [x] 串接第 1-10 天流程、單字本、Leitner 等級、借款、存檔與 Day 10 十題小考
+- [x] 移除舊版 game.js、style.css、smoke_test.js
+- [x] 通過 `npm run lint`、`npm test`、`npm run validate:data` 與 `npm run build`

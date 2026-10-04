@@ -1,0 +1,1 @@
+export function fillBlank(parent, label='你的回答') { const input=document.createElement('input');input.type='text';input.placeholder=label;input.setAttribute('aria-label',label);parent.append(input);return input }

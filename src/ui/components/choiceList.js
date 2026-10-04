@@ -1,0 +1,1 @@
+export function choiceList(parent, choices, onChoose) { const list=document.createElement('div');list.className='row';choices.forEach((choice,i)=>{const b=document.createElement('button');b.textContent=`${i+1}. ${choice}`;b.addEventListener('click',()=>onChoose(choice,i));list.append(b)});parent.append(list);return list }

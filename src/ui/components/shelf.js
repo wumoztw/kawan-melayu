@@ -1,0 +1,1 @@
+export function shelf(parent, items, onSelect) { const list=document.createElement('div');list.className='row';for(const item of items){const b=document.createElement('button');b.textContent=item.label;b.addEventListener('click',()=>onSelect(item));list.append(b)}parent.append(list);return list }

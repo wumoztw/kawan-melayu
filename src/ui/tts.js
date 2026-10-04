@@ -1,0 +1,3 @@
+export function findMalayVoice(voices = globalThis.speechSynthesis?.getVoices?.() ?? []) { return voices.find(v => /^ms-MY$/i.test(v.lang)) || voices.find(v => /^id-ID$/i.test(v.lang)) || null; }
+export function speakMalay(text) { try { const synth = globalThis.speechSynthesis; const voice = findMalayVoice(synth?.getVoices?.()); if (!synth || !voice || typeof SpeechSynthesisUtterance === 'undefined') return false; const utterance = new SpeechSynthesisUtterance(String(text)); utterance.voice = voice; synth.speak(utterance); return true; } catch { return false; } }
+export function hasMalayVoice() { try { return Boolean(findMalayVoice(globalThis.speechSynthesis?.getVoices?.())); } catch { return false; } }
