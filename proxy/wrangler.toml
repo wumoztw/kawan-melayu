@@ -1,0 +1,7 @@
+name = "kawan-melayu-ai-proxy"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+# Replace with the exact deployed frontend origin, including scheme; no trailing slash.
+ALLOWED_ORIGIN = "https://YOUR-USERNAME.github.io"

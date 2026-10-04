@@ -1,60 +1,15 @@
 # 專案進度
 
-## M0 — 專案骨架、測試與 CI
+## M0–M7 — 已完成
 
-- [x] 建立 Vite、Vitest/jsdom、ESLint 9 基礎設定與必要 scripts
-- [x] 建立 CI 與 Pages 部署工作流程
+完成 Vite/CI 基礎、遊戲資料與審閱工具、純邏輯遊戲引擎、離線 UI、三階段遊戲流程與測試、可選 AI service 架構。
 
-## M1 — 資料格式、種子資料與審閱工具
+## M8 — 代理、安全文件與驗收
 
-- [x] 建立初、中、高期商品、NPC、句型與互動種子資料
-- [x] 建立 30 天劇情、隨機事件與初／中期畢業小考題庫
-- [x] 完成資料格式、欄位、ID、期別數量及參照驗證腳本
-- [x] 完成依期別輸出馬來文與華語對照審閱表
-- [x] 建立資料完整性、驗證器與匯出腳本測試
-- [x] 通過 `npm run lint`、`npm test`、`npm run validate:data` 與 `npm run build`
-
-## M2 — 純邏輯遊戲引擎與模擬
-
-- [x] 建立可播種亂數、版本化狀態與每日流程狀態機
-- [x] 建立庫存、訂價、營收、救濟借款與客人互動批改邏輯
-- [x] 建立 Unicode 答案正規化、等級期別、畢業小考與 Leitner 字彙盒
-- [x] 建立存檔驗證／遷移、localStorage 及 JSON 匯入匯出（預設排除金鑰）
-- [x] 增加引擎單元測試與固定種子 10 天機器人玩家測試
-- [x] 通過 `npm run lint`、`npm test`、`npm run validate:data` 與 `npm run build`
-
-## M3 / M4 — UI 與初期可玩切片
-
-- [x] 建立安全 DOM UI、七個畫面與五種元件；採嚴格 CSP、系統字型及離線資源
-- [x] 支援逐字對話跳過、減少動態效果偏好、1-4 鍵盤操作與 Malay TTS 降級
-- [x] 串接第 1-10 天流程、單字本、Leitner 等級、借款、存檔與 Day 10 十題小考
-- [x] 移除舊版 game.js、style.css、smoke_test.js
-- [x] 通過 `npm run lint`、`npm test`、`npm run validate:data` 與 `npm run build`
-
-## M5 — 中期第 11–20 天與中期畢業小考
-
-- [x] 建立 Lv.4–6 中期十天專屬互動：填空字庫與自由輸入、點選顯示華語
-- [x] 加入訂價殺價、供應商訂貨／送貨、過期客訴、清真詢問、指路、日期時間及求助情境
-- [x] 補足 Encik Lim（華裔）及 Encik Raju（印度裔）批發商設定與 Hari Raya、Tahun Baru Cina、Deepavali 節慶事件
-- [x] Day 20 完成十題隨機中期考，七題（70
-## M5 — 中期第 11–20 天與中期畢業小考
-
-- [x] 建立 Lv.4–6 中期十天專屬互動：填空字庫與自由輸入、點選顯示華語
-- [x] 加入訂價殺價、供應商訂貨／送貨、過期客訴、清真詢問、指路、日期時間及求助情境
-- [x] 補足 Encik Lim（華裔）及 Encik Raju（印度裔）批發商設定與 Hari Raya、Tahun Baru Cina、Deepavali 節慶事件
-- [x] Day 20 完成十題隨機中期考，七題（70%）通過
-- [x] 保持本機資料與邏輯執行，無 AI 或網路服務依賴；擴充資料測試
-
-## M6 — AI 整合架構
-
-- [x] 建立可關閉的 AIService、OpenAI 相容介面、繁中／標準馬來文提示與安全資料注入
-- [x] 加入 10 秒超時、例外及無效 JSON 預寫回退、嚴格 JSON 批改驗證
-- [x] 加入 explainMistake localStorage 快取、請求節流與常客閒聊介面
-- [x] AI 單元測試全面使用 Mock，不呼叫真實服務
-
-## M7 — 高期 Lv.7–10 與無盡模式
-
-- [x] 延伸遊戲至第 30 天並支援答題口碑、高期畢業條件與最佳商店結局／延長期
-- [x] 加入高期自由輸入降級策略、華語微扣經驗輔助與無盡模式解鎖狀態
-- [x] 增加高期流程與結局測試
-- [x] 通過 `npm run lint`、`npm test`、`npm run validate:data` 與 `npm run build`
+- [x] 新增 Cloudflare Worker：Origin/path/method 檢查、欄位白名單、body/message 限制、三組 Groq secret 輪替重試與不記錄內容。
+- [x] 新增無金鑰 wrangler 設定及代理、Linux Mint、AI 部署、交接繁中說明。
+- [x] 更新主 README、安全忽略規則及決策／進度文件。
+- [x] 重新產生 `docs/malay-review.md`。
+- [ ] 完成端到端 Pages 與 Cloudflare 真實帳戶驗證（需使用者帳戶及部署權限）。
+- [ ] 前端 AI adapter 對接 Worker 尚未完成，維持 AI 預設關閉。
+- [ ] 馬來文內容待母語者審閱。

@@ -14,4 +14,4 @@ for (const [heading, lines] of groups) {
   for (const item of lines) output += `| ${(item.ms ?? '').replaceAll('|', '\\|')} | ${(item.zh ?? '').replaceAll('|', '\\|')} | ${item.reviewed === false ? '待審閱' : '—'} |\n`;
 }
 fs.writeFileSync(path.join(root, 'docs/malay-review.md'), output);
-console.log('已匯出 docs/malay-review.md');
+process.stdout.write('已匯出 docs/malay-review.md\n');

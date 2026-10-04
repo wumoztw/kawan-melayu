@@ -61,16 +61,16 @@
 | Saya mahu dua bungkus. | 我要兩包。 | 待審閱 |
 | Boleh cadangkan sesuatu? | 可以推薦一些東西嗎？ | 待審閱 |
 | Jumlah semuanya berapa? | 總共多少錢？ | 待審閱 |
-| Boleh saya beli air mineral? | 我要礦泉水。 | 待審閱 |
-| Boleh saya beli kopi? | 我要咖啡。 | 待審閱 |
-| Boleh saya beli susu? | 我要牛奶。 | 待審閱 |
-| Boleh saya beli jus? | 我要果汁。 | 待審閱 |
-| Boleh saya beli roti? | 我要麵包。 | 待審閱 |
-| Boleh saya beli telur? | 我要雞蛋。 | 待審閱 |
-| Boleh saya beli nasi lemak? | 我要椰漿飯。 | 待審閱 |
-| Boleh saya beli mi segera? | 我要泡麵。 | 待審閱 |
-| Boleh saya beli biskut? | 我要餅乾。 | 待審閱 |
-| Boleh saya beli gula-gula? | 我要糖果。 | 待審閱 |
+| Murah sikit boleh? | 可以便宜一點嗎？ | 待審閱 |
+| Saya nak pesan barang. Bila boleh hantar? | 我想訂貨。什麼時候可以送到？ | 待審閱 |
+| Maaf, tarikh luput sudah lepas. | 不好意思，這個已經過期了。 | 待審閱 |
+| Ini halal? | 這是清真食品嗎？ | 待審閱 |
+| Belok kiri, kemudian jalan lurus. | 左轉，然後直走。 | 待審閱 |
+| Saya datang esok, bukan hari ini. | 我明天來，不是今天。 | 待審閱 |
+| Saya tak faham. Boleh ulang? | 我不明白。可以再說一次嗎？ | 待審閱 |
+| Saya nak pesan susu. Bila boleh hantar? | 我想訂牛奶。什麼時候可以送到？ | 待審閱 |
+| Murah sikit boleh? Harga ini mahal. | 可以便宜一點嗎？這個價錢很貴。 | 待審閱 |
+| Tarikh luput produk ini bila? | 這個產品的有效日期是什麼時候？ | 待審閱 |
 | Boleh saya beli coklat? | 我要巧克力。 | 待審閱 |
 | Boleh saya beli keropok? | 我要蝦餅。 | 待審閱 |
 | Boleh saya beli aiskrim? | 我要冰淇淋。 | 待審閱 |

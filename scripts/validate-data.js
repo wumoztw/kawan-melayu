@@ -60,5 +60,5 @@ for (const file of ['days.json', 'events.json', 'exam.json']) {
     if (row.reviewed !== false) errors.push(`${file}[${i}]: reviewed 必須為 false`);
   });
 }
-if (errors.length) { console.error(`資料驗證失敗（${errors.length} 項）：\n- ${errors.join('\n- ')}`); process.exitCode = 1; }
-else console.log(`資料驗證通過：${products.length} 商品、${npcs.length} NPC、${encounters.length} 互動、${load('days.json').length} 日劇情。`);
+if (errors.length) { process.stderr.write(`資料驗證失敗（${errors.length} 項）：\n- ${errors.join('\n- ')}\n`); process.exitCode = 1; }
+else process.stdout.write(`資料驗證通過：${products.length} 商品、${npcs.length} NPC、${encounters.length} 互動、${load('days.json').length} 日劇情。\n`);
