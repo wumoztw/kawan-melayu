@@ -4,10 +4,9 @@
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; connect-src 'self' https://openrouter.ai https://api.groq.com https://generativelanguage.googleapis.com https://api.openai.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kawan Melayu</title>
-  <link rel="stylesheet" href="style.css?v=20260301_0114_desktop_chatbox_scroll" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet" />
-  <!-- 安全性修復：引入固定版本庫 -->
+  <title>Kawan Melayu - 日系簡約文字 RPG</title>
+  <link rel="stylesheet" href="style.css?v=20261004_rpg" />
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 </head>
@@ -82,10 +81,10 @@
     <!-- Header -->
     <header class="cg-header">
       <div class="hdr-left">
-        <button class="icon-btn" onclick="toggleRightPanel()" title="側欄">☰</button>
+        <button class="icon-btn" onclick="toggleRightPanel()" title="側欄">☰ 選單</button>
         <div class="hdr-title">
-          <div class="brand-title">Kawan Melayu</div>
-          <div class="brand-sub">AI 馬來語情境練習</div>
+          <div class="brand-title">川原の冒険 ✦ Kawan Melayu</div>
+          <div class="brand-sub">日系簡約文字 RPG 冒險譚</div>
         </div>
       </div>
 
@@ -205,13 +204,27 @@
       </div>
     </aside>
 
-    <!-- Main (chat) -->
-    <main class="cg-main" aria-label="聊天區">
+    <!-- Main (chat/rpg story box) -->
+    <main class="cg-main" aria-label="文字 RPG 冒險主畫面">
       <section class="chat-wrap">
+        <!-- RPG 冒險劇情標題與情境描述列 -->
+        <div class="rpg-story-header">
+          <div class="rpg-npc-tag">【冒險嚮導】</div>
+          <div class="rpg-scenario-desc">▶ 進入異國南洋集市，請使用指定馬來文與當地居民交涉，推進章節任務。</div>
+        </div>
+
         <div class="chat-stream" id="mudChatBox">
           <div class="mud-loading" id="mudLoading" style="display:none">
-            <span class="loading-dots">AI 思考中<span>.</span><span>.</span><span>.</span></span>
+            <span class="loading-dots">冒險敘事生成中<span>.</span><span>.</span><span>.</span></span>
           </div>
+        </div>
+
+        <!-- 冒險指令快捷選單 -->
+        <div class="rpg-action-bar">
+          <button class="rpg-cmd-btn" onclick="document.getElementById('userInput').value='Selamat pagi'; sendMessage();">▶ 問候早安</button>
+          <button class="rpg-cmd-btn" onclick="document.getElementById('userInput').value='Berapa harga ini?'; sendMessage();">▶ 詢問價格</button>
+          <button class="rpg-cmd-btn" onclick="document.getElementById('userInput').value='Terima kasih'; sendMessage();">▶ 表達感謝</button>
+          <button class="rpg-cmd-btn" onclick="toggleCompactAdvisor();">▶ AI 嚮導面板</button>
         </div>
 
         <!-- Composer (bottom fixed-ish) -->
@@ -221,17 +234,32 @@
               type="text"
               id="userInput"
               class="composer-input"
-              placeholder="輸入馬來語或中文…（Enter 送出）"
+              placeholder="輸入冒險指令或馬來語回覆（Enter 送出）…"
               autocomplete="off"
             />
-            <button id="sendBtn" class="composer-send" onclick="sendMessage()">送出</button>
-            <button id="stopBtn" class="composer-stop" onclick="stopRequest()" disabled>Stop</button>
+            <button id="sendBtn" class="composer-send" onclick="sendMessage()">執行指令</button>
+            <button id="stopBtn" class="composer-stop" onclick="stopRequest()" disabled>中斷</button>
           </div>
           <div class="composer-note">
-            建議：第一次使用請先點按右上角的 ? ，那是使用說明。
+            提示：點擊上方指令按鈕快速動作，或點擊右下角展開緊湊 AI 嚮導面板。
           </div>
         </div>
       </section>
+
+      <!-- 緊湊 AI 嚮導懸浮面板 (右下角 compact advisor panel) -->
+      <div id="compactAdvisorPanel" class="compact-advisor-panel collapsed">
+        <div class="cap-header" onclick="toggleCompactAdvisor()">
+          <span>🏮 AI 冒險嚮導小幫手</span>
+          <button class="cap-toggle-btn" id="capToggleIcon">▲</button>
+        </div>
+        <div class="cap-body">
+          <div class="cap-text" id="capAdvisorHint">目前任務：在市集中學會基礎問候與點餐，保持 HP 與得分。</div>
+          <div class="cap-quick-row">
+            <button class="sb-btn sb-btn-primary" onclick="clearChat()">新冒險</button>
+            <button class="sb-btn" onclick="saveGame()">存檔</button>
+          </div>
+        </div>
+      </div>
     </main>
   </div>
 

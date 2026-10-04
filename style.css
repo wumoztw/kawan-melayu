@@ -5,36 +5,35 @@
    ============================================================ */
 
 :root{
-  /* Background (very white) */
-  --bg0:#ffffff;
-  --bg1:#fbfdff;
+  /* 日系簡約基調：和紙暖白、炭墨黑、日系藏青與竹綠 */
+  --bg0:#F9F8F6;
+  --bg1:#F2EFE9;
 
   /* Surfaces */
-  --panel: rgba(255,255,255,0.94);
-  --panel2: rgba(255,255,255,0.97);
-  --border: rgba(0,50,160,0.16);
+  --panel: rgba(255,255,255,0.95);
+  --panel2: rgba(249,248,246,0.98);
+  --border: rgba(28,49,68,0.15);
 
   /* Text */
-  --text: rgba(15,23,42,0.96);
-  --muted: rgba(71,85,105,0.92);
+  --text:#222222;
+  --muted:#555555;
 
-  /* Accents (Malaysia + batik) */
-  --red:#CC0000;     /* Jalur Gemilang red */
-  --blue:#0032A0;    /* Jalur Gemilang blue */
-  --green:#2dd4bf;   /* seafoam (batik pastel feel) */
-  --amber:#FFD100;   /* Jalur Gemilang yellow */
-  --purple:#7c3aed;
+  /* Accents (Japanese Minimalist RPG) */
+  --navy:#1C3144;    /* 日系藏青 */
+  --green:#2D5D4B;   /* 竹綠 */
+  --red:#A83232;     /* 朱紅 */
+  --amber:#D4A373;   /* 暖木黃 */
+  --purple:#5A4770;
 
-  --shadow: 0 16px 48px rgba(0,50,160,0.08);
-  --radius: 18px;
-  --radius2: 14px;
+  --shadow: 0 4px 20px rgba(28,49,68,0.06);
+  --radius: 12px;
+  --radius2: 8px;
 
   --sidebarW: 320px;
-  --headerH: 64px;
+  --headerH: 60px;
 
-  --font: 'Nunito', 'Noto Sans TC', sans-serif;
+  --font: 'Shippori Mincho', 'Noto Sans TC', serif;
 
-  /* JS will set this based on .composer height */
   --composerPad: 0px;
 }
 
@@ -44,20 +43,16 @@ body{
   margin:0;
   font-family:var(--font);
   color:var(--text);
-  background:
-    radial-gradient(1100px 760px at 12% 0%, rgba(45,212,191,0.10), transparent 64%),
-    radial-gradient(900px 680px at 92% 10%, rgba(0,50,160,0.08), transparent 66%),
-    radial-gradient(860px 820px at 38% 96%, rgba(255,209,0,0.08), transparent 68%),
-    radial-gradient(900px 700px at 86% 88%, rgba(204,0,0,0.05), transparent 72%),
-    linear-gradient(180deg, var(--bg0), var(--bg1));
+  background: var(--bg0);
+  letter-spacing: 0.03em;
 }
 
-a{color: rgba(0,50,160,0.92);}
-a:hover{color: rgba(0,36,125,1);}
+a{color: var(--navy);}
+a:hover{color: var(--green);}
 
-::-webkit-scrollbar{width:8px;}
-::-webkit-scrollbar-thumb{background:rgba(0,50,160,0.18); border-radius:10px;}
-::-webkit-scrollbar-thumb:hover{background:rgba(0,50,160,0.28);}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-thumb{background: rgba(28,49,68,0.2); border-radius:6px;}
+::-webkit-scrollbar-thumb:hover{background: rgba(28,49,68,0.35);}
 
 /* ===== Modern Card Polish & Glassmorphism Enhancements ===== */
 .cg-header {
@@ -779,4 +774,131 @@ a:hover{color: rgba(0,36,125,1);}
 
   .chip-bar{ width: 70px; }
   .info-grid{ grid-template-columns: 1fr; }
+}
+/* ===== 補充日系文字 RPG 樣式與緊湊 AI 嚮導面板 ===== */
+.rpg-story-header {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(28,49,68,0.04);
+}
+
+.rpg-npc-tag {
+  font-weight: 700;
+  color: var(--navy);
+  background: rgba(28, 49, 68, 0.08);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.rpg-scenario-desc {
+  font-size: 0.9rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rpg-action-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.rpg-cmd-btn {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  color: var(--navy);
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(28,49,68,0.04);
+  transition: all 0.2s ease;
+}
+
+.rpg-cmd-btn:hover {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+  transform: translateY(-1px);
+}
+
+/* 緊湊 AI 嚮導懸浮面板 (右下角 320-360px 摺疊式) */
+.compact-advisor-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 340px;
+  max-width: calc(100vw - 40px);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 30px rgba(28,49,68,0.12);
+  z-index: 1100;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cap-header {
+  padding: 10px 14px;
+  background: rgba(28, 49, 68, 0.06);
+  border-bottom: 1px solid var(--border);
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--navy);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cap-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--navy);
+  font-weight: bold;
+}
+
+.cap-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.compact-advisor-panel.collapsed .cap-body {
+  display: none;
+}
+
+.compact-advisor-panel.collapsed {
+  width: 220px;
+}
+
+.cap-text {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.cap-quick-row {
+  display: flex;
+  gap: 8px;
 }
