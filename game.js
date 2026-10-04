@@ -66,8 +66,9 @@ function getTurnSnapshot() {
 }
 
 function rollbackTurn(snapshot) {
-  if (!snapshot) return;
+  if (!snapshot || !snapshot.gameState) return;
   gameState = structuredClone(snapshot.gameState);
+  if (!Array.isArray(gameState.vocabulary)) gameState.vocabulary = [];
   while (messageHistory.length > snapshot.historyLen) {
     messageHistory.pop();
   }
@@ -277,7 +278,7 @@ function buildSystemPrompt() {
 - 等級 level=Lv.${gameState.level}
 ${sceneHint}
 ${missionSummary}
-- 已學詞彙 vocabulary=${gameState.vocabulary.join(", ") || "（尚無）"}
+- 已學詞彙 vocabulary=${(Array.isArray(gameState.vocabulary) ? gameState.vocabulary : []).join(", ") || "（尚無）"}
 `;
 }
 
@@ -541,7 +542,8 @@ function updateStatusUI() {
   const counter = document.getElementById("vocabCount");
   if (list) {
     list.innerHTML = "";
-    gameState.vocabulary.forEach(word => {
+    const vocabList = Array.isArray(gameState.vocabulary) ? gameState.vocabulary : [];
+    vocabList.forEach(word => {
       const item = document.createElement("div");
       item.className = "vocab-item";
       
@@ -560,7 +562,7 @@ function updateStatusUI() {
       list.appendChild(item);
     });
   }
-  if (counter) counter.textContent = gameState.vocabulary.length + " 個詞";
+  if (counter) counter.textContent = (Array.isArray(gameState.vocabulary) ? gameState.vocabulary : []).length + " 個詞";
 }
 
 window.handleProviderChange = function () {
@@ -816,18 +818,20 @@ function tryParseActionFromText(text) {
 
 function applyActionDeltas(text) {
   const action = tryParseActionFromText(text);
+  console.log("DEBUG: Action parsed", JSON.stringify(action));
   if (!action) { updateStatusUI(); return; }
 
   let incomingMission = null;
   try {
     if (action.vocabadded) {
+      if (!Array.isArray(gameState.vocabulary)) gameState.vocabulary = [];
       String(action.vocabadded).split(",").forEach(w => {
         const t = w.trim();
         if (t && !gameState.vocabulary.includes(t)) gameState.vocabulary.push(t);
       });
     }
 
-    if (action.confdelta !== undefined) gameState.confidence = clamp(gameState.confidence + action.confdelta, -15, 100); // Wait, instruction said clamp [-15, +5]? No, confdelta is delta, but clamp range is [-15, +5] for delta? No, "confdelta clamp [-15, +5]". Actually the value logic is clamp(val, min, max).
+    // clamped delta below // Wait, instruction said clamp [-15, +5]? No, confdelta is delta, but clamp range is [-15, +5] for delta? No, "confdelta clamp [-15, +5]". Actually the value logic is clamp(val, min, max).
     // Re-reading instructions: "confdelta clamp [-15, +5]，fludelta clamp [-15, +5]（原諒我修正你的提示：應該是加減範圍吧），leveldelta clamp [0, 1]（上限 10）"
     // Wait, the instruction says: "confdelta clamp [-15, +5]，fludelta clamp [-15, +15]，leveldelta clamp [0, 1]（上限 10）"
     // This sounds like I should clamp the *delta itself* or the result? Usually result.
