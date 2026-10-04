@@ -4,6 +4,6 @@ export function normalizeAnswer(value) {
 export function gradeAnswer(answer, accepted) {
   const variants = Array.isArray(accepted) ? accepted : [accepted];
   const normalized = normalizeAnswer(answer);
-  const correct = variants.some((variant) => normalizeAnswer(variant) === normalized);
+  const correct = normalized.length > 0 && variants.some((variant) => normalizeAnswer(variant).length > 0 && normalizeAnswer(variant) === normalized);
   return { correct, answer, normalized, matched: correct ? variants.find((variant) => normalizeAnswer(variant) === normalized) : null };
 }

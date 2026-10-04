@@ -38,11 +38,17 @@ uniqueIds(encounters, 'encounters');
 encounters.forEach((e, i) => {
   const label = `encounters[${i}]`;
   required(e, ['id', 'type', 'phase', 'minLevel', 'speaker', 'lines', 'expect', 'success', 'fail', 'vocab', 'hint'], label);
-  if (e.expect && !expectKinds.has(e.expect.kind)) errors.push(`${label}: 不合法的 expect.kind ${e.expect.kind}`);
+  if (!Number.isInteger(e.minLevel) || e.minLevel < 1) errors.push(`${label}: minLevel 必須是正整數`);
+  if (!Array.isArray(e.lines) || e.lines.length === 0) errors.push(`${label}: 至少需要一行對話`);
+  if (!e.expect || typeof e.expect !== 'object' || !expectKinds.has(e.expect.kind)) errors.push(`${label}: 缺少有效的 expect.kind`);
+  if (typeof e.prompt !== 'string' && typeof e.hint !== 'string') errors.push(`${label}: 可玩互動需要 prompt 或 hint`);
   if (!npcIds.has(e.speaker)) errors.push(`${label}: 懸空 NPC 參照 ${e.speaker}`);
   if (e.expect?.productId && !productIds.has(e.expect.productId)) errors.push(`${label}: 懸空商品參照 ${e.expect.productId}`);
   for (const id of e.vocab ?? []) if (!productIds.has(id)) errors.push(`${label}: vocab 懸空商品參照 ${id}`);
-  for (const line of e.lines ?? []) if (typeof line.ms !== 'string' || typeof line.zh !== 'string' || typeof line.reviewed !== 'boolean') errors.push(`${label}: lines 每項須含 ms、zh、reviewed`);
+  for (const line of e.lines ?? []) {
+    if (typeof line.ms !== 'string' || !line.ms.trim() || typeof line.zh !== 'string' || !line.zh.trim() || typeof line.reviewed !== 'boolean') errors.push(`${label}: lines 每項須含非空 ms、zh 與 reviewed`);
+  }
+  if (e.vocab != null && (!Array.isArray(e.vocab) || e.vocab.some((id) => typeof id !== 'string'))) errors.push(`${label}: vocab 必須是商品 ID 陣列`);
 });
 for (const [name, min] of [['encounters.p1.json', 40], ['encounters.p2.json', 15], ['encounters.p3.json', 10]]) {
   if (load(name).length < min) errors.push(`${name}: 至少需要 ${min} 筆`);

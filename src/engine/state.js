@@ -1,4 +1,4 @@
-export const STATE_VERSION = 1;
+export const STATE_VERSION = 2;
 export const PHASES = ['BRIEFING', 'PREP', 'OPEN', 'RESTOCK', 'CLOSE'];
 
 export function createInitialState(options = {}) {
@@ -6,7 +6,8 @@ export function createInitialState(options = {}) {
   return {
     version: STATE_VERSION, day: 1, phase: 'BRIEFING', cash,
     inventory: {}, prices: {}, experience: 0, level: 1,
-    vocab: {}, encounters: [], history: [], reputation: 0, endlessUnlocked: false, endlessMode: false, rngSeed: Number.isFinite(options.seed) ? options.seed >>> 0 : 1,
+    vocab: {}, encounters: [], history: [], reputation: 0, endlessUnlocked: false, endlessMode: false,
+    customerIndex: 0, flags: {}, rngSeed: Number.isFinite(options.seed) ? options.seed >>> 0 : 1,
   };
 }
 

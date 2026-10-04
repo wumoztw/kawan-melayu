@@ -1,7 +1,7 @@
 {
   "name": "kawan-melayu",
   "version": "1.0.0",
-  "description": "AI 馬來語情境練習",
+  "description": "離線便利商店馬來語 Day 1–3 規則試玩",
   "type": "module",
   "scripts": {
     "dev": "vite",
