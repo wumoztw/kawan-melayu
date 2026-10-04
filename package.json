@@ -1,0 +1,15 @@
+{
+  "name": "kawan-melayu",
+  "version": "1.0.0",
+  "description": "AI 馬來語情境練習",
+  "main": "game.js",
+  "scripts": {
+    "test": "node smoke_test.js",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "jsdom": "^24.0.0"
+  },
+  "license": "MIT"
+}
