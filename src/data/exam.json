@@ -83,80 +83,80 @@
     "id": "exam_2_1",
     "phase": 2,
     "type": "translation",
-    "prompt": "今天有折扣嗎？",
-    "answer": "Ada diskaun hari ini?",
+    "prompt": "可以便宜一點嗎？",
+    "answer": "Murah sikit boleh?",
     "reviewed": false
   },
   {
     "id": "exam_2_2",
     "phase": 2,
     "type": "translation",
-    "prompt": "我可以刷卡嗎？",
-    "answer": "Boleh saya bayar dengan kad?",
+    "prompt": "我想訂貨。",
+    "answer": "Saya nak pesan barang.",
     "reviewed": false
   },
   {
     "id": "exam_2_3",
     "phase": 2,
     "type": "translation",
-    "prompt": "我要兩包。",
-    "answer": "Saya mahu dua bungkus.",
+    "prompt": "什麼時候可以送到？",
+    "answer": "Bila boleh hantar?",
     "reviewed": false
   },
   {
     "id": "exam_2_4",
     "phase": 2,
     "type": "translation",
-    "prompt": "總共多少？",
-    "answer": "Jumlah semuanya berapa?",
+    "prompt": "已經過期了。",
+    "answer": "Tarikh luput sudah lepas.",
     "reviewed": false
   },
   {
     "id": "exam_2_5",
     "phase": 2,
     "type": "translation",
-    "prompt": "可以推薦嗎？",
-    "answer": "Boleh cadangkan sesuatu?",
+    "prompt": "這是清真嗎？",
+    "answer": "Ini halal?",
     "reviewed": false
   },
   {
     "id": "exam_2_6",
     "phase": 2,
     "type": "translation",
-    "prompt": "我要冰咖啡。",
-    "answer": "Saya mahu kopi ais.",
+    "prompt": "左轉。",
+    "answer": "Belok kiri.",
     "reviewed": false
   },
   {
     "id": "exam_2_7",
     "phase": 2,
     "type": "translation",
-    "prompt": "請分開包裝。",
-    "answer": "Tolong bungkus berasingan.",
+    "prompt": "直走。",
+    "answer": "Jalan lurus.",
     "reviewed": false
   },
   {
     "id": "exam_2_8",
     "phase": 2,
     "type": "translation",
-    "prompt": "這個比較便宜。",
-    "answer": "Ini lebih murah.",
+    "prompt": "我明天來。",
+    "answer": "Saya datang esok.",
     "reviewed": false
   },
   {
     "id": "exam_2_9",
     "phase": 2,
     "type": "translation",
-    "prompt": "我稍後回來。",
-    "answer": "Saya akan kembali nanti.",
+    "prompt": "我不明白。",
+    "answer": "Saya tak faham.",
     "reviewed": false
   },
   {
     "id": "exam_2_10",
     "phase": 2,
     "type": "translation",
-    "prompt": "你有茶嗎？",
-    "answer": "Ada teh?",
+    "prompt": "可以重複嗎？",
+    "answer": "Boleh ulang?",
     "reviewed": false
   }
 ]

@@ -3,250 +3,295 @@
     "id": "p2_enc_01",
     "type": "fill_blank",
     "phase": 2,
-    "minLevel": 2,
-    "speaker": "abang_zul",
+    "minLevel": 4,
+    "speaker": "encik_lim",
     "lines": [
       {
-        "ms": "Boleh saya beli air mineral?",
-        "zh": "我要礦泉水。",
+        "ms": "Murah sikit boleh?",
+        "zh": "可以便宜一點嗎？",
         "reviewed": false
       }
     ],
+    "prompt": "Murah sikit boleh?",
+    "answer": "murah",
+    "acceptedAnswers": [
+      "murah"
+    ],
+    "wordBank": [
+      "murah",
+      "harga"
+    ],
     "expect": {
-      "kind": "item",
-      "productId": "air_mineral"
+      "kind": "text"
     },
     "success": "Bagus! Terima kasih.",
     "fail": "Boleh cuba sekali lagi?",
-    "vocab": [
-      "air_mineral"
-    ],
-    "hint": "商品：礦泉水",
+    "vocab": [],
+    "hint": "便宜（選字填空）",
     "reviewed": false
   },
   {
     "id": "p2_enc_02",
-    "type": "ask_discount",
+    "type": "fill_blank",
     "phase": 2,
-    "minLevel": 2,
-    "speaker": "pak_cik_hamid",
+    "minLevel": 4,
+    "speaker": "encik_lim",
     "lines": [
       {
-        "ms": "Boleh saya beli kopi?",
-        "zh": "我要咖啡。",
+        "ms": "Saya nak pesan barang. Bila boleh hantar?",
+        "zh": "我想訂貨。什麼時候可以送到？",
         "reviewed": false
       }
     ],
+    "prompt": "Saya nak _____ barang. Bila boleh hantar?",
+    "answer": "pesan",
+    "acceptedAnswers": [
+      "pesan"
+    ],
+    "wordBank": [
+      "pesan",
+      "hantar"
+    ],
     "expect": {
-      "kind": "number",
-      "productId": "kopi"
+      "kind": "text"
     },
     "success": "Bagus! Terima kasih.",
     "fail": "Boleh cuba sekali lagi?",
-    "vocab": [
-      "kopi"
-    ],
-    "hint": "商品：咖啡",
+    "vocab": [],
+    "hint": "訂購（選字填空）",
     "reviewed": false
   },
   {
     "id": "p2_enc_03",
-    "type": "quantity",
+    "type": "fill_blank",
     "phase": 2,
-    "minLevel": 2,
+    "minLevel": 4,
     "speaker": "kak_siti",
     "lines": [
       {
-        "ms": "Boleh saya beli susu?",
-        "zh": "我要牛奶。",
+        "ms": "Maaf, tarikh luput sudah lepas.",
+        "zh": "不好意思，這個已經過期了。",
         "reviewed": false
       }
     ],
+    "prompt": "Maaf, _____ sudah lepas.",
+    "answer": "tarikh luput",
+    "acceptedAnswers": [
+      "tarikh luput"
+    ],
+    "wordBank": [
+      "tarikh luput",
+      "murah"
+    ],
     "expect": {
-      "kind": "text",
-      "productId": "susu"
+      "kind": "text"
     },
     "success": "Bagus! Terima kasih.",
     "fail": "Boleh cuba sekali lagi?",
-    "vocab": [
-      "susu"
-    ],
-    "hint": "商品：牛奶",
+    "vocab": [],
+    "hint": "有效日期（選字填空）",
     "reviewed": false
   },
   {
     "id": "p2_enc_04",
-    "type": "recommendation",
+    "type": "fill_blank",
     "phase": 2,
-    "minLevel": 2,
-    "speaker": "amir",
+    "minLevel": 4,
+    "speaker": "encik_raju",
     "lines": [
       {
-        "ms": "Boleh saya beli jus?",
-        "zh": "我要果汁。",
+        "ms": "Ini halal?",
+        "zh": "這是清真食品嗎？",
         "reviewed": false
       }
     ],
+    "prompt": "Ini _____?",
+    "answer": "halal",
+    "acceptedAnswers": [
+      "halal"
+    ],
+    "wordBank": [
+      "halal",
+      "haram"
+    ],
     "expect": {
-      "kind": "item",
-      "productId": "jus"
+      "kind": "text"
     },
     "success": "Bagus! Terima kasih.",
     "fail": "Boleh cuba sekali lagi?",
-    "vocab": [
-      "jus"
-    ],
-    "hint": "商品：果汁",
+    "vocab": [],
+    "hint": "清真（選字填空）",
     "reviewed": false
   },
   {
     "id": "p2_enc_05",
     "type": "fill_blank",
     "phase": 2,
-    "minLevel": 2,
-    "speaker": "mak_cik_rohani",
+    "minLevel": 4,
+    "speaker": "amir",
     "lines": [
       {
-        "ms": "Boleh saya beli roti?",
-        "zh": "我要麵包。",
+        "ms": "Belok kiri, kemudian jalan lurus.",
+        "zh": "左轉，然後直走。",
         "reviewed": false
       }
     ],
+    "prompt": "Belok _____, kemudian jalan lurus.",
+    "answer": "kiri",
+    "acceptedAnswers": [
+      "kiri"
+    ],
+    "wordBank": [
+      "kiri",
+      "kanan"
+    ],
     "expect": {
-      "kind": "number",
-      "productId": "roti"
+      "kind": "text"
     },
     "success": "Bagus! Terima kasih.",
     "fail": "Boleh cuba sekali lagi?",
-    "vocab": [
-      "roti"
-    ],
-    "hint": "商品：麵包",
+    "vocab": [],
+    "hint": "左邊（選字填空）",
     "reviewed": false
   },
   {
     "id": "p2_enc_06",
-    "type": "ask_discount",
+    "type": "fill_blank",
     "phase": 2,
-    "minLevel": 2,
-    "speaker": "uncle_tan",
+    "minLevel": 5,
+    "speaker": "aisyah",
     "lines": [
       {
-        "ms": "Boleh saya beli telur?",
-        "zh": "我要雞蛋。",
+        "ms": "Saya datang esok, bukan hari ini.",
+        "zh": "我明天來，不是今天。",
         "reviewed": false
       }
     ],
+    "prompt": "Saya datang _____, bukan hari ini.",
+    "answer": "esok",
+    "acceptedAnswers": [
+      "esok"
+    ],
+    "wordBank": [],
     "expect": {
-      "kind": "text",
-      "productId": "telur"
+      "kind": "text"
     },
     "success": "Bagus! Terima kasih.",
     "fail": "Boleh cuba sekali lagi?",
-    "vocab": [
-      "telur"
-    ],
-    "hint": "商品：雞蛋",
+    "vocab": [],
+    "hint": "明天（選字填空）",
     "reviewed": false
   },
   {
     "id": "p2_enc_07",
-    "type": "quantity",
+    "type": "fill_blank",
     "phase": 2,
-    "minLevel": 2,
-    "speaker": "encik_raju",
+    "minLevel": 5,
+    "speaker": "cikgu_farid",
     "lines": [
       {
-        "ms": "Boleh saya beli nasi lemak?",
-        "zh": "我要椰漿飯。",
+        "ms": "Saya tak faham. Boleh ulang?",
+        "zh": "我不明白。可以再說一次嗎？",
         "reviewed": false
       }
     ],
+    "prompt": "Saya tak faham. Boleh _____?",
+    "answer": "ulang",
+    "acceptedAnswers": [
+      "ulang"
+    ],
+    "wordBank": [],
     "expect": {
-      "kind": "item",
-      "productId": "nasi_lemak"
+      "kind": "text"
     },
     "success": "Bagus! Terima kasih.",
     "fail": "Boleh cuba sekali lagi?",
-    "vocab": [
-      "nasi_lemak"
-    ],
-    "hint": "商品：椰漿飯",
+    "vocab": [],
+    "hint": "重複（選字填空）",
     "reviewed": false
   },
   {
     "id": "p2_enc_08",
-    "type": "recommendation",
+    "type": "fill_blank",
     "phase": 2,
-    "minLevel": 2,
-    "speaker": "encik_lim",
+    "minLevel": 5,
+    "speaker": "encik_raju",
     "lines": [
       {
-        "ms": "Boleh saya beli mi segera?",
-        "zh": "我要泡麵。",
+        "ms": "Saya nak pesan susu. Bila boleh hantar?",
+        "zh": "我想訂牛奶。什麼時候可以送到？",
         "reviewed": false
       }
     ],
+    "prompt": "Saya nak pesan susu. Bila boleh _____?",
+    "answer": "hantar",
+    "acceptedAnswers": [
+      "hantar"
+    ],
+    "wordBank": [],
     "expect": {
-      "kind": "number",
-      "productId": "mi_segera"
+      "kind": "text"
     },
     "success": "Bagus! Terima kasih.",
     "fail": "Boleh cuba sekali lagi?",
-    "vocab": [
-      "mi_segera"
-    ],
-    "hint": "商品：泡麵",
+    "vocab": [],
+    "hint": "送貨（選字填空）",
     "reviewed": false
   },
   {
     "id": "p2_enc_09",
     "type": "fill_blank",
     "phase": 2,
-    "minLevel": 2,
-    "speaker": "cikgu_farid",
+    "minLevel": 5,
+    "speaker": "encik_lim",
     "lines": [
       {
-        "ms": "Boleh saya beli biskut?",
-        "zh": "我要餅乾。",
+        "ms": "Murah sikit boleh? Harga ini mahal.",
+        "zh": "可以便宜一點嗎？這個價錢很貴。",
         "reviewed": false
       }
     ],
+    "prompt": "Murah sikit boleh? Harga ini _____.",
+    "answer": "mahal",
+    "acceptedAnswers": [
+      "mahal"
+    ],
+    "wordBank": [],
     "expect": {
-      "kind": "text",
-      "productId": "biskut"
+      "kind": "text"
     },
     "success": "Bagus! Terima kasih.",
     "fail": "Boleh cuba sekali lagi?",
-    "vocab": [
-      "biskut"
-    ],
-    "hint": "商品：餅乾",
+    "vocab": [],
+    "hint": "貴（選字填空）",
     "reviewed": false
   },
   {
     "id": "p2_enc_10",
-    "type": "ask_discount",
+    "type": "fill_blank",
     "phase": 2,
-    "minLevel": 2,
-    "speaker": "aisyah",
+    "minLevel": 5,
+    "speaker": "kak_siti",
     "lines": [
       {
-        "ms": "Boleh saya beli gula-gula?",
-        "zh": "我要糖果。",
+        "ms": "Tarikh luput produk ini bila?",
+        "zh": "這個產品的有效日期是什麼時候？",
         "reviewed": false
       }
     ],
+    "prompt": "Tarikh luput produk ini _____?",
+    "answer": "bila",
+    "acceptedAnswers": [
+      "bila"
+    ],
+    "wordBank": [],
     "expect": {
-      "kind": "item",
-      "productId": "gula_gula"
+      "kind": "text"
     },
     "success": "Bagus! Terima kasih.",
     "fail": "Boleh cuba sekali lagi?",
-    "vocab": [
-      "gula_gula"
-    ],
-    "hint": "商品：糖果",
+    "vocab": [],
+    "hint": "何時（選字填空）",
     "reviewed": false
   },
   {

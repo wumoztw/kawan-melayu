@@ -19,5 +19,26 @@
     "description": "店內顧客增加，請保持耐心。",
     "effect": "bonus",
     "reviewed": false
+  },
+  {
+    "id": "hari_raya",
+    "title": "Hari Raya 開齋節",
+    "description": "Hari Raya 節慶特別日，客人採買節慶用品。",
+    "effect": "festival_hari_raya",
+    "reviewed": false
+  },
+  {
+    "id": "tahun_baru_cina",
+    "title": "Tahun Baru Cina 農曆新年",
+    "description": "農曆新年特別日，向顧客送上祝福。",
+    "effect": "festival_cny",
+    "reviewed": false
+  },
+  {
+    "id": "deepavali",
+    "title": "Deepavali 屠妖節",
+    "description": "Deepavali 特別日，店內節慶氣氛熱鬧。",
+    "effect": "festival_deepavali",
+    "reviewed": false
   }
 ]

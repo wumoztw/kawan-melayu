@@ -30,3 +30,17 @@
 - [x] 串接第 1-10 天流程、單字本、Leitner 等級、借款、存檔與 Day 10 十題小考
 - [x] 移除舊版 game.js、style.css、smoke_test.js
 - [x] 通過 `npm run lint`、`npm test`、`npm run validate:data` 與 `npm run build`
+
+## M5 — 中期第 11–20 天與中期畢業小考
+
+- [x] 建立 Lv.4–6 中期十天專屬互動：填空字庫與自由輸入、點選顯示華語
+- [x] 加入訂價殺價、供應商訂貨／送貨、過期客訴、清真詢問、指路、日期時間及求助情境
+- [x] 補足 Encik Lim（華裔）及 Encik Raju（印度裔）批發商設定與 Hari Raya、Tahun Baru Cina、Deepavali 節慶事件
+- [x] Day 20 完成十題隨機中期考，七題（70
+## M5 — 中期第 11–20 天與中期畢業小考
+
+- [x] 建立 Lv.4–6 中期十天專屬互動：填空字庫與自由輸入、點選顯示華語
+- [x] 加入訂價殺價、供應商訂貨／送貨、過期客訴、清真詢問、指路、日期時間及求助情境
+- [x] 補足 Encik Lim（華裔）及 Encik Raju（印度裔）批發商設定與 Hari Raya、Tahun Baru Cina、Deepavali 節慶事件
+- [x] Day 20 完成十題隨機中期考，七題（70%）通過
+- [x] 保持本機資料與邏輯執行，無 AI 或網路服務依賴；擴充資料測試

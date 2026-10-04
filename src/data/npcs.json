@@ -44,15 +44,15 @@
   {
     "id": "encik_raju",
     "name": "Encik Raju",
-    "role": "司機",
-    "personality": "直率",
+    "role": "印度裔批發商",
+    "personality": "熱情爽快",
     "reviewed": false
   },
   {
     "id": "encik_lim",
     "name": "Encik Lim",
-    "role": "店長",
-    "personality": "謹慎",
+    "role": "華裔批發商",
+    "personality": "精明可靠",
     "reviewed": false
   },
   {

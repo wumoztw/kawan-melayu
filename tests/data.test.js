@@ -15,6 +15,14 @@ describe('M1 seed data', () => {
     expect(read('days.json')).toHaveLength(30);
     expect(read('exam.json').filter((q) => q.phase === 1)).toHaveLength(10);
     expect(read('exam.json').filter((q) => q.phase === 2)).toHaveLength(10);
+    const middle = read('encounters.p2.json');
+    expect(middle.slice(0, 10).every((item) => item.type === 'fill_blank')).toBe(true);
+    expect(middle.slice(0, 5).every((item) => item.wordBank.length > 0)).toBe(true);
+    expect(middle.slice(5, 10).every((item) => item.wordBank.length === 0)).toBe(true);
+    expect(middle.some((item) => item.lines[0].ms.includes('Murah sikit boleh?'))).toBe(true);
+    expect(read('events.json').map((event) => event.title).join(' ')).toMatch(/Hari Raya.*Tahun Baru Cina.*Deepavali/);
+    expect(read('npcs.json').find((npc) => npc.id === 'encik_lim').role).toContain('華裔批發商');
+    expect(read('npcs.json').find((npc) => npc.id === 'encik_raju').role).toContain('印度裔批發商');
   });
   it('passes the data validator', () => {
     expect(() => execFileSync(process.execPath, ['scripts/validate-data.js'], { cwd: root })).not.toThrow();
