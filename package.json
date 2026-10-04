@@ -2,14 +2,26 @@
   "name": "kawan-melayu",
   "version": "1.0.0",
   "description": "AI 馬來語情境練習",
-  "main": "game.js",
+  "type": "module",
   "scripts": {
-    "test": "node smoke_test.js",
-    "lint": "eslint ."
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "validate:data": "node scripts/validate-data.js",
+    "export:review": "node scripts/export-malay-review.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.0.0",
     "eslint": "^9.0.0",
-    "jsdom": "^24.0.0"
+    "globals": "^15.0.0",
+    "jsdom": "^24.0.0",
+    "vite": "^5.0.0",
+    "vitest": "^1.6.0"
   },
   "license": "MIT"
 }
