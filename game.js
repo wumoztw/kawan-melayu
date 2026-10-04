@@ -6,6 +6,11 @@
 
 if (window.marked) marked.setOptions({ breaks: true, gfm: true });
 
+function getFallbackChain(primaryKey) {
+  if (!getOptFallbackEnabled()) return [primaryKey];
+  return [primaryKey, ...FALLBACK_ORDER.filter(k => k !== primaryKey)];
+}
+
 function defaultMission() {
   return { title: "", objective: "", step: 0, total: 0, status: "" };
 }
@@ -66,11 +71,11 @@ function rollbackTurn(snapshot) {
   while (messageHistory.length > snapshot.historyLen) {
     messageHistory.pop();
   }
-  const container = document.getElementById("chatContainer");
+  const container = document.getElementById("mudChatBox");
   if (container && container.lastElementChild) {
     container.removeChild(container.lastElementChild);
   }
-  updateUI();
+  updateStatusUI();
 }
 
 let messageHistory = [];
@@ -539,7 +544,19 @@ function updateStatusUI() {
     gameState.vocabulary.forEach(word => {
       const item = document.createElement("div");
       item.className = "vocab-item";
-      item.textContent = word;
+      
+      const ms = typeof word === 'string' ? word : (word.ms || '');
+      const zh = typeof word === 'string' ? '' : (word.zh || '');
+      
+      const txt = document.createElement("span");
+      txt.textContent = ms + (zh ? ` (${zh})` : '');
+      item.appendChild(txt);
+      
+      const btn = document.createElement("button");
+      btn.textContent = "🔊";
+      btn.onclick = () => speakMalay(ms);
+      item.appendChild(btn);
+      
       list.appendChild(item);
     });
   }
@@ -715,6 +732,7 @@ window.retryLastMessage = function () {
 
 window.clearChat = function () {
   messageHistory = [{ role: "system", content: buildSystemPrompt() }];
+  localStorage.removeItem("mud_autosave");
   const chat = document.getElementById("mudChatBox");
   if (chat) {
     chat.innerHTML = `
@@ -802,19 +820,22 @@ function applyActionDeltas(text) {
 
   let incomingMission = null;
   try {
-    if (typeof action.confdelta === "number") gameState.confidence += action.confdelta;
-    if (typeof action.fludelta === "number") gameState.fluency += action.fludelta;
-    if (typeof action.leveldelta === "number") gameState.level += action.leveldelta;
-
-    incomingMission = sanitizeMission(action.mission);
-    if (incomingMission) gameState.mission = incomingMission;
-
     if (action.vocabadded) {
       String(action.vocabadded).split(",").forEach(w => {
         const t = w.trim();
         if (t && !gameState.vocabulary.includes(t)) gameState.vocabulary.push(t);
       });
     }
+
+    if (action.confdelta !== undefined) gameState.confidence = clamp(gameState.confidence + action.confdelta, -15, 100); // Wait, instruction said clamp [-15, +5]? No, confdelta is delta, but clamp range is [-15, +5] for delta? No, "confdelta clamp [-15, +5]". Actually the value logic is clamp(val, min, max).
+    // Re-reading instructions: "confdelta clamp [-15, +5]，fludelta clamp [-15, +5]（原諒我修正你的提示：應該是加減範圍吧），leveldelta clamp [0, 1]（上限 10）"
+    // Wait, the instruction says: "confdelta clamp [-15, +5]，fludelta clamp [-15, +15]，leveldelta clamp [0, 1]（上限 10）"
+    // This sounds like I should clamp the *delta itself* or the result? Usually result.
+    // Let's implement delta clamping first as requested.
+    if (typeof action.confdelta === "number") gameState.confidence = clamp(gameState.confidence + clamp(action.confdelta, -15, 5), 0, 100);
+    if (typeof action.fludelta === "number") gameState.fluency = clamp(gameState.fluency + clamp(action.fludelta, -15, 15), 0, 100);
+    if (typeof action.leveldelta === "number") gameState.level = clamp(gameState.level + clamp(action.leveldelta, 0, 1), 1, 10);
+
 
     if (action.location && String(action.location).trim()) {
       const target = getSceneByName(String(action.location).trim());
@@ -932,10 +953,9 @@ function loadGameState() {
 }
 
 
-function getModelFor(pk, primaryModel) {
-  const custom = localStorage.getItem(`mud_model_${pk}`);
-  if (custom) return custom;
-  return PROVIDERS[pk]?.defaultModel || primaryModel;
+function getModelFor(pk, primaryKey, primaryModel) {
+  if (pk === primaryKey) return primaryModel;
+  return localStorage.getItem("mudmodel" + pk) || PROVIDERS[pk]?.defaultModel;
 }
 
 window.sendMessage = async function (isRetry = false) {
@@ -976,7 +996,10 @@ window.sendMessage = async function (isRetry = false) {
     if (messageHistory.length === 0) messageHistory.push({ role: "system", content: buildSystemPrompt() });
     messageHistory.push({ role: "user", content: text.replace(/<think>[\s\S]*?<\/think>/g, "") });
   } else {
-    // Retry logic: don't double add user message, rely on history
+    // Retry logic: ensure last message is the user message
+    if (messageHistory.length > 0 && messageHistory[messageHistory.length - 1].role !== 'user') {
+      messageHistory.push({ role: "user", content: lastUserMessageText });
+    }
   }
 
   pruneHistoryKeepRecentTurns(6);
@@ -991,7 +1014,7 @@ window.sendMessage = async function (isRetry = false) {
       const key = getKeyForProvider(pk);
       if (!key) continue;
       
-      const modelId = getModelFor(pk, primaryModel);
+      const modelId = getModelFor(pk, providerKey, primaryModel);
 
       for (let r = 0; r <= MAX_AUTO_RETRIES; r++) {
         let res = null;
@@ -1040,13 +1063,10 @@ window.sendMessage = async function (isRetry = false) {
             } else {
               d.innerHTML = renderMarkdownSafe(cleanMsg);
               scrollChatToLatest();
-              setBusyUI(false);
-              enableRetryButton(true);
               input.focus();
             }
           }
           typeWriter();
-          currentAbortController = null;
           return;
         } catch (e) {
           if (e?.name === "AbortError") throw e;
@@ -1063,6 +1083,7 @@ window.sendMessage = async function (isRetry = false) {
       else appendUI("❌ 請求失敗，請檢查網路或 API Key。", "mud-ai mud-system", false);
       if (!isRetry) input.value = lastUserMessageText; // Restore input
     }
+  } finally {
     setBusyUI(false);
     enableRetryButton(true);
     currentAbortController = null;
@@ -1077,10 +1098,18 @@ window.handleKeyPress = function (e) {
 
 document.addEventListener("DOMContentLoaded", () => {
   loadConfig();
-  loadGameState(); // Add this
-  updateStatusUI();
+  loadGameState();
 
-  messageHistory = [{ role: "system", content: buildSystemPrompt() }];
+  if (messageHistory.length === 0) {
+    messageHistory = [{ role: "system", content: buildSystemPrompt() }];
+  } else {
+    messageHistory[0] = { role: "system", content: buildSystemPrompt() };
+    messageHistory.forEach(m => {
+      if (m.role === "user") appendUI(m.content, "mud-user");
+      else if (m.role === "assistant") appendUI(extractTextForUI(m.content), "mud-ai");
+    });
+  }
+  updateStatusUI();
 
   syncComposerPadding();
 
@@ -1092,11 +1121,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initChatTouchScroll();
 
+  const input = document.getElementById("userInput");
+  input.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" || e.shiftKey || e.isComposing || e.keyCode === 229) return;
+    e.preventDefault();
+    sendMessage();
+  });
+
   document.addEventListener("keydown", (ev) => {
-    if (ev.key === "Enter" && !ev.shiftKey) {
-      if (ev.isComposing || ev.keyCode === 229) return;
-      sendMessage();
-    }
     if (ev.key !== "Escape") return;
     try { closeRightPanel(); } catch(e) {}
     setShellClass("settings-collapsed", true);
