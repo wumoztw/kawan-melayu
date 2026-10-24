@@ -57,6 +57,22 @@ test('lesson data: 20 levels, all words glossed, distractors not breaking unique
   }
 });
 
+test('lesson data: every level has exactly 20 steps (400 total)', () => {
+  for (const level of data.levels) {
+    assert.equal(level.lessons.flatMap((l) => l.steps).length, 20, `level ${level.id}`);
+  }
+  assert.equal(data.levels.flatMap((l) => l.lessons.flatMap((x) => x.steps)).length, 400);
+});
+
+test('distractors never appear in their own lesson targets', () => {
+  for (const level of data.levels) {
+    for (const lesson of level.lessons) {
+      const used = new Set(lesson.steps.flatMap((s) => tokenize(s.ms)));
+      for (const d of lesson.distractors) assert.ok(!used.has(d), `${lesson.id}: ${d}`);
+    }
+  }
+});
+
 test('progress persists and round-trips through storage', () => {
   const storage = memoryStorage();
   let progress = completeStep(createProgress(), '1-1', 0);
@@ -77,9 +93,9 @@ test('loadProgress tolerates corrupt data', () => {
 test('progress counters', () => {
   const { lesson } = findLesson(data, '1-1');
   let progress = createProgress();
-  assert.deepEqual(lessonProgress(progress, lesson), { done: 0, total: 3 });
+  assert.deepEqual(lessonProgress(progress, lesson), { done: 0, total: 10 });
   progress = completeStep(progress, '1-1', 2);
-  assert.deepEqual(lessonProgress(progress, lesson), { done: 1, total: 3 });
+  assert.deepEqual(lessonProgress(progress, lesson), { done: 1, total: 10 });
   const overall = overallProgress(progress, data);
   assert.equal(overall.done, 1);
   assert.ok(overall.total > 10);
@@ -87,7 +103,7 @@ test('progress counters', () => {
 
 test('nextStep advances within and across lessons, null at the end', () => {
   assert.deepEqual(nextStep(data, '1-1', 0), { lessonId: '1-1', step: 1 });
-  assert.deepEqual(nextStep(data, '1-1', 2), { lessonId: '1-2', step: 0 });
-  assert.equal(nextStep(data, '20-2', 3), null);
+  assert.deepEqual(nextStep(data, '1-1', 9), { lessonId: '1-2', step: 0 });
+  assert.equal(nextStep(data, '20-2', 9), null);
   assert.equal(nextStep(data, 'nope', 0), null);
 });
