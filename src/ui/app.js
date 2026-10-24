@@ -14,36 +14,35 @@ import {
 } from '../engine/scaffolding-engine.js';
 import { speak } from './speech.js';
 
-function cuteTowers() {
+function cuteDurianOrchard() {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('class', 'landmark');
-  svg.setAttribute('viewBox', '0 0 140 160');
+  svg.setAttribute('viewBox', '0 0 140 150');
   svg.setAttribute('aria-hidden', 'true');
   svg.innerHTML = `
-    <ellipse cx="70" cy="153" rx="58" ry="5" fill="#c5dcf3"/>
-    <g fill="#7eb6ef">
-      <rect x="30" y="70" width="28" height="80" rx="4"/>
-      <rect x="33" y="50" width="22" height="24" rx="4"/>
-      <rect x="36" y="34" width="16" height="20" rx="4"/>
-      <path d="M39 36 Q44 14 49 36 Z" fill="#93c5fd"/>
+    <path d="M0 150 V112 Q30 86 66 108 T140 100 V150 Z" fill="#c8ecb8"/>
+    <path d="M0 150 V128 Q40 108 80 126 T140 120 V150 Z" fill="#a6dc94"/>
+    <rect x="24" y="48" width="8" height="64" rx="3" fill="#b58a5e"/>
+    <g fill="#7ccf6e">
+      <circle cx="28" cy="38" r="20"/><circle cx="10" cy="50" r="14"/><circle cx="46" cy="50" r="14"/>
     </g>
-    <path d="M44 24 V6" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round"/>
-    <circle cx="44" cy="5" r="2" fill="#bfdbfe"/>
-    <g fill="#eff6ff"><rect x="36" y="120" width="6" height="8" rx="1.5"/><rect x="46" y="120" width="6" height="8" rx="1.5"/><rect x="36" y="134" width="6" height="8" rx="1.5"/><rect x="46" y="134" width="6" height="8" rx="1.5"/><rect x="39" y="58" width="4" height="7" rx="1.5"/><rect x="45" y="58" width="4" height="7" rx="1.5"/></g>
-    <g fill="#7eb6ef">
-      <rect x="82" y="70" width="28" height="80" rx="4"/>
-      <rect x="85" y="50" width="22" height="24" rx="4"/>
-      <rect x="88" y="34" width="16" height="20" rx="4"/>
-      <path d="M91 36 Q96 14 101 36 Z" fill="#93c5fd"/>
+    <path d="M18 62 V70 M38 60 V68" stroke="#9a7650" stroke-width="1.5" stroke-linecap="round"/>
+    <g fill="#c9b458"><circle cx="18" cy="75" r="6"/><circle cx="38" cy="73" r="6"/></g>
+    <g stroke="#7a8a3a" stroke-width="1.5" stroke-linecap="round"><path d="M13 72 l-2 -2 M23 72 l2 -2 M33 70 l-2 -2 M43 70 l2 -2 M18 82 v2 M38 80 v2"/></g>
+    <ellipse cx="94" cy="141" rx="30" ry="4" fill="#8fc97d" opacity=".7"/>
+    <path d="M94 66 l-4 -9 l8 4 l3 -9 l4 9 l8 -4 l-4 9 Z" fill="#8fbf5a" transform="translate(-4 2)"/>
+    <circle cx="94" cy="100" r="36" fill="#8fbf5a"/>
+    <g fill="#6f9f3f">
+      <path d="M62 86 l-9 -3 l8 -6 Z"/><path d="M60 104 l-10 0 l9 -6 Z"/><path d="M66 120 l-9 3 l5 -9 Z"/>
+      <path d="M126 86 l9 -3 l-8 -6 Z"/><path d="M128 104 l10 0 l-9 -6 Z"/><path d="M122 120 l9 3 l-5 -9 Z"/>
+      <path d="M72 70 l-6 -7 l10 -1 Z"/><path d="M116 70 l6 -7 l-10 -1 Z"/><path d="M94 63 l-5 -7 l10 0 Z"/>
     </g>
-    <path d="M96 24 V6" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round"/>
-    <circle cx="96" cy="5" r="2" fill="#bfdbfe"/>
-    <g fill="#eff6ff"><rect x="88" y="120" width="6" height="8" rx="1.5"/><rect x="98" y="120" width="6" height="8" rx="1.5"/><rect x="88" y="134" width="6" height="8" rx="1.5"/><rect x="98" y="134" width="6" height="8" rx="1.5"/><rect x="91" y="58" width="4" height="7" rx="1.5"/><rect x="97" y="58" width="4" height="7" rx="1.5"/></g>
-    <rect x="44" y="84" width="52" height="30" rx="15" fill="#60a5fa"/>
-    <circle cx="60" cy="97" r="3.4" fill="#1e3a8a"/><circle cx="80" cy="97" r="3.4" fill="#1e3a8a"/>
-    <circle cx="61" cy="96" r="1.1" fill="#fff"/><circle cx="81" cy="96" r="1.1" fill="#fff"/>
-    <path d="M65 102 Q70 107 75 102" fill="none" stroke="#1e3a8a" stroke-width="1.6" stroke-linecap="round"/>
-    <circle cx="54" cy="103" r="3" fill="#fda4af" opacity=".8"/><circle cx="86" cy="103" r="3" fill="#fda4af" opacity=".8"/>
+    <path d="M70 98 Q94 78 118 98 Q118 128 94 134 Q70 128 70 98 Z" fill="#ffd54a"/>
+    <path d="M78 104 Q94 94 110 104" fill="none" stroke="#f2b824" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="86" cy="107" r="4.2" fill="#3b2a14"/><circle cx="102" cy="107" r="4.2" fill="#3b2a14"/>
+    <circle cx="87.4" cy="105.6" r="1.5" fill="#fff"/><circle cx="103.4" cy="105.6" r="1.5" fill="#fff"/>
+    <path d="M89 115 Q94 121 99 115" fill="none" stroke="#3b2a14" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="80" cy="114" r="3.4" fill="#ff9eb0" opacity=".85"/><circle cx="108" cy="114" r="3.4" fill="#ff9eb0" opacity=".85"/>
   `;
   return svg;
 }
@@ -290,7 +289,7 @@ export function mountApp(root, data, storage) {
   }
 
   function render() {
-    root.replaceChildren(renderHeader(), renderStage(), cuteTowers());
+    root.replaceChildren(renderHeader(), renderStage(), cuteDurianOrchard());
   }
 
   document.addEventListener('click', () => {

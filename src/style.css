@@ -24,10 +24,10 @@ body {
   bottom: 0;
   z-index: 0;
   width: 140px;
-  height: 160px;
-  opacity: 0.9;
+  height: 150px;
+  opacity: 0.95;
   pointer-events: none;
-  filter: drop-shadow(0 6px 10px rgba(56, 125, 200, 0.12));
+  filter: drop-shadow(0 6px 10px rgba(80, 150, 60, 0.18));
 }
 
 .top { display: grid; position: relative; gap: 8px; padding: 12px 12px 10px; background: #fff; border: 1px solid #e2edf8; border-radius: 16px; box-shadow: 0 4px 20px rgba(56, 125, 200, 0.06); }
