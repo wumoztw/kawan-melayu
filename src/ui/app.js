@@ -14,6 +14,41 @@ import {
 } from '../engine/scaffolding-engine.js';
 import { speak } from './speech.js';
 
+function cuteTowers() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'landmark');
+  svg.setAttribute('viewBox', '0 0 120 160');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.innerHTML = `
+    <ellipse cx="60" cy="152" rx="46" ry="6" fill="#c5dcf3"/>
+    <rect x="18" y="148" width="84" height="6" rx="3" fill="#dbeafe"/>
+    <g fill="#7eb6ef">
+      <path d="M28 148 V62 Q28 48 40 46 Q52 48 52 62 V148 Z"/>
+      <path d="M68 148 V62 Q68 48 80 46 Q92 48 92 62 V148 Z"/>
+    </g>
+    <g fill="#eff6ff">
+      <rect x="33" y="70" width="6" height="8" rx="1.5"/><rect x="42" y="70" width="6" height="8" rx="1.5"/>
+      <rect x="33" y="86" width="6" height="8" rx="1.5"/><rect x="42" y="86" width="6" height="8" rx="1.5"/>
+      <rect x="33" y="102" width="6" height="8" rx="1.5"/><rect x="42" y="102" width="6" height="8" rx="1.5"/>
+      <rect x="33" y="118" width="6" height="8" rx="1.5"/><rect x="42" y="118" width="6" height="8" rx="1.5"/>
+      <rect x="73" y="70" width="6" height="8" rx="1.5"/><rect x="82" y="70" width="6" height="8" rx="1.5"/>
+      <rect x="73" y="86" width="6" height="8" rx="1.5"/><rect x="82" y="86" width="6" height="8" rx="1.5"/>
+      <rect x="73" y="102" width="6" height="8" rx="1.5"/><rect x="82" y="102" width="6" height="8" rx="1.5"/>
+      <rect x="73" y="118" width="6" height="8" rx="1.5"/><rect x="82" y="118" width="6" height="8" rx="1.5"/>
+    </g>
+    <path d="M34 78 H86 V88 Q86 96 78 96 H42 Q34 96 34 88 Z" fill="#60a5fa"/>
+    <circle cx="40" cy="84" r="2.2" fill="#1e3a8a"/><circle cx="80" cy="84" r="2.2" fill="#1e3a8a"/>
+    <path d="M36 87 Q40 90 44 87" fill="none" stroke="#1e3a8a" stroke-width="1.2" stroke-linecap="round"/>
+    <path d="M76 87 Q80 90 84 87" fill="none" stroke="#1e3a8a" stroke-width="1.2" stroke-linecap="round"/>
+    <circle cx="37" cy="88" r="1.6" fill="#fda4af" opacity=".8"/><circle cx="83" cy="88" r="1.6" fill="#fda4af" opacity=".8"/>
+    <path d="M40 46 L40 28 L46 22 L52 28 L52 46" fill="#93c5fd"/>
+    <path d="M68 46 L68 28 L74 22 L80 28 L80 46" fill="#93c5fd"/>
+    <circle cx="46" cy="16" r="3" fill="#bfdbfe"/><circle cx="74" cy="16" r="3" fill="#bfdbfe"/>
+    <path d="M46 16 V6 M74 16 V6" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round"/>
+  `;
+  return svg;
+}
+
 function h(tag, props = {}, ...children) {
   const node = document.createElement(tag);
   for (const [key, value] of Object.entries(props)) {
@@ -256,7 +291,7 @@ export function mountApp(root, data, storage) {
   }
 
   function render() {
-    root.replaceChildren(renderHeader(), renderStage());
+    root.replaceChildren(renderHeader(), renderStage(), cuteTowers());
   }
 
   document.addEventListener('click', () => {
