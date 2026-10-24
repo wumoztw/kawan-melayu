@@ -25,6 +25,22 @@ function h(tag, props = {}, ...children) {
   return node;
 }
 
+function bungaRayaIcon() {
+  const petals = [0, 72, 144, 216, 288]
+    .map(
+      (a, i) =>
+        `<ellipse cx="12" cy="6.5" rx="3.6" ry="5.5" fill="${i % 2 ? '#be123c' : '#e11d48'}" transform="rotate(${a} 12 12)"/>`,
+    )
+    .join('');
+  const tpl = document.createElement('template');
+  tpl.innerHTML =
+    `<svg class="bunga-raya" width="24" height="24" viewBox="0 0 24 24" role="img" aria-label="大紅花 Bunga Raya">${petals}` +
+    '<path d="M12 12 L18.5 4.5" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round" fill="none"/>' +
+    '<circle cx="18.5" cy="4.5" r="1.3" fill="#fbbf24"/><circle cx="16.4" cy="6.9" r="0.9" fill="#fbbf24"/>' +
+    '<circle cx="12" cy="12" r="1.6" fill="#fbbf24"/></svg>';
+  return tpl.content.firstElementChild;
+}
+
 export function mountApp(root, data, storage) {
   let progress = loadProgress(storage);
   const firstLesson = data.levels[0].lessons[0];
@@ -151,7 +167,7 @@ export function mountApp(root, data, storage) {
         h(
           'div',
           { class: 'top-title' },
-          h('h1', {}, '馬來語語言積木'),
+          h('div', { class: 'top-title-row' }, bungaRayaIcon(), h('h1', {}, '馬來語語言積木')),
           h('span', { class: 'top-sub' }, `L${level.id} ${level.title} (${lp.done}/${lp.total})`),
         ),
         toggle,
