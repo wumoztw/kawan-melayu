@@ -36,6 +36,7 @@ export function mountApp(root, data, storage) {
   let feedback = '';
   let showHint = false;
   let solved = false;
+  let menuOpen = false;
 
   const current = () => {
     const { lesson, level } = findLesson(data, progress.current.lessonId);
@@ -96,29 +97,66 @@ export function mountApp(root, data, storage) {
   function renderHeader() {
     const { done, total } = overallProgress(progress, data);
     const pct = total ? Math.round((done / total) * 100) : 0;
-    return h(
-      'header',
-      { class: 'top' },
-      h('h1', {}, 'Kawan Melayu · 語言積木'),
-      h(
-        'select',
-        {
-          'aria-label': '單元選單',
-          onchange: (e) => goto(e.target.value),
+    const { lesson, level } = current();
+    const lp = lessonProgress(progress, lesson);
+    const toggle = h(
+      'button',
+      {
+        class: 'menu-toggle',
+        'aria-expanded': String(menuOpen),
+        'aria-controls': 'level-menu',
+        onclick: (e) => {
+          e.stopPropagation();
+          menuOpen = !menuOpen;
+          render();
         },
-        data.levels.map((level) =>
+      },
+      menuOpen ? '收起 ▴' : '選擇單元 ▾',
+    );
+    const menu = h(
+      'nav',
+      { class: 'menu', id: 'level-menu', 'aria-label': '單元選單', onclick: (e) => e.stopPropagation() },
+      data.levels.map((lv) =>
+        h(
+          'section',
+          { class: 'menu-level' },
+          h('h3', {}, `L${lv.id} ${lv.title}`),
           h(
-            'optgroup',
-            { label: `Level ${level.id} · ${level.title}` },
-            level.lessons.map((lesson) => {
-              const p = lessonProgress(progress, lesson);
-              const opt = h('option', { value: lesson.id }, `${lesson.title}（${p.done}/${p.total}）`);
-              opt.selected = lesson.id === progress.current.lessonId;
-              return opt;
+            'div',
+            { class: 'menu-lessons' },
+            lv.lessons.map((ls) => {
+              const p = lessonProgress(progress, ls);
+              return h(
+                'button',
+                {
+                  class: `menu-item${ls.id === lesson.id ? ' active' : ''}`,
+                  onclick: () => {
+                    menuOpen = false;
+                    goto(ls.id);
+                  },
+                },
+                `${ls.title}（${p.done}/${p.total}）`,
+              );
             }),
           ),
         ),
       ),
+    );
+    return h(
+      'header',
+      { class: 'top' },
+      h(
+        'div',
+        { class: 'top-row' },
+        h(
+          'div',
+          { class: 'top-title' },
+          h('h1', {}, '語言積木'),
+          h('span', { class: 'top-sub' }, `L${level.id} ${level.title} (${lp.done}/${lp.total})`),
+        ),
+        toggle,
+      ),
+      menuOpen ? menu : null,
       h(
         'div',
         { class: 'progress', 'aria-label': `總進度 ${pct}%` },
@@ -220,6 +258,13 @@ export function mountApp(root, data, storage) {
   function render() {
     root.replaceChildren(renderHeader(), renderStage());
   }
+
+  document.addEventListener('click', () => {
+    if (menuOpen) {
+      menuOpen = false;
+      render();
+    }
+  });
 
   startStep();
 }
