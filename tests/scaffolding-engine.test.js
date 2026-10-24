@@ -46,8 +46,8 @@ test('buildBlocks contains every target word plus distractors', () => {
   assert.equal(new Set(blocks.map((b) => b.id)).size, 4);
 });
 
-test('lesson data: 12 levels, all words glossed, distractors not breaking uniqueness', () => {
-  assert.equal(data.levels.length, 12);
+test('lesson data: 20 levels, all words glossed, distractors not breaking uniqueness', () => {
+  assert.equal(data.levels.length, 20);
   for (const level of data.levels) {
     for (const lesson of level.lessons) {
       for (const word of [...lesson.steps.flatMap((s) => tokenize(s.ms)), ...lesson.distractors]) {
@@ -88,6 +88,6 @@ test('progress counters', () => {
 test('nextStep advances within and across lessons, null at the end', () => {
   assert.deepEqual(nextStep(data, '1-1', 0), { lessonId: '1-1', step: 1 });
   assert.deepEqual(nextStep(data, '1-1', 2), { lessonId: '1-2', step: 0 });
-  assert.equal(nextStep(data, '12-2', 3), null);
+  assert.equal(nextStep(data, '20-2', 3), null);
   assert.equal(nextStep(data, 'nope', 0), null);
 });
