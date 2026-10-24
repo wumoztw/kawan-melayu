@@ -2,6 +2,7 @@ import {
   buildBlocks,
   checkAnswer,
   completeStep,
+  exportAnkiCards,
   findLesson,
   glossFor,
   lessonProgress,
@@ -12,6 +13,7 @@ import {
   stepKey,
   tokenize,
 } from '../engine/scaffolding-engine.js';
+import { playCorrect } from './audio.js';
 import { speak } from './speech.js';
 
 function h(tag, props = {}, ...children) {
@@ -97,11 +99,22 @@ export function mountApp(root, data, storage) {
       saveProgress(storage, progress);
       solved = true;
       feedback = '✓ 答對了！';
+      playCorrect();
       speak(step.ms);
     } else {
       feedback = '再試一次：順序或單字不太對。';
     }
     render();
+  }
+
+  function downloadAnki() {
+    const blob = new Blob([exportAnkiCards(data)], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = h('a', { href: url, download: 'kawan-melayu-anki.txt' });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
   function wordChip(word, extra = {}) {
@@ -132,6 +145,7 @@ export function mountApp(root, data, storage) {
     const menu = h(
       'nav',
       { class: 'menu', id: 'level-menu', 'aria-label': '單元選單', onclick: (e) => e.stopPropagation() },
+      h('button', { class: 'menu-export', onclick: downloadAnki }, '匯出 Anki 卡片 (.txt)'),
       data.levels.map((lv) =>
         h(
           'section',

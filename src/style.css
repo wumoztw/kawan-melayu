@@ -28,6 +28,7 @@ body {
 .menu-toggle { flex: none; padding: 8px 12px; border: 1px solid #bfdbfe; border-radius: 999px; background: #fff; color: var(--accent-deep); font-weight: 600; }
 .menu { max-height: 60vh; overflow-y: auto; padding: 10px; background: #fff; border: 1px solid #e2edf8; border-radius: 12px; box-shadow: 0 8px 24px rgba(56, 125, 200, 0.1); animation: menu-in 0.15s ease-out; }
 @keyframes menu-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.menu-export { margin-bottom: 6px; padding: 8px 12px; border: 1px solid #bfdbfe; border-radius: 8px; background: #f0f7ff; color: var(--accent-deep); font-weight: 600; }
 .menu-level h3 { margin: 8px 0 6px; font-size: 0.85rem; color: var(--muted); }
 .menu-lessons { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
 .menu-item { padding: 8px 10px; text-align: left; font-size: 0.9rem; border: 1px solid #e2edf8; border-radius: 8px; background: #fff; color: var(--ink); }

@@ -10,6 +10,10 @@ export default [
     rules: { 'no-console': 'warn' },
   },
   {
+    files: ['public/sw.js'],
+    languageOptions: { globals: globals.serviceworker },
+  },
+  {
     files: ['tests/**/*.js', 'eslint.config.js'],
     languageOptions: { globals: globals.node },
   },

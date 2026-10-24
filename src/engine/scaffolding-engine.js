@@ -102,3 +102,23 @@ export function nextStep(data, lessonId, index) {
 export function glossFor(data, word) {
   return data.glossary[word.toLowerCase()] ?? null;
 }
+
+function ankiField(text) {
+  return String(text ?? '').replace(/[\t\r\n]+/g, ' ').trim();
+}
+
+function ankiTag(text) {
+  return String(text ?? '').replace(/\s+/g, '_');
+}
+
+export function exportAnkiCards(data) {
+  const rows = ['#separator:tab', '#html:false', '#tags column:3'];
+  const add = (front, back, ...tags) => rows.push([front, back, tags.map(ankiTag).join(' ')].map(ankiField).join('\t'));
+  for (const level of data.levels) {
+    for (const lesson of level.lessons) {
+      for (const step of lesson.steps) add(step.ms, step.zh, `Level-${level.id}`, lesson.title);
+    }
+  }
+  for (const [word, g] of Object.entries(data.glossary)) add(word, `${g.zh}（${g.pos}）`, 'Glossary');
+  return `${rows.join('\n')}\n`;
+}

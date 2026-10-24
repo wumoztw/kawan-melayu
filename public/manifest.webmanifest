@@ -1,0 +1,13 @@
+{
+  "name": "馬來語語言積木 - Kawan Melayu",
+  "short_name": "馬來語積木",
+  "start_url": "/kawan-melayu/",
+  "scope": "/kawan-melayu/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f0f7ff",
+  "icons": [
+    { "src": "icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

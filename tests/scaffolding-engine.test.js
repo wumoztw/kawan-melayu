@@ -7,6 +7,7 @@ import {
   checkAnswer,
   completeStep,
   createProgress,
+  exportAnkiCards,
   findLesson,
   lessonProgress,
   loadProgress,
@@ -106,4 +107,13 @@ test('nextStep advances within and across lessons, null at the end', () => {
   assert.deepEqual(nextStep(data, '1-1', 9), { lessonId: '1-2', step: 0 });
   assert.equal(nextStep(data, '20-2', 9), null);
   assert.equal(nextStep(data, 'nope', 0), null);
+});
+
+test('exportAnkiCards includes every step and glossary word as tab-separated rows', () => {
+  const out = exportAnkiCards(data);
+  const rows = out.trim().split('\n').filter((l) => !l.startsWith('#'));
+  const steps = data.levels.flatMap((l) => l.lessons).reduce((n, l) => n + l.steps.length, 0);
+  assert.equal(rows.length, steps + Object.keys(data.glossary).length);
+  assert.ok(rows.every((r) => r.split('\t').length === 3));
+  assert.match(out, /Level-1/);
 });
