@@ -1,32 +1,13 @@
 {
-  "name": "Kawan Melayu｜馬來語語言積木",
-  "short_name": "Kawan Melayu",
-  "description": "離線拼馬來語句，可安裝到桌面。",
-  "start_url": "./",
-  "scope": "./",
+  "name": "馬來語語言積木 - Kawan Melayu",
+  "short_name": "馬來語積木",
+  "start_url": "/kawan-melayu/",
+  "scope": "/kawan-melayu/",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#f6f8fb",
-  "theme_color": "#0f6b5c",
-  "lang": "zh-Hant",
+  "background_color": "#ffffff",
+  "theme_color": "#f0f7ff",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
+    { "src": "icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any" }
   ]
 }
