@@ -175,6 +175,230 @@
     "tolong": {
       "zh": "幫忙／請",
       "pos": "動詞／禮貌詞"
+    },
+    "murah": {
+      "zh": "便宜",
+      "pos": "形容詞"
+    },
+    "mahal": {
+      "zh": "貴",
+      "pos": "形容詞"
+    },
+    "besar": {
+      "zh": "大",
+      "pos": "形容詞"
+    },
+    "kecil": {
+      "zh": "小",
+      "pos": "形容詞"
+    },
+    "hitam": {
+      "zh": "黑色",
+      "pos": "形容詞"
+    },
+    "putih": {
+      "zh": "白色",
+      "pos": "形容詞"
+    },
+    "merah": {
+      "zh": "紅色",
+      "pos": "形容詞"
+    },
+    "dekat": {
+      "zh": "近",
+      "pos": "形容詞"
+    },
+    "jauh": {
+      "zh": "遠",
+      "pos": "形容詞"
+    },
+    "baik": {
+      "zh": "好",
+      "pos": "形容詞"
+    },
+    "saiz": {
+      "zh": "尺寸",
+      "pos": "名詞"
+    },
+    "warna": {
+      "zh": "顏色",
+      "pos": "名詞"
+    },
+    "nama": {
+      "zh": "名字",
+      "pos": "名詞"
+    },
+    "kawan": {
+      "zh": "朋友",
+      "pos": "名詞"
+    },
+    "hotel": {
+      "zh": "飯店",
+      "pos": "名詞"
+    },
+    "bilik": {
+      "zh": "房間",
+      "pos": "名詞"
+    },
+    "kunci": {
+      "zh": "鑰匙",
+      "pos": "名詞"
+    },
+    "tuala": {
+      "zh": "毛巾",
+      "pos": "名詞"
+    },
+    "tandas": {
+      "zh": "洗手間",
+      "pos": "名詞"
+    },
+    "kata": {
+      "zh": "詞／話",
+      "pos": "名詞"
+    },
+    "laluan": {
+      "zh": "通道（kata laluan＝密碼）",
+      "pos": "名詞"
+    },
+    "wifi": {
+      "zh": "無線網路",
+      "pos": "名詞"
+    },
+    "kepala": {
+      "zh": "頭",
+      "pos": "名詞"
+    },
+    "perut": {
+      "zh": "肚子",
+      "pos": "名詞"
+    },
+    "ubat": {
+      "zh": "藥",
+      "pos": "名詞"
+    },
+    "farmasi": {
+      "zh": "藥局",
+      "pos": "名詞"
+    },
+    "hospital": {
+      "zh": "醫院",
+      "pos": "名詞"
+    },
+    "doktor": {
+      "zh": "醫生",
+      "pos": "名詞"
+    },
+    "polis": {
+      "zh": "警察",
+      "pos": "名詞"
+    },
+    "pasport": {
+      "zh": "護照",
+      "pos": "名詞"
+    },
+    "khabar": {
+      "zh": "消息／近況",
+      "pos": "名詞"
+    },
+    "taiwan": {
+      "zh": "台灣",
+      "pos": "名詞"
+    },
+    "kita": {
+      "zh": "我們",
+      "pos": "名詞"
+    },
+    "sikit": {
+      "zh": "一點",
+      "pos": "副詞"
+    },
+    "terus": {
+      "zh": "直走／直接",
+      "pos": "副詞"
+    },
+    "sudah": {
+      "zh": "已經",
+      "pos": "副詞"
+    },
+    "belum": {
+      "zh": "還沒",
+      "pos": "副詞"
+    },
+    "jalan": {
+      "zh": "走／路",
+      "pos": "動詞"
+    },
+    "belok": {
+      "zh": "轉彎",
+      "pos": "動詞"
+    },
+    "berhenti": {
+      "zh": "停車",
+      "pos": "動詞"
+    },
+    "daftar": {
+      "zh": "登記",
+      "pos": "動詞"
+    },
+    "masuk": {
+      "zh": "進入／入住",
+      "pos": "動詞"
+    },
+    "keluar": {
+      "zh": "出去／退房",
+      "pos": "動詞"
+    },
+    "tukar": {
+      "zh": "更換",
+      "pos": "動詞"
+    },
+    "sakit": {
+      "zh": "痛／生病",
+      "pos": "動詞"
+    },
+    "hilang": {
+      "zh": "遺失",
+      "pos": "動詞"
+    },
+    "panggil": {
+      "zh": "呼叫",
+      "pos": "動詞"
+    },
+    "kiri": {
+      "zh": "左",
+      "pos": "方位詞"
+    },
+    "kanan": {
+      "zh": "右",
+      "pos": "方位詞"
+    },
+    "depan": {
+      "zh": "前面",
+      "pos": "方位詞"
+    },
+    "sana": {
+      "zh": "那裡",
+      "pos": "方位詞"
+    },
+    "siapa": {
+      "zh": "誰",
+      "pos": "疑問詞"
+    },
+    "apa": {
+      "zh": "什麼",
+      "pos": "疑問詞"
+    },
+    "dari": {
+      "zh": "來自",
+      "pos": "介系詞"
+    },
+    "bahaya": {
+      "zh": "危險",
+      "pos": "形容詞"
+    },
+    "ali": {
+      "zh": "Ali（人名）",
+      "pos": "名字"
     }
   },
   "levels": [
@@ -548,6 +772,305 @@
             {
               "ms": "Tiga ringgit. Terima kasih.",
               "zh": "三令吉。謝謝。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "購物與議價",
+      "subtitle": "Shopping & Bargaining",
+      "lessons": [
+        {
+          "id": "8-1",
+          "title": "尺寸與顏色",
+          "distractors": [
+            "kecil",
+            "putih"
+          ],
+          "steps": [
+            {
+              "ms": "Ada saiz besar?",
+              "zh": "有大尺寸嗎？"
+            },
+            {
+              "ms": "Saya mau saiz kecil",
+              "zh": "我要小尺寸"
+            },
+            {
+              "ms": "Ada warna hitam?",
+              "zh": "有黑色嗎？"
+            },
+            {
+              "ms": "Saya mau warna merah",
+              "zh": "我要紅色"
+            }
+          ]
+        },
+        {
+          "id": "8-2",
+          "title": "價格評價與殺價",
+          "distractors": [
+            "mahal",
+            "putih"
+          ],
+          "steps": [
+            {
+              "ms": "Ini mahal",
+              "zh": "這個貴"
+            },
+            {
+              "ms": "Itu murah",
+              "zh": "那個便宜"
+            },
+            {
+              "ms": "Berapa ringgit?",
+              "zh": "多少令吉？"
+            },
+            {
+              "ms": "Boleh murah sikit?",
+              "zh": "可以便宜一點嗎？"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "搭車與導航",
+      "subtitle": "Ride-Hailing & Navigation",
+      "lessons": [
+        {
+          "id": "9-1",
+          "title": "方向指引",
+          "distractors": [
+            "jauh",
+            "dekat"
+          ],
+          "steps": [
+            {
+              "ms": "Jalan terus",
+              "zh": "直走"
+            },
+            {
+              "ms": "Belok kiri",
+              "zh": "左轉"
+            },
+            {
+              "ms": "Belok kanan",
+              "zh": "右轉"
+            },
+            {
+              "ms": "Stesen bas dekat",
+              "zh": "巴士站很近"
+            }
+          ]
+        },
+        {
+          "id": "9-2",
+          "title": "與司機溝通",
+          "distractors": [
+            "kiri",
+            "jauh"
+          ],
+          "steps": [
+            {
+              "ms": "Saya mau ke sana",
+              "zh": "我要去那裡"
+            },
+            {
+              "ms": "Berhenti di sini",
+              "zh": "在這裡停車"
+            },
+            {
+              "ms": "Berhenti di depan",
+              "zh": "在前面停車"
+            },
+            {
+              "ms": "Lapangan terbang jauh",
+              "zh": "機場很遠"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "社交破冰與自我介紹",
+      "subtitle": "Social & Identity",
+      "lessons": [
+        {
+          "id": "10-1",
+          "title": "自我介紹",
+          "distractors": [
+            "siapa",
+            "kawan"
+          ],
+          "steps": [
+            {
+              "ms": "Apa khabar?",
+              "zh": "你好嗎？"
+            },
+            {
+              "ms": "Khabar baik",
+              "zh": "我很好"
+            },
+            {
+              "ms": "Nama saya Ali",
+              "zh": "我的名字是 Ali"
+            },
+            {
+              "ms": "Saya dari Taiwan",
+              "zh": "我來自台灣"
+            }
+          ]
+        },
+        {
+          "id": "10-2",
+          "title": "日常寒暄",
+          "distractors": [
+            "belum",
+            "nama"
+          ],
+          "steps": [
+            {
+              "ms": "Awak sudah makan?",
+              "zh": "你吃了嗎？"
+            },
+            {
+              "ms": "Saya sudah makan",
+              "zh": "我吃過了"
+            },
+            {
+              "ms": "Saya belum makan",
+              "zh": "我還沒吃"
+            },
+            {
+              "ms": "Siapa nama awak?",
+              "zh": "你叫什麼名字？"
+            },
+            {
+              "ms": "Awak kawan saya",
+              "zh": "你是我的朋友"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "飯店住宿與服務需求",
+      "subtitle": "Hotel & Lodging",
+      "lessons": [
+        {
+          "id": "11-1",
+          "title": "入住與退房",
+          "distractors": [
+            "kunci",
+            "keluar"
+          ],
+          "steps": [
+            {
+              "ms": "Saya mau daftar masuk",
+              "zh": "我要辦理入住"
+            },
+            {
+              "ms": "Saya mau daftar keluar",
+              "zh": "我要辦理退房"
+            },
+            {
+              "ms": "Boleh saya minta kunci bilik?",
+              "zh": "可以給我房間鑰匙嗎？"
+            },
+            {
+              "ms": "Di mana hotel?",
+              "zh": "飯店在哪裡？"
+            }
+          ]
+        },
+        {
+          "id": "11-2",
+          "title": "房務與設施",
+          "distractors": [
+            "tandas",
+            "masuk"
+          ],
+          "steps": [
+            {
+              "ms": "Tolong tukar tuala",
+              "zh": "請幫我換毛巾"
+            },
+            {
+              "ms": "Ada wifi?",
+              "zh": "有 WiFi 嗎？"
+            },
+            {
+              "ms": "Apa kata laluan wifi?",
+              "zh": "WiFi 密碼是什麼？"
+            },
+            {
+              "ms": "Di mana tandas?",
+              "zh": "洗手間在哪裡？"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "緊急情況與健康求助",
+      "subtitle": "Emergency & Health",
+      "lessons": [
+        {
+          "id": "12-1",
+          "title": "身體不適與買藥",
+          "distractors": [
+            "hospital",
+            "doktor"
+          ],
+          "steps": [
+            {
+              "ms": "Saya sakit kepala",
+              "zh": "我頭痛"
+            },
+            {
+              "ms": "Saya sakit perut",
+              "zh": "我肚子痛"
+            },
+            {
+              "ms": "Di mana farmasi?",
+              "zh": "藥局在哪裡？"
+            },
+            {
+              "ms": "Saya mau ubat",
+              "zh": "我要藥"
+            }
+          ]
+        },
+        {
+          "id": "12-2",
+          "title": "緊急報警與求助",
+          "distractors": [
+            "bahaya",
+            "hospital"
+          ],
+          "steps": [
+            {
+              "ms": "Tolong!",
+              "zh": "救命！"
+            },
+            {
+              "ms": "Tolong panggil polis",
+              "zh": "請幫我叫警察"
+            },
+            {
+              "ms": "Pasport saya hilang",
+              "zh": "我的護照遺失了"
+            },
+            {
+              "ms": "Tolong panggil doktor",
+              "zh": "請幫我叫醫生"
             }
           ]
         }
