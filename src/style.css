@@ -18,16 +18,16 @@ body {
 }
 #app { max-width: 720px; margin: 0 auto; padding: 16px 16px 28px; position: relative; z-index: 1; }
 
-.landmark {
+.durian-orchard-panorama {
   position: fixed;
-  right: 12px;
+  left: 0;
+  right: 0;
   bottom: 0;
   z-index: 0;
-  width: 140px;
-  height: 150px;
-  opacity: 0.95;
+  width: 100%;
+  height: 200px;
+  opacity: 0.8;
   pointer-events: none;
-  filter: drop-shadow(0 6px 10px rgba(80, 150, 60, 0.18));
 }
 
 .top { display: grid; position: relative; gap: 8px; padding: 12px 12px 10px; background: #fff; border: 1px solid #e2edf8; border-radius: 16px; box-shadow: 0 4px 20px rgba(56, 125, 200, 0.06); }

@@ -14,35 +14,84 @@ import {
 } from '../engine/scaffolding-engine.js';
 import { speak } from './speech.js';
 
-function cuteDurianOrchard() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('class', 'landmark');
-  svg.setAttribute('viewBox', '0 0 140 150');
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+// 單顆榴槤：橢圓果身 + 規律排列的尖刺 + 短果柄（定義於原點，頂端為吊掛點）
+function durianSymbol() {
+  const spikes = [];
+  for (let row = 0; row < 6; row += 1) {
+    const y = 6 + row * 4.4;
+    const half = Math.sin(((row + 0.7) / 6.4) * Math.PI) * 6.2;
+    for (let col = -2; col <= 2; col += 1) {
+      const x = col * 2.6 + (row % 2) * 1.3;
+      if (Math.abs(x) <= half) spikes.push(`M${x - 1.2} ${y + 1.6} L${x} ${y - 1.6} L${x + 1.2} ${y + 1.6} Z`);
+    }
+  }
+  return `<symbol id="durian" overflow="visible">
+    <path d="M0 0 V4" stroke="#5b4527" stroke-width="1.6"/>
+    <ellipse cx="0" cy="16" rx="8.4" ry="12.4" fill="#8d9a3c"/>
+    <ellipse cx="-2.4" cy="13" rx="4" ry="8" fill="#a8b455" opacity=".55"/>
+    <path d="${spikes.join(' ')}" fill="#5f6a26"/>
+    <path d="M0 4 V28" stroke="#6b7a2a" stroke-width=".7" opacity=".6"/>
+  </symbol>`;
+}
+
+// 單棵榴槤樹：樹幹、分枝、多層樹冠與垂掛果實
+function durianTree(x, scale, fruits) {
+  const crown = [
+    ['#2f5d34', -64, -122, 58, 30], ['#2f5d34', 50, -118, 62, 32], ['#3b7040', 0, -146, 70, 34],
+    ['#4a8248', -32, -104, 56, 26], ['#4a8248', 38, -100, 54, 26], ['#5c9455', 0, -122, 50, 22],
+  ];
+  const leaves = crown
+    .map(([c, cx, cy, rx, ry]) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${c}"/>`)
+    .join('');
+  const hang = fruits
+    .map(([fx, fy, fs]) => `<use href="#durian" x="${fx}" y="${fy}" transform="translate(${fx} ${fy}) scale(${fs}) translate(${-fx} ${-fy})"/>`)
+    .join('');
+  return `<g transform="translate(${x} 232) scale(${scale})">
+    <path d="M-9 0 Q-6 -40 -7 -80 Q-8 -100 -3 -116 L5 -116 Q10 -96 8 -78 Q8 -40 11 0 Z" fill="#6b4f33"/>
+    <path d="M-3 -4 Q-2 -50 -3 -96 M4 -6 Q5 -50 3 -90" stroke="#4d3722" stroke-width="1" fill="none" opacity=".7"/>
+    <g stroke="#5b4129" stroke-width="5" stroke-linecap="round" fill="none">
+      <path d="M0 -84 Q-30 -92 -58 -88"/><path d="M2 -90 Q34 -98 62 -92"/><path d="M0 -104 Q-20 -112 -40 -112"/><path d="M2 -106 Q24 -114 44 -110"/>
+    </g>
+    ${leaves}${hang}
+  </g>`;
+}
+
+function renderRealisticDurianOrchard() {
+  const trees = [
+    [70, 0.95, [[-40, -84, 1], [-18, -90, 0.85], [-60, -86, 0.8]]],
+    [210, 0.8, [[-38, -86, 0.9], [-14, -92, 0.8], [30, -94, 1], [54, -88, 0.85]]],
+    [350, 1.05, [[-52, -88, 1], [-30, -94, 0.85], [24, -96, 0.95], [48, -90, 1]]],
+    [500, 0.85, [[-44, -86, 0.9], [-20, -90, 1], [28, -94, 0.85], [52, -88, 0.9]]],
+    [650, 1.1, [[-54, -88, 0.95], [-32, -94, 0.85], [-12, -90, 1], [26, -96, 0.9], [50, -90, 1]]],
+    [800, 0.82, [[-42, -86, 0.9], [-16, -92, 0.85], [32, -94, 1], [56, -88, 0.8]]],
+    [940, 1, [[-48, -88, 1], [-24, -92, 0.85], [22, -96, 0.9], [46, -90, 0.95]]],
+  ];
+  const ground = [[120, 244], [280, 246], [430, 243], [575, 247], [730, 244], [880, 246], [60, 247]]
+    .map(([gx, gy], i) => `<use href="#durian" transform="translate(${gx} ${gy}) rotate(${70 + i * 17}) scale(.8)"/>`)
+    .join('');
+  const grass = Array.from({ length: 70 }, (_, i) => {
+    const gx = 8 + i * 14.2;
+    const gy = 236 + ((i * 7) % 5);
+    return `M${gx} ${gy} l-3 -9 M${gx} ${gy} l1 -11 M${gx} ${gy} l4 -8`;
+  }).join(' ');
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('class', 'durian-orchard-panorama');
+  svg.setAttribute('viewBox', '0 0 1000 240');
+  svg.setAttribute('preserveAspectRatio', 'xMidYMax slice');
   svg.setAttribute('aria-hidden', 'true');
   svg.innerHTML = `
-    <path d="M0 150 V112 Q30 86 66 108 T140 100 V150 Z" fill="#c8ecb8"/>
-    <path d="M0 150 V128 Q40 108 80 126 T140 120 V150 Z" fill="#a6dc94"/>
-    <rect x="24" y="48" width="8" height="64" rx="3" fill="#b58a5e"/>
-    <g fill="#7ccf6e">
-      <circle cx="28" cy="38" r="20"/><circle cx="10" cy="50" r="14"/><circle cx="46" cy="50" r="14"/>
-    </g>
-    <path d="M18 62 V70 M38 60 V68" stroke="#9a7650" stroke-width="1.5" stroke-linecap="round"/>
-    <g fill="#c9b458"><circle cx="18" cy="75" r="6"/><circle cx="38" cy="73" r="6"/></g>
-    <g stroke="#7a8a3a" stroke-width="1.5" stroke-linecap="round"><path d="M13 72 l-2 -2 M23 72 l2 -2 M33 70 l-2 -2 M43 70 l2 -2 M18 82 v2 M38 80 v2"/></g>
-    <ellipse cx="94" cy="141" rx="30" ry="4" fill="#8fc97d" opacity=".7"/>
-    <path d="M94 66 l-4 -9 l8 4 l3 -9 l4 9 l8 -4 l-4 9 Z" fill="#8fbf5a" transform="translate(-4 2)"/>
-    <circle cx="94" cy="100" r="36" fill="#8fbf5a"/>
-    <g fill="#6f9f3f">
-      <path d="M62 86 l-9 -3 l8 -6 Z"/><path d="M60 104 l-10 0 l9 -6 Z"/><path d="M66 120 l-9 3 l5 -9 Z"/>
-      <path d="M126 86 l9 -3 l-8 -6 Z"/><path d="M128 104 l10 0 l-9 -6 Z"/><path d="M122 120 l9 3 l-5 -9 Z"/>
-      <path d="M72 70 l-6 -7 l10 -1 Z"/><path d="M116 70 l6 -7 l-10 -1 Z"/><path d="M94 63 l-5 -7 l10 0 Z"/>
-    </g>
-    <path d="M70 98 Q94 78 118 98 Q118 128 94 134 Q70 128 70 98 Z" fill="#ffd54a"/>
-    <path d="M78 104 Q94 94 110 104" fill="none" stroke="#f2b824" stroke-width="2" stroke-linecap="round"/>
-    <circle cx="86" cy="107" r="4.2" fill="#3b2a14"/><circle cx="102" cy="107" r="4.2" fill="#3b2a14"/>
-    <circle cx="87.4" cy="105.6" r="1.5" fill="#fff"/><circle cx="103.4" cy="105.6" r="1.5" fill="#fff"/>
-    <path d="M89 115 Q94 121 99 115" fill="none" stroke="#3b2a14" stroke-width="1.8" stroke-linecap="round"/>
-    <circle cx="80" cy="114" r="3.4" fill="#ff9eb0" opacity=".85"/><circle cx="108" cy="114" r="3.4" fill="#ff9eb0" opacity=".85"/>
+    <defs>${durianSymbol()}</defs>
+    <path d="M0 150 L90 96 L170 132 L270 70 L370 128 L470 84 L580 134 L690 62 L790 120 L880 80 L1000 126 V240 H0 Z" fill="#b8d5e5"/>
+    <path d="M0 176 L120 128 L240 160 L380 118 L520 162 L660 124 L800 160 L920 130 L1000 154 V240 H0 Z" fill="#9fc3c4" opacity=".8"/>
+    <path d="M0 240 V196 Q140 170 300 194 T620 188 T1000 186 V240 Z" fill="#a4c39e"/>
+    <path d="M0 240 V214 Q180 198 360 214 T720 210 T1000 208 V240 Z" fill="#86af80"/>
+    ${trees.map(([x, s, f]) => durianTree(x, s, f)).join('')}
+    <path d="M0 240 V228 Q250 220 500 228 T1000 226 V240 Z" fill="#6e9a6a"/>
+    <path d="${grass}" stroke="#4f7d4a" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+    <g fill="#8a6a3c" opacity=".7"><ellipse cx="160" cy="238" rx="9" ry="2"/><ellipse cx="420" cy="239" rx="11" ry="2"/><ellipse cx="760" cy="238" rx="10" ry="2"/></g>
+    ${ground}
   `;
   return svg;
 }
@@ -289,7 +338,7 @@ export function mountApp(root, data, storage) {
   }
 
   function render() {
-    root.replaceChildren(renderHeader(), renderStage(), cuteDurianOrchard());
+    root.replaceChildren(renderHeader(), renderStage(), renderRealisticDurianOrchard());
   }
 
   document.addEventListener('click', () => {
