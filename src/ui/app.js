@@ -17,34 +17,33 @@ import { speak } from './speech.js';
 function cuteTowers() {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('class', 'landmark');
-  svg.setAttribute('viewBox', '0 0 120 160');
+  svg.setAttribute('viewBox', '0 0 140 160');
   svg.setAttribute('aria-hidden', 'true');
   svg.innerHTML = `
-    <ellipse cx="60" cy="152" rx="46" ry="6" fill="#c5dcf3"/>
-    <rect x="18" y="148" width="84" height="6" rx="3" fill="#dbeafe"/>
+    <ellipse cx="70" cy="153" rx="58" ry="5" fill="#c5dcf3"/>
     <g fill="#7eb6ef">
-      <path d="M28 148 V62 Q28 48 40 46 Q52 48 52 62 V148 Z"/>
-      <path d="M68 148 V62 Q68 48 80 46 Q92 48 92 62 V148 Z"/>
+      <rect x="30" y="70" width="28" height="80" rx="4"/>
+      <rect x="33" y="50" width="22" height="24" rx="4"/>
+      <rect x="36" y="34" width="16" height="20" rx="4"/>
+      <path d="M39 36 Q44 14 49 36 Z" fill="#93c5fd"/>
     </g>
-    <g fill="#eff6ff">
-      <rect x="33" y="70" width="6" height="8" rx="1.5"/><rect x="42" y="70" width="6" height="8" rx="1.5"/>
-      <rect x="33" y="86" width="6" height="8" rx="1.5"/><rect x="42" y="86" width="6" height="8" rx="1.5"/>
-      <rect x="33" y="102" width="6" height="8" rx="1.5"/><rect x="42" y="102" width="6" height="8" rx="1.5"/>
-      <rect x="33" y="118" width="6" height="8" rx="1.5"/><rect x="42" y="118" width="6" height="8" rx="1.5"/>
-      <rect x="73" y="70" width="6" height="8" rx="1.5"/><rect x="82" y="70" width="6" height="8" rx="1.5"/>
-      <rect x="73" y="86" width="6" height="8" rx="1.5"/><rect x="82" y="86" width="6" height="8" rx="1.5"/>
-      <rect x="73" y="102" width="6" height="8" rx="1.5"/><rect x="82" y="102" width="6" height="8" rx="1.5"/>
-      <rect x="73" y="118" width="6" height="8" rx="1.5"/><rect x="82" y="118" width="6" height="8" rx="1.5"/>
+    <path d="M44 24 V6" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="44" cy="5" r="2" fill="#bfdbfe"/>
+    <g fill="#eff6ff"><rect x="36" y="120" width="6" height="8" rx="1.5"/><rect x="46" y="120" width="6" height="8" rx="1.5"/><rect x="36" y="134" width="6" height="8" rx="1.5"/><rect x="46" y="134" width="6" height="8" rx="1.5"/><rect x="39" y="58" width="4" height="7" rx="1.5"/><rect x="45" y="58" width="4" height="7" rx="1.5"/></g>
+    <g fill="#7eb6ef">
+      <rect x="82" y="70" width="28" height="80" rx="4"/>
+      <rect x="85" y="50" width="22" height="24" rx="4"/>
+      <rect x="88" y="34" width="16" height="20" rx="4"/>
+      <path d="M91 36 Q96 14 101 36 Z" fill="#93c5fd"/>
     </g>
-    <path d="M34 78 H86 V88 Q86 96 78 96 H42 Q34 96 34 88 Z" fill="#60a5fa"/>
-    <circle cx="40" cy="84" r="2.2" fill="#1e3a8a"/><circle cx="80" cy="84" r="2.2" fill="#1e3a8a"/>
-    <path d="M36 87 Q40 90 44 87" fill="none" stroke="#1e3a8a" stroke-width="1.2" stroke-linecap="round"/>
-    <path d="M76 87 Q80 90 84 87" fill="none" stroke="#1e3a8a" stroke-width="1.2" stroke-linecap="round"/>
-    <circle cx="37" cy="88" r="1.6" fill="#fda4af" opacity=".8"/><circle cx="83" cy="88" r="1.6" fill="#fda4af" opacity=".8"/>
-    <path d="M40 46 L40 28 L46 22 L52 28 L52 46" fill="#93c5fd"/>
-    <path d="M68 46 L68 28 L74 22 L80 28 L80 46" fill="#93c5fd"/>
-    <circle cx="46" cy="16" r="3" fill="#bfdbfe"/><circle cx="74" cy="16" r="3" fill="#bfdbfe"/>
-    <path d="M46 16 V6 M74 16 V6" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M96 24 V6" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="96" cy="5" r="2" fill="#bfdbfe"/>
+    <g fill="#eff6ff"><rect x="88" y="120" width="6" height="8" rx="1.5"/><rect x="98" y="120" width="6" height="8" rx="1.5"/><rect x="88" y="134" width="6" height="8" rx="1.5"/><rect x="98" y="134" width="6" height="8" rx="1.5"/><rect x="91" y="58" width="4" height="7" rx="1.5"/><rect x="97" y="58" width="4" height="7" rx="1.5"/></g>
+    <rect x="44" y="84" width="52" height="30" rx="15" fill="#60a5fa"/>
+    <circle cx="60" cy="97" r="3.4" fill="#1e3a8a"/><circle cx="80" cy="97" r="3.4" fill="#1e3a8a"/>
+    <circle cx="61" cy="96" r="1.1" fill="#fff"/><circle cx="81" cy="96" r="1.1" fill="#fff"/>
+    <path d="M65 102 Q70 107 75 102" fill="none" stroke="#1e3a8a" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="54" cy="103" r="3" fill="#fda4af" opacity=".8"/><circle cx="86" cy="103" r="3" fill="#fda4af" opacity=".8"/>
   `;
   return svg;
 }
@@ -186,7 +185,7 @@ export function mountApp(root, data, storage) {
         h(
           'div',
           { class: 'top-title' },
-          h('h1', {}, '語言積木'),
+          h('h1', {}, '馬來語語言積木'),
           h('span', { class: 'top-sub' }, `L${level.id} ${level.title} (${lp.done}/${lp.total})`),
         ),
         toggle,
