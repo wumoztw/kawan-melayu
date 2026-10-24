@@ -4,12 +4,17 @@
   "description": "AI 馬來語情境練習",
   "main": "game.js",
   "scripts": {
-    "test": "node smoke_test.js",
-    "lint": "eslint ."
+    "test": "node --test tests/*.test.js",
+    "lint": "eslint .",
+    "dev": "vite",
+    "build": "vite build"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "eslint": "^9.0.0",
-    "jsdom": "^24.0.0"
+    "globals": "^17.13.0",
+    "vite": "^8.3.5"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "type": "module"
 }

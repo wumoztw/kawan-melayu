@@ -1,0 +1,161 @@
+{
+  "glossary": {
+    "saya": { "zh": "我", "pos": "代名詞" },
+    "awak": { "zh": "你", "pos": "代名詞" },
+    "anda": { "zh": "您／你", "pos": "代名詞（較正式）" },
+    "ini": { "zh": "這個", "pos": "指示詞" },
+    "itu": { "zh": "那個", "pos": "指示詞" },
+    "mau": { "zh": "要", "pos": "助動詞" },
+    "nak": { "zh": "要（口語）", "pos": "助動詞" },
+    "boleh": { "zh": "可以", "pos": "助動詞" },
+    "air": { "zh": "水", "pos": "名詞" },
+    "sejuk": { "zh": "冰／冷", "pos": "形容詞（置於名詞後）" },
+    "panas": { "zh": "熱", "pos": "形容詞（置於名詞後）" },
+    "kopi": { "zh": "咖啡", "pos": "名詞" },
+    "nasi": { "zh": "飯", "pos": "名詞" },
+    "minta": { "zh": "請求、要", "pos": "動詞" },
+    "ada": { "zh": "有", "pos": "動詞" },
+    "terima": { "zh": "接受", "pos": "動詞" },
+    "kasih": { "zh": "愛、給予", "pos": "名詞／動詞（terima kasih＝謝謝）" },
+    "berapa": { "zh": "多少", "pos": "疑問詞" },
+    "ringgit": { "zh": "令吉（馬幣）", "pos": "名詞（量詞）" },
+    "satu": { "zh": "一", "pos": "數詞" },
+    "dua": { "zh": "二", "pos": "數詞" },
+    "tiga": { "zh": "三", "pos": "數詞" },
+    "empat": { "zh": "四", "pos": "數詞" },
+    "lima": { "zh": "五", "pos": "數詞" }
+  },
+  "levels": [
+    {
+      "id": 1,
+      "title": "拼讀與核心主詞",
+      "subtitle": "Pronouns & Core",
+      "lessons": [
+        {
+          "id": "1-1",
+          "title": "Saya mau",
+          "distractors": ["awak", "boleh"],
+          "steps": [
+            { "ms": "Saya mau", "zh": "我要" },
+            { "ms": "Saya mau ini", "zh": "我要這個" },
+            { "ms": "Saya mau itu", "zh": "我要那個" }
+          ]
+        },
+        {
+          "id": "1-2",
+          "title": "Boleh",
+          "distractors": ["saya", "itu"],
+          "steps": [
+            { "ms": "Saya boleh", "zh": "我可以" },
+            { "ms": "Awak boleh", "zh": "你可以" },
+            { "ms": "Anda boleh", "zh": "您可以" },
+            { "ms": "Awak nak ini", "zh": "你要這個" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "基礎需求與飲料食物",
+      "subtitle": "Objects & Modifiers",
+      "lessons": [
+        {
+          "id": "2-1",
+          "title": "Air sejuk（形容詞置後）",
+          "distractors": ["ini", "kopi"],
+          "steps": [
+            { "ms": "Saya mau air", "zh": "我要水" },
+            { "ms": "Saya mau air sejuk", "zh": "我要冷水" },
+            { "ms": "Saya mau air panas", "zh": "我要熱水" }
+          ]
+        },
+        {
+          "id": "2-2",
+          "title": "Kopi & nasi",
+          "distractors": ["air", "itu"],
+          "steps": [
+            { "ms": "Saya mau kopi", "zh": "我要咖啡" },
+            { "ms": "Saya mau kopi panas", "zh": "我要熱咖啡" },
+            { "ms": "Saya mau nasi", "zh": "我要飯" },
+            { "ms": "Saya mau nasi panas", "zh": "我要熱飯" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "問句與禮貌請求",
+      "subtitle": "Polite Requests & Questions",
+      "lessons": [
+        {
+          "id": "3-1",
+          "title": "Boleh saya minta...?",
+          "distractors": ["mau", "panas"],
+          "steps": [
+            { "ms": "Saya minta air", "zh": "我要水（請求）" },
+            { "ms": "Boleh saya minta air?", "zh": "我可以要水嗎？" },
+            { "ms": "Boleh saya minta air sejuk?", "zh": "我可以要冷水嗎？" },
+            { "ms": "Terima kasih", "zh": "謝謝" }
+          ]
+        },
+        {
+          "id": "3-2",
+          "title": "Ada...?",
+          "distractors": ["mau", "saya"],
+          "steps": [
+            { "ms": "Ada kopi?", "zh": "有咖啡嗎？" },
+            { "ms": "Ada nasi?", "zh": "有飯嗎？" },
+            { "ms": "Ada air sejuk?", "zh": "有冷水嗎？" },
+            { "ms": "Terima kasih", "zh": "謝謝" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "數字與價格",
+      "subtitle": "Numbers & Money",
+      "lessons": [
+        {
+          "id": "4-1",
+          "title": "Satu, dua, tiga",
+          "distractors": ["empat", "ringgit"],
+          "steps": [
+            { "ms": "Saya mau satu kopi", "zh": "我要一杯咖啡" },
+            { "ms": "Saya mau dua kopi", "zh": "我要兩杯咖啡" },
+            { "ms": "Saya mau tiga nasi", "zh": "我要三份飯" }
+          ]
+        },
+        {
+          "id": "4-2",
+          "title": "Berapa ringgit?",
+          "distractors": ["satu", "ada"],
+          "steps": [
+            { "ms": "Berapa ringgit?", "zh": "多少令吉？" },
+            { "ms": "Ini berapa ringgit?", "zh": "這個多少令吉？" },
+            { "ms": "Lima ringgit", "zh": "五令吉" },
+            { "ms": "Itu lima ringgit", "zh": "那個五令吉" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "便利店實戰",
+      "subtitle": "Real-life Combinations",
+      "lessons": [
+        {
+          "id": "5-1",
+          "title": "點餐與付款",
+          "distractors": ["nak", "empat"],
+          "steps": [
+            { "ms": "Boleh saya minta satu air sejuk?", "zh": "我可以要一杯冷水嗎？" },
+            { "ms": "Ada kopi panas?", "zh": "有熱咖啡嗎？" },
+            { "ms": "Saya mau dua kopi panas. Berapa ringgit?", "zh": "我要兩杯熱咖啡。多少令吉？" },
+            { "ms": "Lima ringgit. Terima kasih.", "zh": "五令吉。謝謝。" }
+          ]
+        }
+      ]
+    }
+  ]
+}
